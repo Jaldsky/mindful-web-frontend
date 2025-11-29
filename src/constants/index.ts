@@ -17,6 +17,8 @@ export const STORAGE_KEYS = {
   USERNAME: 'username',
   USER_CREATED_AT: 'user-created-at',
   TIMEZONE: 'user-timezone',
+  NOTIFICATIONS_ENABLED: 'notifications-enabled',
+  EMAIL_NOTIFICATIONS: 'email-notifications',
 } as const;
 
 export const DATE_RANGES = {
