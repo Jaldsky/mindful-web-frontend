@@ -6,7 +6,7 @@
 
 import { apiClient } from '../api/client';
 import { AnalyticsUsageResponse } from '../types/api';
-import { createApiError, ApiError } from '../utils/errorUtils';
+import { createApiError } from '../utils/errorUtils';
 
 export interface AnalyticsRequestParams {
   from: string;
