@@ -1,0 +1,41 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+SCRIPT_DIR="$(dirname -- "$0")"
+FRONTEND_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+if [ -f "$FRONTEND_DIR/package.json" ] && [ -f "$FRONTEND_DIR/vite.config.ts" ]; then
+  cd "$FRONTEND_DIR" || exit 1
+else
+  if [ -d "mindful-web-frontend" ] && [ -f "mindful-web-frontend/package.json" ]; then
+    cd "mindful-web-frontend" || exit 1
+  else
+    echo "❌ Error: Cannot find frontend directory"
+    exit 1
+  fi
+fi
+
+echo ""
+echo "=========================================="
+echo "🔍 PRE-COMMIT CHECKS - FRONTEND"
+echo "=========================================="
+echo ""
+
+echo "🔍 Running linter..."
+npm run lint:fix
+
+LINT_EXIT_CODE=$?
+if [ $LINT_EXIT_CODE -ne 0 ]; then
+  echo ""
+  echo "=========================================="
+  echo "❌ LINTER FAILED! COMMIT ABORTED."
+  echo "=========================================="
+  echo ""
+  exit $LINT_EXIT_CODE
+fi
+
+echo ""
+echo "=========================================="
+echo "✅ ALL CHECKS PASSED!"
+echo "=========================================="
+echo ""
