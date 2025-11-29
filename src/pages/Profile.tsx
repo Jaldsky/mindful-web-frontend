@@ -217,7 +217,7 @@ export const Profile: React.FC = () => {
         <div className="bg-background-primary rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 divide-y divide-gray-100 dark:divide-gray-800">
           {/* User ID */}
           <div className="px-4 py-3 flex items-center gap-3 hover:bg-background-secondary transition-colors">
-            <div className="p-1.5 bg-purple-100 dark:bg-purple-900/20 rounded-lg text-purple-600 flex-shrink-0">
+            <div className="p-1.5 bg-purple-100 dark:bg-purple-900/20 rounded-lg text-purple-600 dark:text-purple-400 flex-shrink-0">
               <Hash size={16} />
             </div>
             <div className="flex-1 min-w-0">
@@ -253,7 +253,7 @@ export const Profile: React.FC = () => {
 
           {/* Username */}
           <div className="px-4 py-3 flex items-center gap-3 hover:bg-background-secondary transition-colors">
-            <div className="p-1.5 bg-blue-100 dark:bg-blue-900/20 rounded-lg text-blue-600 flex-shrink-0">
+            <div className="p-1.5 bg-blue-100 dark:bg-blue-900/20 rounded-lg text-blue-600 dark:text-blue-400 flex-shrink-0">
               <User size={16} />
             </div>
             <div className="flex-1 min-w-0">
@@ -266,7 +266,7 @@ export const Profile: React.FC = () => {
 
           {/* Email */}
           <div className="px-4 py-3 flex items-center gap-3 hover:bg-background-secondary transition-colors">
-            <div className="p-1.5 bg-green-100 dark:bg-green-900/20 rounded-lg text-green-600 flex-shrink-0">
+            <div className="p-1.5 bg-green-100 dark:bg-green-900/20 rounded-lg text-green-600 dark:text-green-400 flex-shrink-0">
               <Mail size={16} />
             </div>
             <div className="flex-1 min-w-0">
@@ -286,14 +286,14 @@ export const Profile: React.FC = () => {
                     className="p-1 hover:bg-green-100 dark:hover:bg-green-900/20 rounded transition-colors"
                     title="Сохранить"
                   >
-                    <Check size={14} className="text-green-600" />
+                    <Check size={14} className="text-green-600 dark:text-green-400" />
                   </button>
                   <button
                     onClick={handleCancelEmail}
                     className="p-1 hover:bg-red-100 dark:hover:bg-red-900/20 rounded transition-colors"
                     title="Отмена"
                   >
-                    <X size={14} className="text-red-600" />
+                    <X size={14} className="text-red-600 dark:text-red-400" />
                   </button>
                 </div>
               ) : (
@@ -338,7 +338,7 @@ export const Profile: React.FC = () => {
 
           {/* Timezone */}
           <div className="px-4 py-3 flex items-center gap-3 hover:bg-background-secondary transition-colors">
-            <div className="p-1.5 bg-orange-100 dark:bg-orange-900/20 rounded-lg text-orange-600 flex-shrink-0">
+            <div className="p-1.5 bg-orange-100 dark:bg-orange-900/20 rounded-lg text-orange-600 dark:text-orange-400 flex-shrink-0">
               <Globe size={16} />
             </div>
             <div className="flex-1 min-w-0">
@@ -362,14 +362,14 @@ export const Profile: React.FC = () => {
                     className="p-1 hover:bg-green-100 dark:hover:bg-green-900/20 rounded transition-colors"
                     title="Сохранить"
                   >
-                    <Check size={14} className="text-green-600" />
+                    <Check size={14} className="text-green-600 dark:text-green-400" />
                   </button>
                   <button
                     onClick={handleCancelTimezone}
                     className="p-1 hover:bg-red-100 dark:hover:bg-red-900/20 rounded transition-colors"
                     title="Отмена"
                   >
-                    <X size={14} className="text-red-600" />
+                    <X size={14} className="text-red-600 dark:text-red-400" />
                   </button>
                 </div>
               ) : (
