@@ -1,12 +1,20 @@
-import { Dashboard } from './pages/Dashboard';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { UserProvider } from './contexts/UserContext';
+import { Home } from './pages/Home';
+import { Dashboard } from './pages/Dashboard';
 
 function App() {
   return (
     <ThemeProvider>
       <UserProvider>
-        <Dashboard />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </BrowserRouter>
       </UserProvider>
     </ThemeProvider>
   );
