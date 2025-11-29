@@ -33,8 +33,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   });
 
   useEffect(() => {
-    // Apply theme to document
-    document.documentElement.setAttribute(THEME.ATTRIBUTE, theme);
+    // Apply theme to document - matching plugin style
+    if (theme === THEME.DARK) {
+      document.documentElement.setAttribute(THEME.ATTRIBUTE, THEME.DARK);
+    } else {
+      document.documentElement.removeAttribute(THEME.ATTRIBUTE);
+    }
     localStorage.setItem(STORAGE_KEYS.THEME, theme);
   }, [theme]);
 
