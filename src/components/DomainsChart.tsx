@@ -47,7 +47,7 @@ export const DomainsChart: React.FC<DomainsChartProps> = ({ data }) => {
               formatter={(value: number) => formatTime(value)}
             />
             <Bar dataKey="total_seconds" radius={[0, 4, 4, 0]} barSize={CHART_CONFIG.BAR_SIZE}>
-              {data.map((entry, index) => (
+              {data.map((_, index) => (
                 <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#4CAF50' : '#2196F3'} />
               ))}
             </Bar>

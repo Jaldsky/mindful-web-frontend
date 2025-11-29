@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Activity, Settings, Moon, Sun, User, Home, BarChart3 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
+import { SettingsSidebar } from './SettingsSidebar';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -10,6 +11,7 @@ interface LayoutProps {
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { isDark, toggleTheme } = useTheme();
   const location = useLocation();
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   
   const isDashboard = location.pathname === '/dashboard';
   const isProfile = location.pathname === '/profile';
@@ -62,7 +64,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               >
                 <div className="flex items-center gap-2">
                   <User size={16} />
-                  <span>Профиль</span>
+                  <span>Личный кабинет</span>
                 </div>
               </Link>
             </nav>
@@ -73,16 +75,19 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             >
               {isDark ? <Sun size={20} /> : <Moon size={20} />}
             </button>
-            <Link
-              to="/profile"
+            <button
+              onClick={() => setIsSettingsOpen(true)}
               className="p-2 rounded-lg hover:bg-background-secondary text-slate-600 dark:text-slate-300 transition-colors"
-              title="Profile"
+              title="Settings"
             >
               <Settings size={20} />
-            </Link>
+            </button>
           </div>
         </div>
       </header>
+
+      {/* Settings Sidebar */}
+      <SettingsSidebar isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

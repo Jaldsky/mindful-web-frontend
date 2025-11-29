@@ -4,6 +4,9 @@ import { UserProvider } from './contexts/UserContext';
 import { Home } from './pages/Home';
 import { Dashboard } from './pages/Dashboard';
 import { Profile } from './pages/Profile';
+import { Settings } from './pages/Settings';
+import { NotificationsSettings } from './pages/settings/NotificationsSettings';
+import { ExtensionSettings } from './pages/settings/ExtensionSettings';
 
 function App() {
   return (
@@ -14,6 +17,9 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/settings/notifications" element={<NotificationsSettings />} />
+            <Route path="/settings/extension" element={<ExtensionSettings />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </BrowserRouter>
