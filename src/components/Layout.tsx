@@ -2,7 +2,6 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Activity, Settings, Moon, Sun, User, Home, BarChart3 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
-import { useUser } from '../contexts/UserContext';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -10,10 +9,10 @@ interface LayoutProps {
 
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { isDark, toggleTheme } = useTheme();
-  const { userId } = useUser();
   const location = useLocation();
   
   const isDashboard = location.pathname === '/dashboard';
+  const isProfile = location.pathname === '/profile';
 
   return (
     <div className="min-h-screen bg-background-tertiary font-sans">
@@ -53,14 +52,20 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                   <span>Dashboard</span>
                 </div>
               </Link>
+              <Link
+                to="/profile"
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  isProfile
+                    ? 'bg-background-secondary text-primary'
+                    : 'text-gray-600 dark:text-gray-300 hover:bg-background-secondary'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <User size={16} />
+                  <span>Профиль</span>
+                </div>
+              </Link>
             </nav>
-            {userId && (
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-background-secondary text-xs font-mono text-gray-600 dark:text-gray-400" title={`User ID: ${userId}`}>
-                <User size={14} />
-                <span className="hidden sm:inline">{userId}</span>
-                <span className="sm:hidden">{userId.substring(0, 8)}...</span>
-              </div>
-            )}
             <button 
               onClick={toggleTheme}
               className="p-2 rounded-lg hover:bg-background-secondary text-slate-600 dark:text-slate-300 transition-colors"
@@ -68,12 +73,13 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             >
               {isDark ? <Sun size={20} /> : <Moon size={20} />}
             </button>
-            <button 
+            <Link
+              to="/profile"
               className="p-2 rounded-lg hover:bg-background-secondary text-slate-600 dark:text-slate-300 transition-colors"
-              title="Settings"
+              title="Profile"
             >
               <Settings size={20} />
-            </button>
+            </Link>
           </div>
         </div>
       </header>
