@@ -13,6 +13,7 @@ export const API_CONFIG = {
 export const STORAGE_KEYS = {
   USER_ID: 'x-user-id',
   THEME: 'mindful_theme',
+  LOCALE: 'mindful_locale',
   USER_EMAIL: 'user-email',
   USERNAME: 'username',
   USER_CREATED_AT: 'user-created-at',

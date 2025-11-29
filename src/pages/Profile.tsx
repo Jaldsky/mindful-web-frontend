@@ -6,11 +6,13 @@
 import React, { useState, useEffect } from 'react';
 import { Layout } from '../components/Layout';
 import { useUser } from '../contexts/UserContext';
+import { useTranslation } from '../hooks/useTranslation';
 import { User, Mail, Hash, Globe, Edit2, Check, X } from 'lucide-react';
 import { STORAGE_KEYS } from '../constants';
 
 export const Profile: React.FC = () => {
   const { userId } = useUser();
+  const { t } = useTranslation();
   const [email, setEmail] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
   const [timezone, setTimezone] = useState<string>('');
@@ -207,10 +209,10 @@ export const Profile: React.FC = () => {
       <div className="space-y-4 max-w-md mx-auto">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
-            Личный кабинет
+            {t('profile.title')}
           </h1>
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            Управление вашим профилем и настройками
+            {t('profile.subtitle')}
           </p>
         </div>
 
@@ -221,7 +223,7 @@ export const Profile: React.FC = () => {
               <Hash size={16} />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs text-gray-500 dark:text-gray-400 leading-tight">Идентификатор пользователя</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 leading-tight">{t('profile.userId')}</p>
               <p className="text-sm font-medium text-gray-900 dark:text-white break-all font-mono mt-0.5">
                 {userId || '—'}
               </p>
@@ -232,7 +234,7 @@ export const Profile: React.FC = () => {
                   navigator.clipboard.writeText(userId);
                 }}
                 className="p-1 hover:bg-background-secondary rounded transition-colors flex-shrink-0"
-                title="Копировать"
+                title={t('common.copy')}
               >
                 <svg
                   className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400"
@@ -257,7 +259,7 @@ export const Profile: React.FC = () => {
               <User size={16} />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs text-gray-500 dark:text-gray-400 leading-tight">Логин</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 leading-tight">{t('profile.username')}</p>
               <p className="text-sm font-medium text-gray-900 dark:text-white mt-0.5">
                 {username || email?.split('@')[0] || '—'}
               </p>
@@ -270,7 +272,7 @@ export const Profile: React.FC = () => {
               <Mail size={16} />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs text-gray-500 dark:text-gray-400 leading-tight">Email</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 leading-tight">{t('profile.email')}</p>
               {editingEmail ? (
                 <div className="flex items-center gap-1.5 mt-1">
                   <input
@@ -278,20 +280,20 @@ export const Profile: React.FC = () => {
                     value={emailInput}
                     onChange={(e) => setEmailInput(e.target.value)}
                     className="flex-1 px-2.5 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-background-primary text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
-                    placeholder="Введите email"
+                    placeholder={t('profile.enterEmail')}
                     autoFocus
                   />
                   <button
                     onClick={handleSaveEmail}
                     className="p-1 hover:bg-green-100 dark:hover:bg-green-900/20 rounded transition-colors"
-                    title="Сохранить"
+                    title={t('common.save')}
                   >
                     <Check size={14} className="text-green-600 dark:text-green-400" />
                   </button>
                   <button
                     onClick={handleCancelEmail}
                     className="p-1 hover:bg-red-100 dark:hover:bg-red-900/20 rounded transition-colors"
-                    title="Отмена"
+                    title={t('common.cancel')}
                   >
                     <X size={14} className="text-red-600 dark:text-red-400" />
                   </button>
@@ -304,7 +306,7 @@ export const Profile: React.FC = () => {
                   <button
                     onClick={startEditingEmail}
                     className="p-1 hover:bg-background-secondary rounded transition-colors"
-                    title="Редактировать"
+                    title={t('common.edit')}
                   >
                     <Edit2 size={12} className="text-gray-500 dark:text-gray-400" />
                   </button>
@@ -314,7 +316,7 @@ export const Profile: React.FC = () => {
                         navigator.clipboard.writeText(email);
                       }}
                       className="p-1 hover:bg-background-secondary rounded transition-colors"
-                      title="Копировать"
+                      title={t('common.copy')}
                     >
                       <svg
                         className="w-3 h-3 text-gray-500 dark:text-gray-400"
@@ -342,7 +344,7 @@ export const Profile: React.FC = () => {
               <Globe size={16} />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs text-gray-500 dark:text-gray-400 leading-tight">Часовой пояс</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 leading-tight">{t('profile.timezone')}</p>
               {editingTimezone ? (
                 <div className="flex items-center gap-1.5 mt-1">
                   <select
@@ -360,14 +362,14 @@ export const Profile: React.FC = () => {
                   <button
                     onClick={handleSaveTimezone}
                     className="p-1 hover:bg-green-100 dark:hover:bg-green-900/20 rounded transition-colors"
-                    title="Сохранить"
+                    title={t('common.save')}
                   >
                     <Check size={14} className="text-green-600 dark:text-green-400" />
                   </button>
                   <button
                     onClick={handleCancelTimezone}
                     className="p-1 hover:bg-red-100 dark:hover:bg-red-900/20 rounded transition-colors"
-                    title="Отмена"
+                    title={t('common.cancel')}
                   >
                     <X size={14} className="text-red-600 dark:text-red-400" />
                   </button>
@@ -380,7 +382,7 @@ export const Profile: React.FC = () => {
                   <button
                     onClick={startEditingTimezone}
                     className="p-1 hover:bg-background-secondary rounded transition-colors"
-                    title="Редактировать"
+                    title={t('common.edit')}
                   >
                     <Edit2 size={12} className="text-gray-500 dark:text-gray-400" />
                   </button>

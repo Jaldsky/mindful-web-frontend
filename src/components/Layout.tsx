@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Activity, Settings, Moon, Sun, User, Home, BarChart3 } from 'lucide-react';
+import { Activity, Settings, Moon, Sun, User, Home, BarChart3, Globe } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
+import { useTranslation } from '../hooks/useTranslation';
+import { useLocale, SUPPORTED_LOCALES } from '../contexts/LocaleContext';
 import { SettingsSidebar } from './SettingsSidebar';
 
 interface LayoutProps {
@@ -10,11 +12,17 @@ interface LayoutProps {
 
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { isDark, toggleTheme } = useTheme();
+  const { t } = useTranslation();
+  const { locale, setLocale } = useLocale();
   const location = useLocation();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   
   const isDashboard = location.pathname === '/dashboard';
   const isProfile = location.pathname === '/profile';
+
+  const toggleLocale = () => {
+    setLocale(locale === SUPPORTED_LOCALES.EN ? SUPPORTED_LOCALES.RU : SUPPORTED_LOCALES.EN);
+  };
 
   return (
     <div className="min-h-screen bg-background-tertiary font-sans">
@@ -38,7 +46,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               >
                 <div className="flex items-center gap-2">
                   <Home size={16} />
-                  <span>Home</span>
+                  <span>{t('navigation.home')}</span>
                 </div>
               </Link>
               <Link
@@ -51,7 +59,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               >
                 <div className="flex items-center gap-2">
                   <BarChart3 size={16} />
-                  <span>Dashboard</span>
+                  <span>{t('navigation.dashboard')}</span>
                 </div>
               </Link>
               <Link
@@ -64,10 +72,17 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               >
                 <div className="flex items-center gap-2">
                   <User size={16} />
-                  <span>Личный кабинет</span>
+                  <span>{t('navigation.profile')}</span>
                 </div>
               </Link>
             </nav>
+            <button 
+              onClick={toggleLocale}
+              className="p-2 rounded-lg hover:bg-background-secondary text-slate-600 dark:text-slate-300 transition-colors"
+              title={t('settings.language')}
+            >
+              <Globe size={20} />
+            </button>
             <button 
               onClick={toggleTheme}
               className="p-2 rounded-lg hover:bg-background-secondary text-slate-600 dark:text-slate-300 transition-colors"

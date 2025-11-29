@@ -6,6 +6,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { X, Settings, Bell, Puzzle } from 'lucide-react';
+import { useTranslation } from '../hooks/useTranslation';
 
 interface SettingsSidebarProps {
   isOpen: boolean;
@@ -14,25 +15,26 @@ interface SettingsSidebarProps {
 
 export const SettingsSidebar: React.FC<SettingsSidebarProps> = ({ isOpen, onClose }) => {
   const location = useLocation();
+  const { t } = useTranslation();
 
   const menuItems = [
     {
       icon: Settings,
-      label: 'Общие настройки',
+      label: t('settings.general'),
       path: '/settings',
-      description: 'Настройки приложения',
+      description: t('settings.generalDescription'),
     },
     {
       icon: Bell,
-      label: 'Уведомления',
+      label: t('settings.notifications'),
       path: '/settings/notifications',
-      description: 'Настройки уведомлений',
+      description: t('settings.notificationsDescription'),
     },
     {
       icon: Puzzle,
-      label: 'Расширение браузера',
+      label: t('settings.extension'),
       path: '/settings/extension',
-      description: 'Управление расширением',
+      description: t('settings.extensionDescription'),
     },
   ];
 
@@ -58,13 +60,13 @@ export const SettingsSidebar: React.FC<SettingsSidebarProps> = ({ isOpen, onClos
             <div className="flex items-center gap-2">
               <Settings size={20} className="text-primary" />
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                Настройки
+                {t('settings.title')}
               </h2>
             </div>
             <button
               onClick={onClose}
               className="p-1.5 hover:bg-background-secondary rounded-lg transition-colors"
-              title="Закрыть"
+              title={t('common.close')}
             >
               <X size={20} className="text-gray-500 dark:text-gray-400" />
             </button>
