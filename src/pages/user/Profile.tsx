@@ -4,173 +4,44 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Layout } from '../components/Layout';
-import { useUser } from '../contexts/UserContext';
-import { useTranslation } from '../hooks/useTranslation';
+import { Layout } from '../../components/layout';
+import { useUser } from '../../contexts';
+import { useTranslation, useTimezone, timezoneDetector } from '../../hooks';
+import { storageManager } from '../../contexts';
 import { User, Mail, Hash, Globe, Edit2, Check, X } from 'lucide-react';
-import { STORAGE_KEYS } from '../constants';
+import { STORAGE_KEYS } from '../../constants';
 
 export const Profile: React.FC = () => {
   const { userId } = useUser();
   const { t } = useTranslation();
+  const { timezone: detectedTimezone } = useTimezone();
+  
   const [email, setEmail] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
   const [timezone, setTimezone] = useState<string>('');
+  
   const [editingEmail, setEditingEmail] = useState(false);
   const [editingTimezone, setEditingTimezone] = useState(false);
   const [emailInput, setEmailInput] = useState('');
   const [timezoneInput, setTimezoneInput] = useState('');
 
   useEffect(() => {
-    // Load saved email and username from localStorage
-    const savedEmail = localStorage.getItem(STORAGE_KEYS.USER_EMAIL);
-    const savedUsername = localStorage.getItem(STORAGE_KEYS.USERNAME);
-    const savedTimezone = localStorage.getItem(STORAGE_KEYS.TIMEZONE);
+    const savedEmail = storageManager.getItem(STORAGE_KEYS.USER_EMAIL);
+    const savedUsername = storageManager.getItem(STORAGE_KEYS.USERNAME);
+    const savedTimezone = storageManager.getItem(STORAGE_KEYS.TIMEZONE);
 
     if (savedEmail) setEmail(savedEmail);
     if (savedUsername) setUsername(savedUsername);
-
-    // Get timezone from localStorage or browser
     if (savedTimezone) {
       setTimezone(savedTimezone);
     } else {
-      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      setTimezone(tz);
-      localStorage.setItem(STORAGE_KEYS.TIMEZONE, tz);
+      setTimezone(detectedTimezone);
     }
-  }, []);
-
-  const getTimezoneOffset = (tz?: string): string => {
-    const tzToUse = tz || timezone;
-    if (!tzToUse) return '';
-    
-    try {
-      const date = new Date();
-      
-      // Method 1: Use Intl.DateTimeFormat with timeZoneName
-      const formatter = new Intl.DateTimeFormat('en', {
-        timeZone: tzToUse,
-        timeZoneName: 'shortOffset',
-      });
-      const parts = formatter.formatToParts(date);
-      const offsetPart = parts.find(part => part.type === 'timeZoneName');
-      
-      if (offsetPart && offsetPart.value) {
-        const offsetStr = offsetPart.value.replace('GMT', 'UTC');
-        if (offsetStr.startsWith('UTC')) {
-          return offsetStr;
-        }
-      }
-      
-      // Method 2: Calculate offset by comparing UTC and timezone times
-      const utcFormatter = new Intl.DateTimeFormat('en', {
-        timeZone: 'UTC',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false,
-      });
-      
-      const tzFormatter = new Intl.DateTimeFormat('en', {
-        timeZone: tzToUse,
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false,
-      });
-      
-      const utcTime = utcFormatter.format(date);
-      const tzTime = tzFormatter.format(date);
-      
-      const [utcHours, utcMinutes] = utcTime.split(':').map(Number);
-      const [tzHours, tzMinutes] = tzTime.split(':').map(Number);
-      
-      const utcTotalMinutes = utcHours * 60 + utcMinutes;
-      let tzTotalMinutes = tzHours * 60 + tzMinutes;
-      
-      // Handle day boundary
-      const utcDate = new Date(date.toLocaleString('en-US', { timeZone: 'UTC' }));
-      const tzDate = new Date(date.toLocaleString('en-US', { timeZone: tzToUse }));
-      const dayDiff = Math.round((tzDate.getTime() - utcDate.getTime()) / (1000 * 60 * 60 * 24));
-      tzTotalMinutes += dayDiff * 24 * 60;
-      
-      let diffMinutes = tzTotalMinutes - utcTotalMinutes;
-      
-      // Normalize to -12 to +14 hours range
-      while (diffMinutes > 14 * 60) diffMinutes -= 24 * 60;
-      while (diffMinutes < -12 * 60) diffMinutes += 24 * 60;
-      
-      const hours = Math.floor(Math.abs(diffMinutes) / 60);
-      const minutes = Math.abs(diffMinutes) % 60;
-      const sign = diffMinutes >= 0 ? '+' : '-';
-      
-      return `UTC${sign}${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-    } catch {
-      return '';
-    }
-  };
-
-  const getTimezones = (): string[] => {
-    try {
-      // Use Intl.supportedValuesOf if available (modern browsers)
-      const intlWithSupportedValues = Intl as typeof Intl & {
-        supportedValuesOf?: (key: 'timeZone') => string[];
-      };
-      if (typeof intlWithSupportedValues.supportedValuesOf === 'function') {
-        return intlWithSupportedValues.supportedValuesOf('timeZone').sort();
-      }
-    } catch {
-      // Fallback to common timezones
-    }
-    
-    // Fallback list of common timezones
-    return [
-      'Europe/Moscow',
-      'Europe/Kiev',
-      'Europe/Minsk',
-      'Europe/Warsaw',
-      'Europe/Berlin',
-      'Europe/Paris',
-      'Europe/London',
-      'Europe/Rome',
-      'Europe/Madrid',
-      'Europe/Athens',
-      'Europe/Istanbul',
-      'Asia/Dubai',
-      'Asia/Tashkent',
-      'Asia/Almaty',
-      'Asia/Baku',
-      'Asia/Yerevan',
-      'Asia/Tbilisi',
-      'Asia/Tehran',
-      'Asia/Karachi',
-      'Asia/Kolkata',
-      'Asia/Dhaka',
-      'Asia/Bangkok',
-      'Asia/Shanghai',
-      'Asia/Tokyo',
-      'Asia/Seoul',
-      'Asia/Hong_Kong',
-      'Asia/Singapore',
-      'Australia/Sydney',
-      'Australia/Melbourne',
-      'Australia/Perth',
-      'Pacific/Auckland',
-      'America/New_York',
-      'America/Chicago',
-      'America/Denver',
-      'America/Los_Angeles',
-      'America/Toronto',
-      'America/Mexico_City',
-      'America/Sao_Paulo',
-      'America/Buenos_Aires',
-      'Africa/Cairo',
-      'Africa/Johannesburg',
-      'UTC',
-    ].sort();
-  };
+  }, [detectedTimezone]);
 
   const handleSaveEmail = () => {
     if (emailInput && emailInput.includes('@')) {
-      localStorage.setItem(STORAGE_KEYS.USER_EMAIL, emailInput);
+      storageManager.setItem(STORAGE_KEYS.USER_EMAIL, emailInput);
       setEmail(emailInput);
       setEditingEmail(false);
     }
@@ -188,7 +59,7 @@ export const Profile: React.FC = () => {
 
   const handleSaveTimezone = () => {
     if (timezoneInput) {
-      localStorage.setItem(STORAGE_KEYS.TIMEZONE, timezoneInput);
+      storageManager.setItem(STORAGE_KEYS.TIMEZONE, timezoneInput);
       setTimezone(timezoneInput);
       setEditingTimezone(false);
     }
@@ -202,6 +73,10 @@ export const Profile: React.FC = () => {
   const startEditingTimezone = () => {
     setTimezoneInput(timezone);
     setEditingTimezone(true);
+  };
+
+  const handleCopyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
   };
 
   return (
@@ -230,9 +105,7 @@ export const Profile: React.FC = () => {
             </div>
             {userId && (
               <button
-                onClick={() => {
-                  navigator.clipboard.writeText(userId);
-                }}
+                onClick={() => handleCopyToClipboard(userId)}
                 className="p-1 hover:bg-background-secondary rounded transition-colors flex-shrink-0"
                 title={t('common.copy')}
               >
@@ -312,9 +185,7 @@ export const Profile: React.FC = () => {
                   </button>
                   {email && (
                     <button
-                      onClick={() => {
-                        navigator.clipboard.writeText(email);
-                      }}
+                      onClick={() => handleCopyToClipboard(email)}
                       className="p-1 hover:bg-background-secondary rounded transition-colors"
                       title={t('common.copy')}
                     >
@@ -353,7 +224,7 @@ export const Profile: React.FC = () => {
                     className="flex-1 px-2.5 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-background-primary text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
                     autoFocus
                   >
-                    {getTimezones().map((tz) => (
+                    {timezoneDetector.getSupportedTimezones().map((tz) => (
                       <option key={tz} value={tz}>
                         {tz}
                       </option>
@@ -377,7 +248,7 @@ export const Profile: React.FC = () => {
               ) : (
                 <div className="flex items-center gap-1.5 mt-0.5">
                   <p className="text-sm font-medium text-gray-900 dark:text-white">
-                    {timezone ? `${timezone} (${getTimezoneOffset()})` : '—'}
+                    {timezone ? timezoneDetector.formatTimezoneWithOffset(timezone) : '—'}
                   </p>
                   <button
                     onClick={startEditingTimezone}
@@ -395,4 +266,3 @@ export const Profile: React.FC = () => {
     </Layout>
   );
 };
-
