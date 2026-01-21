@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { AuthProvider } from '../../../src/contexts/auth/AuthProvider';
-import { useAuth } from '../../../src/contexts/auth/useAuth';
+import { useAuth } from '../../../src/contexts/hooks';
 import { tokenManager } from '../../../src/contexts/auth/TokenManager';
 import { welcomeManager } from '../../../src/contexts/auth/WelcomeManager';
 import { authService } from '../../../src/services/AuthService';

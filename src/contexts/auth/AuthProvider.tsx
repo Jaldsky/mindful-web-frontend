@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { AuthContext } from './AuthContext';
+import { AuthContext } from '../contexts';
 import { tokenManager } from './TokenManager';
 import { welcomeManager } from './WelcomeManager';
 import { authService } from '../../services/AuthService';
