@@ -74,11 +74,14 @@ export function createApiError(error: unknown): ApiError {
  * @returns True if error is ApiError
  */
 export function isApiError(error: unknown): error is ApiError {
-  return (
-    typeof error === 'object' &&
-    error !== null &&
-    'message' in error &&
-    typeof (error as ApiError).message === 'string' &&
-    !(error instanceof Error)
-  );
+  if (typeof error !== 'object' || error === null) {
+    return false;
+  }
+  
+  if (error instanceof Error) {
+    return false;
+  }
+  
+  const obj = error as Record<string, unknown>;
+  return 'message' in obj && typeof obj.message === 'string';
 }
