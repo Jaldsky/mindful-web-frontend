@@ -1,90 +1,336 @@
-/**
- * API Client
- * Configured axios instance with interceptors
- * Following the pattern from the extension plugin
- */
-
-import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
+import axios, { AxiosInstance, AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { API_CONFIG, STORAGE_KEYS } from '../constants';
+import { AuthAnonymousResponse, AuthRefreshResponse } from '../types/api';
 
-class ApiClient {
+export interface ITokenStorage {
+  getAccessToken(): string | null;
+  getRefreshToken(): string | null;
+  getAnonToken(): string | null;
+  getAnonId(): string | null;
+  setAccessToken(token: string): void;
+  setRefreshToken(token: string): void;
+  setAnonToken(token: string): void;
+  setAnonId(id: string): void;
+  clearAuthTokens(): void;
+  clearAnonTokens(): void;
+}
+
+export interface ILogger {
+  logRequest(method: string, url: string, params?: unknown): void;
+  logResponse(status: number, url: string): void;
+  logError(message: string, status?: number, url?: string): void;
+}
+
+export interface ITokenRefreshStrategy {
+  refresh(originalRequest: InternalAxiosRequestConfig): Promise<InternalAxiosRequestConfig>;
+  canHandle(): boolean;
+}
+
+export class LocalStorageTokenStorage implements ITokenStorage {
+  getAccessToken(): string | null {
+    return localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
+  }
+
+  getRefreshToken(): string | null {
+    return localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
+  }
+
+  getAnonToken(): string | null {
+    return localStorage.getItem(STORAGE_KEYS.ANON_TOKEN);
+  }
+
+  getAnonId(): string | null {
+    return localStorage.getItem(STORAGE_KEYS.ANON_ID);
+  }
+
+  setAccessToken(token: string): void {
+    localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, token);
+  }
+
+  setRefreshToken(token: string): void {
+    localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, token);
+  }
+
+  setAnonToken(token: string): void {
+    localStorage.setItem(STORAGE_KEYS.ANON_TOKEN, token);
+  }
+
+  setAnonId(id: string): void {
+    localStorage.setItem(STORAGE_KEYS.ANON_ID, id);
+  }
+
+  clearAuthTokens(): void {
+    localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
+    localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
+  }
+
+  clearAnonTokens(): void {
+    localStorage.removeItem(STORAGE_KEYS.ANON_TOKEN);
+    localStorage.removeItem(STORAGE_KEYS.ANON_ID);
+  }
+}
+
+export class ConsoleLogger implements ILogger {
+  constructor(private isDevelopment: boolean = import.meta.env.DEV) {}
+
+  logRequest(method: string, url: string, params?: unknown): void {
+    if (!this.isDevelopment) return;
+    console.log('API Request:', { method, url, params });
+  }
+
+  logResponse(status: number, url: string): void {
+    if (!this.isDevelopment) return;
+    console.log('API Response:', { status, url });
+  }
+
+  logError(message: string, status?: number, url?: string): void {
+    if (!this.isDevelopment) return;
+    console.error('API Error:', { message, status, url });
+  }
+}
+
+export class TokenProvider {
+  constructor(private storage: ITokenStorage) {}
+
+  getAuthToken(): string | null {
+    return this.storage.getAccessToken() || this.storage.getAnonToken();
+  }
+
+  hasAccessToken(): boolean {
+    return !!this.storage.getAccessToken();
+  }
+
+  hasAnonToken(): boolean {
+    return !!this.storage.getAnonToken();
+  }
+}
+
+export class AccessTokenRefreshStrategy implements ITokenRefreshStrategy {
+  constructor(
+    private storage: ITokenStorage,
+    private refreshClient: AxiosInstance
+  ) {}
+
+  canHandle(): boolean {
+    return !!this.storage.getAccessToken();
+  }
+
+  async refresh(originalRequest: InternalAxiosRequestConfig): Promise<InternalAxiosRequestConfig> {
+    const refreshToken = this.storage.getRefreshToken();
+    
+    const response = await this.refreshClient.post<AuthRefreshResponse>(
+      '/auth/refresh',
+      refreshToken ? { refresh_token: refreshToken } : undefined
+    );
+
+    this.storage.setAccessToken(response.data.access_token);
+    this.storage.setRefreshToken(response.data.refresh_token);
+
+    originalRequest.headers = originalRequest.headers || {};
+    originalRequest.headers.Authorization = `Bearer ${response.data.access_token}`;
+
+    return originalRequest;
+  }
+}
+
+export class AnonTokenRefreshStrategy implements ITokenRefreshStrategy {
+  constructor(
+    private storage: ITokenStorage,
+    private refreshClient: AxiosInstance
+  ) {}
+
+  canHandle(): boolean {
+    return !!this.storage.getAnonToken();
+  }
+
+  async refresh(originalRequest: InternalAxiosRequestConfig): Promise<InternalAxiosRequestConfig> {
+    const response = await this.refreshClient.post<AuthAnonymousResponse>('/auth/anonymous');
+
+    this.storage.setAnonToken(response.data.anon_token);
+    this.storage.setAnonId(response.data.anon_id);
+
+    originalRequest.headers = originalRequest.headers || {};
+    originalRequest.headers.Authorization = `Bearer ${response.data.anon_token}`;
+
+    return originalRequest;
+  }
+}
+
+export class TokenRefreshManager {
+  private strategies: ITokenRefreshStrategy[] = [];
+
+  addStrategy(strategy: ITokenRefreshStrategy): this {
+    this.strategies.push(strategy);
+    return this;
+  }
+
+  async refresh(originalRequest: InternalAxiosRequestConfig): Promise<InternalAxiosRequestConfig> {
+    for (const strategy of this.strategies) {
+      if (strategy.canHandle()) {
+        return await strategy.refresh(originalRequest);
+      }
+    }
+    throw new Error('No suitable refresh strategy found');
+  }
+}
+
+export class RequestInterceptor {
+  constructor(
+    private tokenProvider: TokenProvider,
+    private logger: ILogger
+  ) {}
+
+  onFulfilled = (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
+    const authToken = this.tokenProvider.getAuthToken();
+    
+    if (config.headers && authToken) {
+      config.headers.Authorization = `Bearer ${authToken}`;
+    }
+
+    this.logger.logRequest(
+      config.method?.toUpperCase() || '',
+      `${config.baseURL}${config.url}`,
+      config.params
+    );
+
+    return config;
+  };
+
+  onRejected = (error: unknown): Promise<never> => {
+    return Promise.reject(error);
+  };
+}
+
+export class ResponseInterceptor {
+  private isRefreshing = false;
+  private refreshQueue: Array<{
+    resolve: (value: unknown) => void;
+    reject: (reason?: unknown) => void;
+  }> = [];
+
+  constructor(
+    private client: AxiosInstance,
+    private refreshManager: TokenRefreshManager,
+    private storage: ITokenStorage,
+    private logger: ILogger
+  ) {}
+
+  onFulfilled = (response: AxiosResponse): AxiosResponse => {
+    this.logger.logResponse(response.status, response.config.url || '');
+    return response;
+  };
+
+  onRejected = async (error: AxiosError): Promise<never> => {
+    this.logger.logError(
+      error.message,
+      error.response?.status,
+      error.config?.url
+    );
+
+    const originalRequest = error.config as (InternalAxiosRequestConfig & { _retry?: boolean }) | undefined;
+    
+    if (!originalRequest || error.response?.status !== 401 || originalRequest._retry) {
+      return Promise.reject(error);
+    }
+
+    if (this.isRefreshing) {
+      return new Promise((resolve, reject) => {
+        this.refreshQueue.push({ resolve, reject });
+      }).then(() => this.client(originalRequest));
+    }
+
+    originalRequest._retry = true;
+    this.isRefreshing = true;
+
+    try {
+      await this.refreshManager.refresh(originalRequest);
+      
+      this.refreshQueue.forEach(({ resolve }) => resolve(null));
+      this.refreshQueue = [];
+      
+      return this.client(originalRequest);
+    } catch (refreshError) {
+      this.storage.clearAuthTokens();
+      this.storage.clearAnonTokens();
+      
+      this.refreshQueue.forEach(({ reject }) => reject(refreshError));
+      this.refreshQueue = [];
+      
+      return Promise.reject(refreshError);
+    } finally {
+      this.isRefreshing = false;
+    }
+  };
+}
+
+export class ApiClient {
   private client: AxiosInstance;
+  private refreshClient: AxiosInstance;
 
-  constructor() {
-    this.client = axios.create({
-      baseURL: API_CONFIG.BASE_URL,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      timeout: API_CONFIG.TIMEOUT,
-    });
-
+  constructor(
+    private storage: ITokenStorage,
+    private logger: ILogger,
+    private config: typeof API_CONFIG = API_CONFIG
+  ) {
+    this.client = this.createClient();
+    this.refreshClient = this.createRefreshClient();
     this.setupInterceptors();
   }
 
-  private setupInterceptors(): void {
-    // Request interceptor - adds User ID header
-    this.client.interceptors.request.use(
-      (config: InternalAxiosRequestConfig) => {
-        const userId = this.getOrCreateUserId();
-        if (config.headers) {
-          config.headers['X-User-ID'] = userId;
-        }
-
-        // Log request in development
-        if (import.meta.env.DEV) {
-          console.log('API Request:', {
-            method: config.method?.toUpperCase(),
-            url: `${config.baseURL}${config.url}`,
-            params: config.params,
-          });
-        }
-
-        return config;
-      },
-      (error) => Promise.reject(error)
-    );
-
-    // Response interceptor - handles errors and logging
-    this.client.interceptors.response.use(
-      (response) => {
-        // Log response in development
-        if (import.meta.env.DEV) {
-          console.log('API Response:', {
-            status: response.status,
-            url: response.config.url,
-          });
-        }
-        return response;
-      },
-      (error) => {
-        // Log error in development
-        if (import.meta.env.DEV) {
-          console.error('API Error:', {
-            message: error.message,
-            status: error.response?.status,
-            url: error.config?.url,
-          });
-        }
-        return Promise.reject(error);
-      }
-    );
+  private createClient(): AxiosInstance {
+    return axios.create({
+      baseURL: this.config.BASE_URL,
+      headers: { 'Content-Type': 'application/json' },
+      timeout: this.config.TIMEOUT,
+      withCredentials: true,
+    });
   }
 
-  private getOrCreateUserId(): string {
-    let userId = localStorage.getItem(STORAGE_KEYS.USER_ID);
-    if (!userId) {
-      userId = crypto.randomUUID();
-      localStorage.setItem(STORAGE_KEYS.USER_ID, userId);
-    }
-    return userId;
+  private createRefreshClient(): AxiosInstance {
+    return axios.create({
+      baseURL: this.config.BASE_URL,
+      headers: { 'Content-Type': 'application/json' },
+      timeout: this.config.TIMEOUT,
+      withCredentials: true,
+    });
+  }
+
+  private setupInterceptors(): void {
+    const tokenProvider = new TokenProvider(this.storage);
+    const requestInterceptor = new RequestInterceptor(tokenProvider, this.logger);
+
+    const refreshManager = new TokenRefreshManager()
+      .addStrategy(new AccessTokenRefreshStrategy(this.storage, this.refreshClient))
+      .addStrategy(new AnonTokenRefreshStrategy(this.storage, this.refreshClient));
+
+    const responseInterceptor = new ResponseInterceptor(
+      this.client,
+      refreshManager,
+      this.storage,
+      this.logger
+    );
+
+    this.client.interceptors.request.use(
+      requestInterceptor.onFulfilled,
+      requestInterceptor.onRejected
+    );
+
+    this.client.interceptors.response.use(
+      responseInterceptor.onFulfilled,
+      responseInterceptor.onRejected
+    );
   }
 
   get instance(): AxiosInstance {
     return this.client;
   }
+
+  static create(
+    storage: ITokenStorage = new LocalStorageTokenStorage(),
+    logger: ILogger = new ConsoleLogger()
+  ): ApiClient {
+    return new ApiClient(storage, logger);
+  }
 }
 
-// Export singleton instance
-export const apiClient = new ApiClient().instance;
-
+export const apiClient = ApiClient.create().instance;
