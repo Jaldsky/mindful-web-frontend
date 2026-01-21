@@ -5,9 +5,10 @@
  */
 
 import React, { useEffect } from 'react';
-import { useTranslation } from '../../hooks/useTranslation';
-import { useLocale, SUPPORTED_LOCALES } from '../../contexts/LocaleContext';
-import { useTheme, THEME } from '../../contexts/ThemeContext';
+import { useTranslation } from "../../hooks";
+import { useLocale, SUPPORTED_LOCALES } from '../../contexts';
+import { useTheme } from '../../contexts';
+import { THEME } from '../../constants';
 import { WelcomeModalProps } from './types';
 import { MODAL_STYLES, MODAL_ANIMATION } from './constants';
 import { ModalHeader, ModalFeatureItem, ModalActionButtons } from './controls';
