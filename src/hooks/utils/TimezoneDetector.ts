@@ -4,7 +4,14 @@
  * Follows Single Responsibility Principle
  */
 
-export class TimezoneDetector {
+export interface ITimezoneDetector {
+  detectTimezone(): string;
+  getTimezoneOffset(timezone?: string): string;
+  formatTimezoneWithOffset(timezone: string): string;
+  getSupportedTimezones(): string[];
+}
+
+export class TimezoneDetector implements ITimezoneDetector {
   /**
    * Detect browser timezone
    */
@@ -48,6 +55,64 @@ export class TimezoneDetector {
 
     const offset = this.getTimezoneOffset(timezone);
     return offset ? `${timezone} (${offset})` : timezone;
+  }
+
+  getSupportedTimezones(): string[] {
+    try {
+      const intlWithSupportedValues = Intl as typeof Intl & {
+        supportedValuesOf?: (key: 'timeZone') => string[];
+      };
+      if (typeof intlWithSupportedValues.supportedValuesOf === 'function') {
+        return intlWithSupportedValues.supportedValuesOf('timeZone').sort();
+      }
+    } catch {
+      // Fallback to common timezones
+    }
+
+    return [
+      'UTC',
+      'Europe/Moscow',
+      'Europe/Kiev',
+      'Europe/Minsk',
+      'Europe/Warsaw',
+      'Europe/Berlin',
+      'Europe/Paris',
+      'Europe/London',
+      'Europe/Rome',
+      'Europe/Madrid',
+      'Europe/Athens',
+      'Europe/Istanbul',
+      'Asia/Dubai',
+      'Asia/Tashkent',
+      'Asia/Almaty',
+      'Asia/Baku',
+      'Asia/Yerevan',
+      'Asia/Tbilisi',
+      'Asia/Tehran',
+      'Asia/Karachi',
+      'Asia/Kolkata',
+      'Asia/Dhaka',
+      'Asia/Bangkok',
+      'Asia/Shanghai',
+      'Asia/Tokyo',
+      'Asia/Seoul',
+      'Asia/Hong_Kong',
+      'Asia/Singapore',
+      'Australia/Sydney',
+      'Australia/Melbourne',
+      'Australia/Perth',
+      'Pacific/Auckland',
+      'America/New_York',
+      'America/Chicago',
+      'America/Denver',
+      'America/Los_Angeles',
+      'America/Toronto',
+      'America/Mexico_City',
+      'America/Sao_Paulo',
+      'America/Buenos_Aires',
+      'Africa/Cairo',
+      'Africa/Johannesburg',
+    ].sort();
   }
 }
 

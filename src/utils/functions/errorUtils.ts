@@ -78,6 +78,7 @@ export function isApiError(error: unknown): error is ApiError {
     typeof error === 'object' &&
     error !== null &&
     'message' in error &&
-    !(error instanceof Error) && true
+    typeof (error as ApiError).message === 'string' &&
+    !(error instanceof Error)
   );
 }

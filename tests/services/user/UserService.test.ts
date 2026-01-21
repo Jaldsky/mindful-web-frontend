@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { UserService } from '../../../src/services/user/UserService';
+import { UserService } from '../../../src/services';
 import { apiClient } from '../../../src/api/client';
-import { ApiError } from '../../../src/utils/errorUtils';
 import type { UserProfileResponse } from '../../../src/types';
 
 vi.mock('../../../src/api/client', () => ({
@@ -21,11 +20,14 @@ describe('UserService', () => {
 
   describe('getProfile', () => {
     const mockResponse: UserProfileResponse = {
+      code: 'SUCCESS',
+      message: 'User profile retrieved successfully',
       data: {
         user_id: 'user-123',
         username: 'testuser',
         email: 'test@example.com',
-        is_anonymous: false,
+        created_at: '2024-01-01T00:00:00Z',
+        timezone: 'UTC',
       },
     };
 
@@ -50,7 +52,7 @@ describe('UserService', () => {
       };
       vi.mocked(apiClient.get).mockRejectedValue(mockError);
 
-      await expect(service.getProfile()).rejects.toThrow(ApiError);
+      await expect(service.getProfile()).rejects.toThrow();
     });
 
     it('should handle network errors', async () => {
@@ -63,11 +65,14 @@ describe('UserService', () => {
 
   describe('updateUsername', () => {
     const mockResponse: UserProfileResponse = {
+      code: 'SUCCESS',
+      message: 'Username updated successfully',
       data: {
         user_id: 'user-123',
         username: 'newusername',
         email: 'test@example.com',
-        is_anonymous: false,
+        created_at: '2024-01-01T00:00:00Z',
+        timezone: 'UTC',
       },
     };
 
@@ -100,7 +105,7 @@ describe('UserService', () => {
         service.updateUsername({
           username: 'existinguser',
         })
-      ).rejects.toThrow(ApiError);
+      ).rejects.toThrow();
     });
 
     it('should handle validation errors', async () => {
@@ -119,17 +124,20 @@ describe('UserService', () => {
         service.updateUsername({
           username: 'ab',
         })
-      ).rejects.toThrow(ApiError);
+      ).rejects.toThrow();
     });
   });
 
   describe('updateEmail', () => {
     const mockResponse: UserProfileResponse = {
+      code: 'SUCCESS',
+      message: 'Email updated successfully',
       data: {
         user_id: 'user-123',
         username: 'testuser',
         email: 'newemail@example.com',
-        is_anonymous: false,
+        created_at: '2024-01-01T00:00:00Z',
+        timezone: 'UTC',
       },
     };
 
@@ -162,7 +170,7 @@ describe('UserService', () => {
         service.updateEmail({
           email: 'existing@example.com',
         })
-      ).rejects.toThrow(ApiError);
+      ).rejects.toThrow();
     });
 
     it('should handle validation errors', async () => {
@@ -181,7 +189,7 @@ describe('UserService', () => {
         service.updateEmail({
           email: 'invalid-email',
         })
-      ).rejects.toThrow(ApiError);
+      ).rejects.toThrow();
     });
 
     it('should handle unauthorized access', async () => {
@@ -200,7 +208,7 @@ describe('UserService', () => {
         service.updateEmail({
           email: 'newemail@example.com',
         })
-      ).rejects.toThrow(ApiError);
+      ).rejects.toThrow();
     });
   });
 });

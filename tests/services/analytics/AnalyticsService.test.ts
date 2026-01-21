@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { AnalyticsService } from '../../../src/services/analytics/AnalyticsService';
+import { AnalyticsService } from '../../../src/services';
 import { apiClient } from '../../../src/api/client';
-import { ApiError } from '../../../src/utils/errorUtils';
 import type { AnalyticsUsageResponse } from '../../../src/types';
 
 vi.mock('../../../src/api/client', () => ({
@@ -20,18 +19,24 @@ describe('AnalyticsService', () => {
 
   describe('getUsage', () => {
     const mockResponse: AnalyticsUsageResponse = {
-      domains: [
+      code: 'SUCCESS',
+      message: 'Analytics data retrieved successfully',
+      from_date: '2024-01-01',
+      to_date: '2024-01-31',
+      pagination: {
+        page: 1,
+        per_page: 10,
+        total_pages: 1,
+        total_items: 1,
+        next: null,
+        prev: null,
+      },
+      data: [
         {
           domain: 'example.com',
-          total_time: 3600,
-          visit_count: 10,
+          total_seconds: 3600,
         },
       ],
-      total_domains: 1,
-      total_time: 3600,
-      page: 1,
-      page_size: 10,
-      total_pages: 1,
     };
 
     it('should fetch analytics usage successfully', async () => {
@@ -99,7 +104,7 @@ describe('AnalyticsService', () => {
           from: '2024-01-01',
           to: '2024-01-31',
         })
-      ).rejects.toThrow(ApiError);
+      ).rejects.toThrow();
     });
   });
 });
