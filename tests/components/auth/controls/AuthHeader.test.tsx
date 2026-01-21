@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { AuthHeader } from '../../../../src/components/auth/controls/AuthHeader';
-import { LocaleProvider } from '../../../../src/contexts/LocaleContext';
-import { ThemeProvider } from '../../../../src/contexts/ThemeContext';
+import { LocaleProvider } from '../../../../src/contexts';
+import { ThemeProvider } from '../../../../src/contexts';
 
 const renderWithProviders = (component: React.ReactElement) => {
   return render(
