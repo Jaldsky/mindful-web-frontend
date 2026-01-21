@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { formatTime, getDefaultDateRange, formatDate, getDateRangeForDays } from '../../src/utils/dateUtils';
+import { formatTime, getDefaultDateRange, formatDate, getDateRangeForDays } from '../../../src/utils';
 
 describe('dateUtils', () => {
   describe('formatTime', () => {

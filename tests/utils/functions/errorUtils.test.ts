@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { extractErrorMessage, createApiError } from '../../src/utils/errorUtils';
+import { extractErrorMessage, createApiError, isApiError } from '../../../src/utils';
 
 // Helper to create AxiosError-like objects
 function createAxiosErrorWithResponse(status: number, data: unknown): Error & { response?: unknown; request?: unknown } {
@@ -111,6 +111,64 @@ describe('errorUtils', () => {
       expect(apiError.message).toBe('An unexpected error occurred');
       expect(apiError.status).toBeUndefined();
       expect(apiError.details).toBeUndefined();
+    });
+  });
+
+  describe('isApiError', () => {
+    it('should return true for valid ApiError object', () => {
+      const error = {
+        message: 'Test error',
+        status: 404,
+        details: { info: 'test' },
+      };
+
+      expect(isApiError(error)).toBe(true);
+    });
+
+    it('should return true for ApiError with only message', () => {
+      const error = {
+        message: 'Test error',
+      };
+
+      expect(isApiError(error)).toBe(true);
+    });
+
+    it('should return false for null', () => {
+      expect(isApiError(null)).toBe(false);
+    });
+
+    it('should return false for undefined', () => {
+      expect(isApiError(undefined)).toBe(false);
+    });
+
+    it('should return false for object without message', () => {
+      const error = {
+        status: 404,
+        details: 'test',
+      };
+
+      expect(isApiError(error)).toBe(false);
+    });
+
+    it('should return false for object with non-string message', () => {
+      const error = {
+        message: 123,
+      };
+
+      expect(isApiError(error)).toBe(false);
+    });
+
+    it('should return false for string', () => {
+      expect(isApiError('error')).toBe(false);
+    });
+
+    it('should return false for number', () => {
+      expect(isApiError(404)).toBe(false);
+    });
+
+    it('should return false for Error instance', () => {
+      const error = new Error('Test error');
+      expect(isApiError(error)).toBe(false);
     });
   });
 });
