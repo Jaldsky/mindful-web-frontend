@@ -1,6 +1,6 @@
 import axios, { AxiosInstance, AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { API_CONFIG, STORAGE_KEYS } from '../constants';
-import { AuthAnonymousResponse, AuthRefreshResponse } from '../types/api';
+import { AuthAnonymousResponse, AuthRefreshResponse } from '../types';
 
 export interface ITokenStorage {
   getAccessToken(): string | null;
