@@ -2,9 +2,9 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { LocaleContext } from '../contexts';
 import { storageManager } from '../utils';
 import { localeDetector } from './LocaleDetector';
-import { SUPPORTED_LOCALES } from '../constants';
+import { SUPPORTED_LOCALES, type Locale } from '../constants';
 import { STORAGE_KEYS } from '../../constants';
-import type { Locale, LocaleContextType } from '../types';
+import type { LocaleContextType } from '../types';
 
 export function LocaleProvider({ children }: { children: React.ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>(() => {
