@@ -1,19 +1,14 @@
 import React, { useMemo } from 'react';
-import { Layout } from '../components/Layout';
-import { useAnalytics } from '../hooks/useAnalytics';
-import { useDateRange } from '../hooks/useDateRange';
-import { DateRangeSelector } from '../components/DateRangeSelector';
-import { StatsCard } from '../components/StatsCard';
-import { DomainsChart } from '../components/DomainsChart';
-import { DomainsTable } from '../components/DomainsTable';
-import { LoadingSpinner } from '../components/LoadingSpinner';
-import { ErrorMessage } from '../components/ErrorMessage';
-import { EmptyState } from '../components/EmptyState';
+import { Layout } from '../../components/layout';
+import { useAnalytics, useDateRange, useTranslation } from '../../hooks';
+import { DateRangeSelector, StatsCard, DomainsChart, DomainsTable } from '../../components/analytics';
+import { LoadingSpinner, ErrorMessage, EmptyState } from '../../components/ui';
 import { Clock, Globe, MousePointer2 } from 'lucide-react';
-import { formatTime } from '../utils/dateUtils';
-import { DATE_RANGES } from '../constants';
+import { formatTime } from '../../utils/dateUtils';
+import { DATE_RANGES } from '../../constants';
 
 export const Dashboard: React.FC = () => {
+  const { t } = useTranslation();
   const { dateRange, setStartDate, setEndDate, selectQuickRange } = useDateRange(DATE_RANGES.DAYS_7);
   
   const { data, loading, error } = useAnalytics({
@@ -54,31 +49,28 @@ export const Dashboard: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <StatsCard
             icon={Globe}
-            label="Total Domains"
+            label={t('dashboard.totalDomains')}
             value={stats.totalDomains}
-            iconBgColor="bg-blue-100 dark:bg-blue-900/20"
-            iconColor="text-blue-600"
+            variant="primary"
           />
           <StatsCard
             icon={Clock}
-            label="Active Time"
+            label={t('dashboard.activeTime')}
             value={stats.activeTime}
-            iconBgColor="bg-green-100 dark:bg-green-900/20"
-            iconColor="text-green-600"
+            variant="success"
           />
           <StatsCard
             icon={MousePointer2}
-            label="Total Domains Tracked"
+            label={t('dashboard.domainsTracked')}
             value={stats.domainsTracked}
-            iconBgColor="bg-purple-100 dark:bg-purple-900/20"
-            iconColor="text-purple-600"
+            variant="secondary"
           />
         </div>
 
         {error && <ErrorMessage message={error} />}
 
         {!error && !loading && chartData.length === 0 && (
-          <EmptyState message="No data available for the selected period. Try selecting a different date range." />
+          <EmptyState message={t('dashboard.noData')} />
         )}
 
         {chartData.length > 0 && (

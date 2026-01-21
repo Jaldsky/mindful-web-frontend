@@ -5,10 +5,13 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Layout } from '../components/Layout';
+import { Layout } from '../../components/layout';
 import { Activity, BarChart3, Clock, TrendingUp } from 'lucide-react';
+import { useTranslation } from '../../hooks';
 
 export const Home: React.FC = () => {
+  const { t } = useTranslation();
+
   return (
     <Layout>
       <div className="min-h-[calc(100vh-8rem)] flex items-center justify-center">
@@ -21,17 +24,17 @@ export const Home: React.FC = () => {
               </div>
             </div>
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
-              Mindful Web
+              {t('common.appName')}
             </h1>
             <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
-              Track your web usage and get mindful insights about your digital habits
+              {t('home.subtitle')}
             </p>
             <Link
               to="/dashboard"
               className="inline-flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primary-hover text-white rounded-lg font-medium transition-colors shadow-md hover:shadow-lg"
             >
               <BarChart3 size={20} />
-              View Dashboard
+              {t('home.viewDashboard')}
             </Link>
           </div>
 
@@ -41,9 +44,9 @@ export const Home: React.FC = () => {
               <div className="p-3 bg-blue-100 dark:bg-blue-900/20 rounded-lg text-blue-600 w-fit mb-4">
                 <Clock size={24} />
               </div>
-              <h3 className="text-lg font-semibold mb-2">Time Tracking</h3>
+              <h3 className="text-lg font-semibold mb-2">{t('home.features.tracking.title')}</h3>
               <p className="text-gray-600 dark:text-gray-400 text-sm">
-                Monitor how much time you spend on different websites and domains
+                {t('home.features.tracking.description')}
               </p>
             </div>
 
@@ -51,9 +54,9 @@ export const Home: React.FC = () => {
               <div className="p-3 bg-green-100 dark:bg-green-900/20 rounded-lg text-green-600 w-fit mb-4">
                 <TrendingUp size={24} />
               </div>
-              <h3 className="text-lg font-semibold mb-2">Analytics</h3>
+              <h3 className="text-lg font-semibold mb-2">{t('home.features.analytics.title')}</h3>
               <p className="text-gray-600 dark:text-gray-400 text-sm">
-                Get detailed insights and statistics about your browsing patterns
+                {t('home.features.analytics.description')}
               </p>
             </div>
 
@@ -61,9 +64,9 @@ export const Home: React.FC = () => {
               <div className="p-3 bg-purple-100 dark:bg-purple-900/20 rounded-lg text-purple-600 w-fit mb-4">
                 <Activity size={24} />
               </div>
-              <h3 className="text-lg font-semibold mb-2">Mindful Usage</h3>
+              <h3 className="text-lg font-semibold mb-2">{t('home.features.mindful.title')}</h3>
               <p className="text-gray-600 dark:text-gray-400 text-sm">
-                Understand your digital habits and make more conscious choices
+                {t('home.features.mindful.description')}
               </p>
             </div>
           </div>
