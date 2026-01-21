@@ -21,7 +21,6 @@ export function extractErrorMessage(error: unknown): string {
     const axiosError = error as AxiosError;
     
     if (axiosError.response) {
-      // Server responded with error status
       const status = axiosError.response.status;
       const data = axiosError.response.data as { message?: string; detail?: unknown };
       
@@ -38,7 +37,6 @@ export function extractErrorMessage(error: unknown): string {
     }
     
     if (axiosError.request) {
-      // Request was made but no response received
       return 'No response from server. Is the backend running on http://localhost:8000?';
     }
   }
@@ -70,3 +68,16 @@ export function createApiError(error: unknown): ApiError {
   return { message };
 }
 
+/**
+ * Type guard to check if error is ApiError
+ * @param error - Error to check
+ * @returns True if error is ApiError
+ */
+export function isApiError(error: unknown): error is ApiError {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'message' in error &&
+    !(error instanceof Error) && true
+  );
+}
