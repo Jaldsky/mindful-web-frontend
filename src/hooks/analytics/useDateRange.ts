@@ -3,22 +3,9 @@
  */
 
 import { useState, useCallback } from 'react';
-import { getDefaultDateRange, getDateRangeForDays } from '../utils/dateUtils';
-import { DATE_RANGES } from '../constants';
-
-export interface DateRange {
-  start: string;
-  end: string;
-}
-
-export interface UseDateRangeReturn {
-  dateRange: DateRange;
-  setDateRange: (range: DateRange) => void;
-  setStartDate: (date: string) => void;
-  setEndDate: (date: string) => void;
-  selectQuickRange: (days: number) => void;
-  resetToDefault: () => void;
-}
+import { getDefaultDateRange, getDateRangeForDays } from '../../utils/dateUtils';
+import { DATE_RANGES } from '../../constants';
+import type { DateRange, UseDateRangeReturn } from '../types';
 
 export function useDateRange(defaultDays: number = DATE_RANGES.DAYS_7): UseDateRangeReturn {
   const [dateRange, setDateRangeState] = useState<DateRange>(getDefaultDateRange(defaultDays));

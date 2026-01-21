@@ -4,16 +4,9 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { AnalyticsUsageResponse } from '../types/api';
-import { analyticsService, AnalyticsRequestParams } from '../services/AnalyticsService';
-import { ApiError } from '../utils/errorUtils';
-
-export interface UseAnalyticsReturn {
-  data: AnalyticsUsageResponse | null;
-  loading: boolean;
-  error: string | null;
-  refetch: () => Promise<void>;
-}
+import { analyticsService } from '../../services/AnalyticsService';
+import { ApiError } from '../../utils/errorUtils';
+import type { UseAnalyticsReturn, AnalyticsRequestParams, AnalyticsUsageResponse } from '../types';
 
 export function useAnalytics(params: AnalyticsRequestParams): UseAnalyticsReturn {
   const [data, setData] = useState<AnalyticsUsageResponse | null>(null);
@@ -34,7 +27,7 @@ export function useAnalytics(params: AnalyticsRequestParams): UseAnalyticsReturn
     } finally {
       setLoading(false);
     }
-  }, [params.from, params.to, params.page]);
+  }, [params]);
 
   useEffect(() => {
     fetchData();
