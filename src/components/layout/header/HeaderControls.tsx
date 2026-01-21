@@ -1,8 +1,8 @@
 import React from 'react';
 import { Globe } from 'lucide-react';
-import { useTheme } from '../../../contexts/ThemeContext';
-import { useLocale, SUPPORTED_LOCALES } from '../../../contexts/LocaleContext';
-import { useTranslation } from '../../../hooks/useTranslation';
+import { useTheme } from '../../../contexts';
+import { useLocale, SUPPORTED_LOCALES } from '../../../contexts';
+import { useTranslation } from "../../../hooks";
 import { ControlButton } from './ControlButton';
 
 export const HeaderControls: React.FC = () => {

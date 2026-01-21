@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import { Navigation } from '../../../../src/components/layout/header/Navigation';
-import { LocaleProvider } from '../../../../src/contexts/LocaleContext';
+import { Navigation } from '../../../../src/components/layout';
+import { LocaleProvider } from '../../../../src/contexts';
 
 const renderNavigation = () => {
   return render(

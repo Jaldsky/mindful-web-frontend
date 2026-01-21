@@ -1,5 +1,5 @@
 import React, { useState, FormEvent } from 'react';
-import { useTranslation } from '../../../hooks/useTranslation';
+import { useTranslation } from "../../../hooks";
 import { FormField } from '../FormField';
 import { RegisterFormValidator } from '../validators';
 

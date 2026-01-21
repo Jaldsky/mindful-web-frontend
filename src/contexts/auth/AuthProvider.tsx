@@ -2,8 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { AuthContext } from '../contexts';
 import { tokenManager } from './TokenManager';
 import { welcomeManager } from './WelcomeManager';
-import { authService } from '../../services/AuthService';
-import { userService } from '../../services/UserService';
+import { authService, userService } from '../../services';
 import type { AuthContextType, AuthStatus } from '../types';
 import type { UserProfile } from '../../types';
 

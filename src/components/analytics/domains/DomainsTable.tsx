@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { DomainUsageStat } from '../../../types/api';
+import { DomainUsageStat } from '../../../types';
 import { Card } from '../../ui';
 import { TableHeader } from './TableHeader';
 import { TableRow } from './TableRow';

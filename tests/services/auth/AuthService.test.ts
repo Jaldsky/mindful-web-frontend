@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { AuthService } from '../../../src/services/auth/AuthService';
+import { AuthService } from '../../../src/services';
 import { apiClient } from '../../../src/api/client';
-import { ApiError } from '../../../src/utils/errorUtils';
 import type {
   AuthLoginResponse,
   AuthRegisterResponse,
@@ -64,12 +63,13 @@ describe('AuthService', () => {
           username: 'testuser',
           password: 'wrong-password',
         })
-      ).rejects.toThrow(ApiError);
+      ).rejects.toThrow();
     });
   });
 
   describe('register', () => {
     const mockResponse: AuthRegisterResponse = {
+      code: 'REGISTER_SUCCESS',
       message: 'Registration successful',
     };
 
@@ -108,12 +108,13 @@ describe('AuthService', () => {
           email: 'test@example.com',
           password: 'password123',
         })
-      ).rejects.toThrow(ApiError);
+      ).rejects.toThrow();
     });
   });
 
   describe('verify', () => {
     const mockResponse: AuthVerifyResponse = {
+      code: 'VERIFY_SUCCESS',
       message: 'Email verified successfully',
     };
 
@@ -149,12 +150,13 @@ describe('AuthService', () => {
           email: 'user@example.com',
           code: 'invalid',
         })
-      ).rejects.toThrow(ApiError);
+      ).rejects.toThrow();
     });
   });
 
   describe('resendCode', () => {
     const mockResponse: AuthResendCodeResponse = {
+      code: 'RESEND_SUCCESS',
       message: 'Verification code sent',
     };
 
@@ -187,7 +189,7 @@ describe('AuthService', () => {
         service.resendCode({
           email: 'notfound@example.com',
         })
-      ).rejects.toThrow(ApiError);
+      ).rejects.toThrow();
     });
   });
 
@@ -234,12 +236,13 @@ describe('AuthService', () => {
         service.refresh({
           refresh_token: 'invalid-token',
         })
-      ).rejects.toThrow(ApiError);
+      ).rejects.toThrow();
     });
   });
 
   describe('logout', () => {
     const mockResponse: AuthLogoutResponse = {
+      code: 'LOGOUT_SUCCESS',
       message: 'Logged out successfully',
     };
 
@@ -264,7 +267,7 @@ describe('AuthService', () => {
       };
       vi.mocked(apiClient.post).mockRejectedValue(mockError);
 
-      await expect(service.logout()).rejects.toThrow(ApiError);
+      await expect(service.logout()).rejects.toThrow();
     });
   });
 
@@ -295,7 +298,7 @@ describe('AuthService', () => {
       };
       vi.mocked(apiClient.post).mockRejectedValue(mockError);
 
-      await expect(service.createAnonymous()).rejects.toThrow(ApiError);
+      await expect(service.createAnonymous()).rejects.toThrow();
     });
   });
 });

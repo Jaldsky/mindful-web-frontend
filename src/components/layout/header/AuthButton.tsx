@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { LogIn } from 'lucide-react';
-import { useAuth } from '../../../contexts/AuthContext';
+import { useAuth } from '../../../contexts';
 import { HEADER_STYLES } from '../constants';
 
 export const AuthButton: React.FC = () => {

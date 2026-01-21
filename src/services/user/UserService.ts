@@ -5,7 +5,7 @@
 
 import { apiClient } from '../../api/client';
 import type { UserProfileResponse } from '../../types';
-import { createApiError } from '../../utils/errorUtils';
+import { createApiError } from '../../utils';
 import type { IUserService } from '../interfaces';
 import type { UpdateUsernamePayload, UpdateEmailPayload } from '../types';
 

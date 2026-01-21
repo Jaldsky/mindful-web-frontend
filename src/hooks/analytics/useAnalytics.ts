@@ -4,8 +4,8 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { analyticsService } from '../../services/AnalyticsService';
-import { ApiError } from '../../utils/errorUtils';
+import { analyticsService } from '../../services';
+import { ApiError } from '../../utils';
 import type { UseAnalyticsReturn, AnalyticsRequestParams, AnalyticsUsageResponse } from '../types';
 
 export function useAnalytics(params: AnalyticsRequestParams): UseAnalyticsReturn {

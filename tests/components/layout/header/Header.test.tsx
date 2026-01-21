@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import { Header } from '../../../../src/components/layout/header/Header';
-import { ThemeProvider } from '../../../../src/contexts/ThemeContext';
-import { LocaleProvider } from '../../../../src/contexts/LocaleContext';
-import { AuthProvider } from '../../../../src/contexts/AuthContext';
+import { Header } from '../../../../src/components/layout';
+import { ThemeProvider } from '../../../../src/contexts';
+import { LocaleProvider } from '../../../../src/contexts';
+import { AuthProvider } from '../../../../src/contexts';
 
 const renderHeader = () => {
   return render(

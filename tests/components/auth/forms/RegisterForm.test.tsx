@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { RegisterForm } from '../../../../src/components/auth/forms/RegisterForm';
-import { LocaleProvider } from '../../../../src/contexts/LocaleContext';
+import { RegisterForm } from '../../../../src/components/auth';
+import { LocaleProvider } from '../../../../src/contexts';
 
 const renderWithProviders = (component: React.ReactElement) => {
   return render(<LocaleProvider>{component}</LocaleProvider>);
@@ -94,7 +94,7 @@ describe('RegisterForm', () => {
     fireEvent.click(screen.getByRole('button', { name: /create account/i }));
 
     await waitFor(() => {
-      expect(screen.getByText(/short/i)).toBeInTheDocument();
+      expect(screen.getByText(/at least 3 characters/i)).toBeInTheDocument();
     });
     expect(handleSubmit).not.toHaveBeenCalled();
   });
@@ -114,7 +114,7 @@ describe('RegisterForm', () => {
     fireEvent.click(screen.getByRole('button', { name: /create account/i }));
 
     await waitFor(() => {
-      expect(screen.getByText(/short/i)).toBeInTheDocument();
+      expect(screen.getByText(/at least 8 characters/i)).toBeInTheDocument();
     });
     expect(handleSubmit).not.toHaveBeenCalled();
   });

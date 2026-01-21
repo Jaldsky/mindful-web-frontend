@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { HeaderControls } from '../../../../src/components/layout/header/HeaderControls';
-import { ThemeProvider } from '../../../../src/contexts/ThemeContext';
-import { LocaleProvider } from '../../../../src/contexts/LocaleContext';
+import { HeaderControls } from '../../../../src/components/layout';
+import { ThemeProvider } from '../../../../src/contexts';
+import { LocaleProvider } from '../../../../src/contexts';
 
 const renderHeaderControls = () => {
   return render(

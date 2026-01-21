@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { useAnalytics } from '../../../src/hooks';
-import { analyticsService } from '../../../src/services/AnalyticsService';
+import { analyticsService } from '../../../src/services';
 
-vi.mock('../../../src/services/AnalyticsService', () => ({
+vi.mock('../../../src/services', () => ({
   analyticsService: {
     getUsage: vi.fn(),
   },

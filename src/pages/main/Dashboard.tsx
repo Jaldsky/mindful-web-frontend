@@ -4,7 +4,7 @@ import { useAnalytics, useDateRange, useTranslation } from '../../hooks';
 import { DateRangeSelector, StatsCard, DomainsChart, DomainsTable } from '../../components/analytics';
 import { LoadingSpinner, ErrorMessage, EmptyState } from '../../components/ui';
 import { Clock, Globe, MousePointer2 } from 'lucide-react';
-import { formatTime } from '../../utils/dateUtils';
+import { formatTime } from '../../utils';
 import { DATE_RANGES } from '../../constants';
 
 export const Dashboard: React.FC = () => {
