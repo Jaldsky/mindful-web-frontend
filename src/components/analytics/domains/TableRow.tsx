@@ -4,8 +4,8 @@
  */
 
 import React from 'react';
-import { DomainUsageStat } from '../../../types/api';
-import { formatTime } from '../../../utils/dateUtils';
+import { DomainUsageStat } from '../../../types';
+import { formatTime } from '../../../utils';
 import { TABLE_CONFIG } from '../../../constants';
 
 interface TableRowProps {

@@ -4,7 +4,7 @@
  */
 
 import React, { useMemo } from 'react';
-import { UseDateRangeReturn } from '../../../hooks/useDateRange';
+import { UseDateRangeReturn } from "../../../hooks";
 import { QUICK_RANGES } from '../../../constants';
 import { Card } from '../../ui';
 import { DateInput } from './DateInput';

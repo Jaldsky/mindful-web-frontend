@@ -13,7 +13,7 @@ import type {
   AuthResendCodeResponse,
   AuthVerifyResponse,
 } from '../../types';
-import { createApiError } from '../../utils/errorUtils';
+import { createApiError } from '../../utils';
 import type { IAuthService } from '../interfaces';
 import type {
   LoginPayload,

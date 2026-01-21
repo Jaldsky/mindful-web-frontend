@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { LoginForm } from '../../../../src/components/auth/forms/LoginForm';
-import { LocaleProvider } from '../../../../src/contexts/LocaleContext';
+import { LoginForm } from '../../../../src/components/auth';
+import { LocaleProvider } from '../../../../src/contexts';
 
 const renderWithProviders = (component: React.ReactElement) => {
   return render(<LocaleProvider>{component}</LocaleProvider>);
@@ -65,7 +65,7 @@ describe('LoginForm', () => {
       />
     );
 
-    const registerLink = screen.getByText(/register/i);
+    const registerLink = screen.getByText(/sign up/i);
     fireEvent.click(registerLink);
 
     expect(handleSwitch).toHaveBeenCalled();

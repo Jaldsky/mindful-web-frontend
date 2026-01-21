@@ -5,10 +5,10 @@
 
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { DomainUsageStat } from '../../../types/api';
-import { formatTime } from '../../../utils/dateUtils';
+import { DomainUsageStat } from '../../../types';
+import { formatTime } from '../../../utils';
 import { CHART_CONFIG } from '../../../constants';
-import { useChartDimensions } from '../../../hooks/useChartDimensions';
+import { useChartDimensions } from "../../../hooks";
 import { Card } from '../../ui';
 import { ChartBar } from './ChartBar';
 

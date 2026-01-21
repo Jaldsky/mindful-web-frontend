@@ -4,7 +4,7 @@
  */
 
 import type { AnalyticsUsageResponse } from '../types';
-import type { AnalyticsRequestParams } from '../services/AnalyticsService';
+import type { AnalyticsRequestParams } from '../services';
 import type { AuthScreen } from '../components/auth';
 
 export type { AnalyticsUsageResponse };

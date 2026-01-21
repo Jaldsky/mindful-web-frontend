@@ -5,8 +5,9 @@
 
 import React from 'react';
 import { Globe, Moon, Sun } from 'lucide-react';
-import { useLocale } from '../../../contexts/LocaleContext';
-import { useTheme, THEME } from '../../../contexts/ThemeContext';
+import { useLocale } from '../../../contexts';
+import { useTheme } from '../../../contexts';
+import { THEME } from '../../../constants';
 
 export const AuthHeader: React.FC = () => {
   const { locale, setLocale } = useLocale();

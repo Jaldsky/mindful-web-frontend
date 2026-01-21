@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { ResendForm } from '../../../../src/components/auth/forms/ResendForm';
-import { LocaleProvider } from '../../../../src/contexts/LocaleContext';
+import { ResendForm } from '../../../../src/components/auth';
+import { LocaleProvider } from '../../../../src/contexts';
 
 const renderWithProviders = (component: React.ReactElement) => {
   return render(<LocaleProvider>{component}</LocaleProvider>);

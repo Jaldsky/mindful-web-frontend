@@ -1,11 +1,10 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
-import { AuthProvider } from '../../../src/contexts/auth/AuthProvider';
-import { useAuth } from '../../../src/contexts/hooks';
-import { tokenManager } from '../../../src/contexts/auth/TokenManager';
-import { welcomeManager } from '../../../src/contexts/auth/WelcomeManager';
-import { authService } from '../../../src/services/AuthService';
-import { userService } from '../../../src/services/UserService';
+import { AuthProvider } from '../../../src/contexts';
+import { useAuth } from '../../../src/contexts';
+import { tokenManager } from '../../../src/contexts/auth';
+import { welcomeManager } from '../../../src/contexts/auth';
+import { authService, userService } from '../../../src/services';
 
 vi.mock('../../../src/contexts/auth/TokenManager', () => ({
   tokenManager: {
@@ -28,7 +27,7 @@ vi.mock('../../../src/contexts/auth/WelcomeManager', () => ({
   },
 }));
 
-vi.mock('../../../src/services/AuthService', () => ({
+vi.mock('../../../src/services', () => ({
   authService: {
     createAnonymous: vi.fn(),
     login: vi.fn(),
@@ -38,9 +37,6 @@ vi.mock('../../../src/services/AuthService', () => ({
     refresh: vi.fn(),
     logout: vi.fn(),
   },
-}));
-
-vi.mock('../../../src/services/UserService', () => ({
   userService: {
     getProfile: vi.fn(),
     updateUsername: vi.fn(),

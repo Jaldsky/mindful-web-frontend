@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useTranslation } from '../../../hooks/useTranslation';
+import { useTranslation } from "../../../hooks";
 import { HEADER_STYLES } from '../constants';
 import type { NavigationItem as NavItemType } from '../types';
 

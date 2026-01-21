@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import { NavigationItem } from '../../../../src/components/layout/header/NavigationItem';
-import { LocaleProvider } from '../../../../src/contexts/LocaleContext';
+import { NavigationItem } from '../../../../src/components/layout';
+import { LocaleProvider } from '../../../../src/contexts';
 import { Home } from 'lucide-react';
 
 const mockItem = {

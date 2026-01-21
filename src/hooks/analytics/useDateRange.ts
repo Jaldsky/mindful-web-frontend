@@ -3,7 +3,7 @@
  */
 
 import { useState, useCallback } from 'react';
-import { getDefaultDateRange, getDateRangeForDays } from '../../utils/dateUtils';
+import { getDefaultDateRange, getDateRangeForDays } from '../../utils';
 import { DATE_RANGES } from '../../constants';
 import type { DateRange, UseDateRangeReturn } from '../types';
 
