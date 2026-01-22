@@ -76,7 +76,7 @@ export const ru = {
     loginTab: 'Вход в систему',
     registerTab: 'Регистрация',
     verifyTab: 'Подтверждение',
-    resendTab: 'Повторная отправка',
+    resendTab: 'Отправить снова',
     username: 'Имя пользователя',
     email: 'Email',
     password: 'Пароль',

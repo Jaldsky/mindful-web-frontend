@@ -304,6 +304,18 @@ describe('ApiClient', () => {
   });
 });
 
+describe('ResponseInterceptor', () => {
+  it('should be created with ApiClient', () => {
+    const logger = new ConsoleLogger(false);
+    const storage = new LocalStorageTokenStorage();
+    const client = new ApiClient(storage, logger);
+    
+    // Verify client is created successfully
+    expect(client.instance).toBeDefined();
+    expect(client.instance.interceptors).toBeDefined();
+  });
+});
+
 describe('API Configuration', () => {
   it('should have valid base URL', () => {
     expect(API_CONFIG.BASE_URL).toBeDefined();

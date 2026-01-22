@@ -38,26 +38,23 @@ export const Auth: React.FC = () => {
   const hasAnimatedRef = useRef(false);
   const prevDisplayScreenRef = useRef<AuthScreen | null>(null);
 
-  // Helper function to animate form children (like plugin)
   const animateFormChildren = (children: HTMLElement[]) => {
-    // Ensure all children are hidden
+
     children.forEach((child) => {
       child.style.opacity = '0';
       child.style.transform = 'translateY(20px)';
       child.style.transition = 'none';
       child.style.animation = 'none';
     });
-    
-    // Force reflow
+
     if (children.length > 0 && formRef.current) {
       void formRef.current.offsetHeight;
     }
-    
-    // Animate each child with delay (like plugin: 100ms + index * 80ms)
+
     children.forEach((child, index) => {
       setTimeout(() => {
         child.style.transition = 'opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
-        // Force reflow
+
         void child.offsetHeight;
         child.style.opacity = '1';
         child.style.transform = 'translateY(0)';
@@ -65,15 +62,14 @@ export const Auth: React.FC = () => {
     });
   };
 
-  // Hide form elements immediately on mount or screen change
   useLayoutEffect(() => {
     if (formRef.current && !isMeasuring) {
       const formElement = formRef.current.querySelector('.auth-form');
       if (formElement) {
         const children = Array.from(formElement.children) as HTMLElement[];
-        // Hide children when screen changes
+
         if (prevDisplayScreenRef.current !== displayScreen) {
-          hasAnimatedRef.current = false; // Reset animation flag on screen change
+          hasAnimatedRef.current = false;
           children.forEach((child) => {
             child.style.opacity = '0';
             child.style.transform = 'translateY(20px)';
@@ -81,7 +77,6 @@ export const Auth: React.FC = () => {
             child.style.animation = 'none';
           });
         } else if (!hasAnimatedRef.current) {
-          // Hide on first mount
           children.forEach((child) => {
             child.style.opacity = '0';
             child.style.transform = 'translateY(20px)';
@@ -93,11 +88,7 @@ export const Auth: React.FC = () => {
     }
   }, [displayScreen, isMeasuring]);
 
-  // Animate form elements simultaneously with container size animation
   useEffect(() => {
-    // Start animation when:
-    // 1. Transition begins (isTransitioning becomes true) - for screen changes
-    // 2. Content is visible and not measuring - for initial render
     const shouldAnimate = isVisible && 
       ((isTransitioning && !isMeasuring) || (!isTransitioning && !isMeasuring)) && 
       formRef.current && 
@@ -111,10 +102,7 @@ export const Auth: React.FC = () => {
         if (children.length > 0) {
           hasAnimatedRef.current = true;
           prevDisplayScreenRef.current = displayScreen;
-          
-          // Start animation immediately
-          // For transitions: happens simultaneously with size change
-          // For initial render: happens when content becomes visible
+
           requestAnimationFrame(() => {
             if (formRef.current) {
               const currentFormElement = formRef.current.querySelector('.auth-form');
@@ -143,7 +131,7 @@ export const Auth: React.FC = () => {
       setIsErrorVisible(true);
       return messageManager.scheduleHide(() => {
         setIsErrorVisible(false);
-        setTimeout(() => setAuthError(null), 300); // Wait for exit animation
+        setTimeout(() => setAuthError(null), 300);
       }, 5000);
     } else {
       setIsErrorVisible(false);
@@ -177,7 +165,6 @@ export const Auth: React.FC = () => {
     try {
       await register(username, email, password);
       setRegisteredEmail(email);
-      // Immediately switch to verify screen after successful registration
       switchScreen('verify');
     } catch (err) {
       setAuthError((err as Error).message || t('auth.genericError'));
@@ -193,7 +180,6 @@ export const Auth: React.FC = () => {
     setAuthLoading(true);
     try {
       await verify(email, code);
-      // Immediately switch to login screen after successful verification
       switchScreen('login');
     } catch (err) {
       setAuthError((err as Error).message || t('auth.genericError'));
@@ -210,7 +196,6 @@ export const Auth: React.FC = () => {
     try {
       await resendCode(email);
       setRegisteredEmail(email);
-      // Immediately switch to verify screen after successful resend
       switchScreen('verify');
     } catch (err) {
       setAuthError((err as Error).message || t('auth.genericError'));

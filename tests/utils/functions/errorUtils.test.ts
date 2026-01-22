@@ -44,6 +44,19 @@ describe('errorUtils', () => {
       expect(message).toContain('Invalid date format');
     });
 
+    it('should extract message with detail as object from AxiosError', () => {
+      const error = createAxiosErrorWithResponse(400, {
+        message: 'Validation error',
+        detail: { field: 'email', reason: 'Invalid format' },
+      });
+
+      const message = extractErrorMessage(error);
+      expect(message).toContain('Error 400');
+      expect(message).toContain('Validation error');
+      expect(message).toContain('field');
+      expect(message).toContain('email');
+    });
+
     it('should handle AxiosError with request but no response', () => {
       const error = createAxiosErrorWithRequest();
 

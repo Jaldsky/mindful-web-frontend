@@ -3,19 +3,11 @@
  * Centralized type definitions for all services
  */
 
-// ============================================
-// Analytics Service Types
-// ============================================
-
 export type AnalyticsRequestParams = {
   from: string;
   to: string;
   page?: number;
 };
-
-// ============================================
-// Auth Service Types
-// ============================================
 
 export type LoginPayload = {
   username: string;
@@ -40,10 +32,6 @@ export type ResendCodePayload = {
 export type RefreshPayload = {
   refresh_token?: string | null;
 };
-
-// ============================================
-// User Service Types
-// ============================================
 
 export type UpdateUsernamePayload = {
   username: string;

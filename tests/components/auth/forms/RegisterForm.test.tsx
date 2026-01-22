@@ -12,13 +12,16 @@ describe('RegisterForm', () => {
     renderWithProviders(
       <RegisterForm
         onSubmit={vi.fn()}
-        onSwitchToLogin={vi.fn()}
+        onSwitchToVerify={vi.fn()}
       />
     );
 
     expect(screen.getByLabelText(/username/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
+    const passwordInputs = screen.getAllByLabelText(/password/i);
+    expect(passwordInputs.length).toBe(2);
+    expect(passwordInputs[0]).toBeInTheDocument();
+    expect(passwordInputs[1]).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /create account/i })).toBeInTheDocument();
   });
 
@@ -27,13 +30,15 @@ describe('RegisterForm', () => {
     renderWithProviders(
       <RegisterForm
         onSubmit={handleSubmit}
-        onSwitchToLogin={vi.fn()}
+        onSwitchToVerify={vi.fn()}
       />
     );
 
+    const passwordInputs = screen.getAllByLabelText(/password/i);
     fireEvent.change(screen.getByLabelText(/username/i), { target: { value: 'testuser' } });
     fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'test@example.com' } });
-    fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'password123' } });
+    fireEvent.change(passwordInputs[0], { target: { value: 'password123' } });
+    fireEvent.change(passwordInputs[1], { target: { value: 'password123' } });
     fireEvent.click(screen.getByRole('button', { name: /create account/i }));
 
     await waitFor(() => {
@@ -46,7 +51,7 @@ describe('RegisterForm', () => {
     renderWithProviders(
       <RegisterForm
         onSubmit={handleSubmit}
-        onSwitchToLogin={vi.fn()}
+        onSwitchToVerify={vi.fn()}
       />
     );
 
@@ -63,13 +68,15 @@ describe('RegisterForm', () => {
     renderWithProviders(
       <RegisterForm
         onSubmit={handleSubmit}
-        onSwitchToLogin={vi.fn()}
+        onSwitchToVerify={vi.fn()}
       />
     );
 
+    const passwordInputs = screen.getAllByLabelText(/password/i);
     fireEvent.change(screen.getByLabelText(/username/i), { target: { value: 'testuser' } });
     fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'invalid-email' } });
-    fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'password123' } });
+    fireEvent.change(passwordInputs[0], { target: { value: 'password123' } });
+    fireEvent.change(passwordInputs[1], { target: { value: 'password123' } });
     fireEvent.click(screen.getByRole('button', { name: /create account/i }));
 
     await waitFor(() => {
@@ -84,13 +91,15 @@ describe('RegisterForm', () => {
     renderWithProviders(
       <RegisterForm
         onSubmit={handleSubmit}
-        onSwitchToLogin={vi.fn()}
+        onSwitchToVerify={vi.fn()}
       />
     );
 
+    const passwordInputs = screen.getAllByLabelText(/password/i);
     fireEvent.change(screen.getByLabelText(/username/i), { target: { value: 'ab' } });
     fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'test@example.com' } });
-    fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'password123' } });
+    fireEvent.change(passwordInputs[0], { target: { value: 'password123' } });
+    fireEvent.change(passwordInputs[1], { target: { value: 'password123' } });
     fireEvent.click(screen.getByRole('button', { name: /create account/i }));
 
     await waitFor(() => {
@@ -104,13 +113,15 @@ describe('RegisterForm', () => {
     renderWithProviders(
       <RegisterForm
         onSubmit={handleSubmit}
-        onSwitchToLogin={vi.fn()}
+        onSwitchToVerify={vi.fn()}
       />
     );
 
+    const passwordInputs = screen.getAllByLabelText(/password/i);
     fireEvent.change(screen.getByLabelText(/username/i), { target: { value: 'testuser' } });
     fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'test@example.com' } });
-    fireEvent.change(screen.getByLabelText(/password/i), { target: { value: '123' } });
+    fireEvent.change(passwordInputs[0], { target: { value: '123' } });
+    fireEvent.change(passwordInputs[1], { target: { value: '123' } });
     fireEvent.click(screen.getByRole('button', { name: /create account/i }));
 
     await waitFor(() => {
@@ -119,40 +130,48 @@ describe('RegisterForm', () => {
     expect(handleSubmit).not.toHaveBeenCalled();
   });
 
-  it('calls onSwitchToLogin when login link clicked', () => {
-    const handleSwitch = vi.fn();
+  it('calls onSubmit when form is submitted successfully', async () => {
+    const handleSubmit = vi.fn().mockResolvedValue(undefined);
     renderWithProviders(
       <RegisterForm
-        onSubmit={vi.fn()}
-        onSwitchToLogin={handleSwitch}
+        onSubmit={handleSubmit}
+        onSwitchToVerify={vi.fn()}
       />
     );
 
-    const loginLink = screen.getByText(/sign in/i);
-    fireEvent.click(loginLink);
+    const passwordInputs = screen.getAllByLabelText(/password/i);
+    fireEvent.change(screen.getByLabelText(/username/i), { target: { value: 'testuser' } });
+    fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'test@example.com' } });
+    fireEvent.change(passwordInputs[0], { target: { value: 'password123' } });
+    fireEvent.change(passwordInputs[1], { target: { value: 'password123' } });
+    fireEvent.click(screen.getByRole('button', { name: /create account/i }));
 
-    expect(handleSwitch).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(handleSubmit).toHaveBeenCalledWith('testuser', 'test@example.com', 'password123');
+    });
   });
 
   it('disables inputs when loading', () => {
     renderWithProviders(
       <RegisterForm
         onSubmit={vi.fn()}
-        onSwitchToLogin={vi.fn()}
+        onSwitchToVerify={vi.fn()}
         loading
       />
     );
 
+    const passwordInputs = screen.getAllByLabelText(/password/i);
     expect(screen.getByLabelText(/username/i)).toBeDisabled();
     expect(screen.getByLabelText(/email/i)).toBeDisabled();
-    expect(screen.getByLabelText(/password/i)).toBeDisabled();
+    expect(passwordInputs[0]).toBeDisabled();
+    expect(passwordInputs[1]).toBeDisabled();
   });
 
   it('disables submit button when loading', () => {
     renderWithProviders(
       <RegisterForm
         onSubmit={vi.fn()}
-        onSwitchToLogin={vi.fn()}
+        onSwitchToVerify={vi.fn()}
         loading
       />
     );
@@ -165,7 +184,7 @@ describe('RegisterForm', () => {
     renderWithProviders(
       <RegisterForm
         onSubmit={vi.fn()}
-        onSwitchToLogin={vi.fn()}
+        onSwitchToVerify={vi.fn()}
         onBack={handleBack}
       />
     );
@@ -182,7 +201,7 @@ describe('RegisterForm', () => {
     renderWithProviders(
       <RegisterForm
         onSubmit={handleSubmit}
-        onSwitchToLogin={vi.fn()}
+        onSwitchToVerify={vi.fn()}
       />
     );
 
@@ -194,9 +213,11 @@ describe('RegisterForm', () => {
     });
 
     // Start typing - errors should clear on next submit attempt
+    const passwordInputs = screen.getAllByLabelText(/password/i);
     fireEvent.change(screen.getByLabelText(/username/i), { target: { value: 'testuser' } });
     fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'test@example.com' } });
-    fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'password123' } });
+    fireEvent.change(passwordInputs[0], { target: { value: 'password123' } });
+    fireEvent.change(passwordInputs[1], { target: { value: 'password123' } });
 
     fireEvent.click(screen.getByRole('button', { name: /create account/i }));
 

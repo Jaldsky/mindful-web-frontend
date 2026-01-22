@@ -84,7 +84,7 @@ describe('useAuthAnimation', () => {
     expect(result.current.activeScreen).toBe(initialActive);
   });
 
-  it('switchScreen does not change if transitioning', () => {
+  it('switchScreen does not change if transitioning', async () => {
     const { result } = renderHook(() => useAuthAnimation('login'));
     
     // Create a mock container
@@ -97,32 +97,32 @@ describe('useAuthAnimation', () => {
     Object.defineProperty(mockContainer, 'scrollHeight', {
       value: 500,
       writable: true,
+      configurable: true,
     });
     Object.defineProperty(mockContainer, 'offsetWidth', {
       value: 400,
       writable: true,
+      configurable: true,
     });
     
     // Assign container
-    Object.defineProperty(result.current.containerRef, 'current', {
-      writable: true,
-      value: mockContainer
-    });
+    result.current.containerRef.current = mockContainer;
     
-    // Start transition but don't wait for RAF
-    vi.stubGlobal('requestAnimationFrame', vi.fn());
-    
+    // Start transition
     act(() => {
       result.current.switchScreen('register');
-      // isTransitioning should be false initially, but we set displayScreen
-      // Try to switch immediately - should be ignored since activeScreen matches
-      result.current.switchScreen('register');
     });
     
-    // Screen should be 'register'
-    expect(result.current.activeScreen).toBe('register');
+    // Wait a bit for transition to start
+    await new Promise(resolve => setTimeout(resolve, 10));
     
-    vi.unstubAllGlobals();
+    // Try to switch again while transitioning - should be ignored
+    act(() => {
+      result.current.switchScreen('login');
+    });
+    
+    // Screen should still be 'register' because we're transitioning
+    expect(result.current.activeScreen).toBe('register');
   });
 
   it('provides switchScreen function', () => {
@@ -165,5 +165,191 @@ describe('useAuthAnimation', () => {
     rerender();
     
     expect(result.current.switchScreen).toBe(firstSwitchScreen);
+  });
+
+  it('handles screen transition with container', async () => {
+    const { result } = renderHook(() => useAuthAnimation('login'));
+    
+    // Create a mock container with form
+    const mockContainer = document.createElement('div');
+    const mockForm = document.createElement('div');
+    mockForm.className = 'auth-form';
+    mockContainer.appendChild(mockForm);
+    
+    Object.defineProperty(mockContainer, 'scrollHeight', {
+      value: 500,
+      writable: true,
+      configurable: true,
+    });
+    Object.defineProperty(mockContainer, 'offsetWidth', {
+      value: 400,
+      writable: true,
+      configurable: true,
+    });
+    
+    result.current.containerRef.current = mockContainer;
+    
+    act(() => {
+      result.current.switchScreen('register');
+    });
+    
+    // Wait for async operations
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    expect(result.current.activeScreen).toBe('register');
+    expect(result.current.displayScreen).toBe('register');
+  });
+
+  it('handles transition end event', async () => {
+    const { result } = renderHook(() => useAuthAnimation('login'));
+    
+    const mockContainer = document.createElement('div');
+    const mockForm = document.createElement('div');
+    mockForm.className = 'auth-form';
+    mockContainer.appendChild(mockForm);
+    
+    Object.defineProperty(mockContainer, 'scrollHeight', {
+      value: 500,
+      writable: true,
+      configurable: true,
+    });
+    Object.defineProperty(mockContainer, 'offsetWidth', {
+      value: 400,
+      writable: true,
+      configurable: true,
+    });
+    
+    result.current.containerRef.current = mockContainer;
+    
+    act(() => {
+      result.current.switchScreen('register');
+    });
+    
+    await new Promise(resolve => setTimeout(resolve, 50));
+    
+    // Simulate transition end
+    const transitionEndEvent = new Event('transitionend', { bubbles: true });
+    Object.defineProperty(transitionEndEvent, 'propertyName', { value: 'height' });
+    mockContainer.dispatchEvent(transitionEndEvent);
+    
+    await new Promise(resolve => setTimeout(resolve, 50));
+    
+    expect(result.current.isTransitioning).toBe(false);
+  });
+
+  it('handles retry when dimensions are invalid', async () => {
+    const { result } = renderHook(() => useAuthAnimation('login'));
+    
+    const mockContainer = document.createElement('div');
+    const mockForm = document.createElement('div');
+    mockForm.className = 'auth-form';
+    mockContainer.appendChild(mockForm);
+    
+    // Initially return 0 for height
+    let heightValue = 0;
+    Object.defineProperty(mockContainer, 'scrollHeight', {
+      get: () => heightValue,
+      configurable: true,
+    });
+    Object.defineProperty(mockContainer, 'offsetWidth', {
+      value: 400,
+      writable: true,
+      configurable: true,
+    });
+    
+    result.current.containerRef.current = mockContainer;
+    
+    act(() => {
+      result.current.switchScreen('register');
+    });
+    
+    // Wait a bit, then set valid height
+    await new Promise(resolve => setTimeout(resolve, 60));
+    heightValue = 500;
+    
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    expect(result.current.activeScreen).toBe('register');
+  });
+
+  it('sets body overflow hidden during transition', async () => {
+    const { result } = renderHook(() => useAuthAnimation('login'));
+    
+    const mockContainer = document.createElement('div');
+    const mockForm = document.createElement('div');
+    mockForm.className = 'auth-form';
+    mockContainer.appendChild(mockForm);
+    
+    Object.defineProperty(mockContainer, 'scrollHeight', {
+      value: 500,
+      writable: true,
+      configurable: true,
+    });
+    Object.defineProperty(mockContainer, 'offsetWidth', {
+      value: 400,
+      writable: true,
+      configurable: true,
+    });
+    
+    result.current.containerRef.current = mockContainer;
+    
+    act(() => {
+      result.current.switchScreen('register');
+    });
+    
+    await new Promise(resolve => setTimeout(resolve, 10));
+    
+    // Body should have overflow hidden
+    expect(document.body.style.overflow).toBe('hidden');
+    
+    // Simulate transition end to clean up
+    const transitionEndEvent = new Event('transitionend', { bubbles: true });
+    Object.defineProperty(transitionEndEvent, 'propertyName', { value: 'height' });
+    mockContainer.dispatchEvent(transitionEndEvent);
+    
+    await new Promise(resolve => setTimeout(resolve, 50));
+    
+    // Body overflow should be reset
+    expect(document.body.style.overflow).toBe('');
+  });
+
+  it('handles all screen transitions', async () => {
+    const { result } = renderHook(() => useAuthAnimation('login'));
+    
+    const mockContainer = document.createElement('div');
+    const mockForm = document.createElement('div');
+    mockForm.className = 'auth-form';
+    mockContainer.appendChild(mockForm);
+    
+    Object.defineProperty(mockContainer, 'scrollHeight', {
+      value: 500,
+      writable: true,
+      configurable: true,
+    });
+    Object.defineProperty(mockContainer, 'offsetWidth', {
+      value: 400,
+      writable: true,
+      configurable: true,
+    });
+    
+    result.current.containerRef.current = mockContainer;
+    
+    // Test single transition to register
+    act(() => {
+      result.current.switchScreen('register');
+    });
+    
+    // Wait for async operations and transition
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Simulate transition end to complete the transition
+    const transitionEndEvent = new Event('transitionend', { bubbles: true });
+    Object.defineProperty(transitionEndEvent, 'propertyName', { value: 'height' });
+    mockContainer.dispatchEvent(transitionEndEvent);
+    
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    expect(result.current.activeScreen).toBe('register');
+    expect(result.current.displayScreen).toBe('register');
   });
 });

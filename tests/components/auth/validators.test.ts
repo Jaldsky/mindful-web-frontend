@@ -125,17 +125,46 @@ describe('RegisterFormValidator', () => {
       username: 'testuser',
       email: 'test@example.com',
       password: 'password123',
+      confirmPassword: 'password123',
     });
     expect(result.isValid).toBe(true);
     expect(result.errors).toEqual({});
   });
 
   it('returns errors for all invalid fields', () => {
-    const result = validator.validate({ username: '', email: '', password: '' });
+    const result = validator.validate({ 
+      username: '', 
+      email: '', 
+      password: '',
+      confirmPassword: '',
+    });
     expect(result.isValid).toBe(false);
     expect(result.errors.username).toBe('auth.errors.usernameRequired');
     expect(result.errors.email).toBe('auth.errors.emailRequired');
     expect(result.errors.password).toBe('auth.errors.passwordRequired');
+    expect(result.errors.confirmPassword).toBe('auth.errors.confirmPasswordRequired');
+  });
+
+  it('returns error when passwords do not match', () => {
+    const result = validator.validate({
+      username: 'testuser',
+      email: 'test@example.com',
+      password: 'password123',
+      confirmPassword: 'password456',
+    });
+    expect(result.isValid).toBe(false);
+    expect(result.errors.confirmPassword).toBe('auth.errors.passwordsDoNotMatch');
+  });
+
+  it('validates when passwords match', () => {
+    const result = validator.validate({
+      username: 'testuser',
+      email: 'test@example.com',
+      password: 'password123',
+      confirmPassword: 'password123',
+    });
+    expect(result.isValid).toBe(true);
+    expect(result.errors.confirmPassword).toBeUndefined();
   });
 });
 

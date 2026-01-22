@@ -18,7 +18,7 @@ describe('VerifyForm', () => {
     );
 
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/code/i)).toBeInTheDocument();
+    expect(screen.getByText(/verification code/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /verify email/i })).toBeInTheDocument();
   });
 
@@ -46,7 +46,16 @@ describe('VerifyForm', () => {
     );
 
     fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'test@example.com' } });
-    fireEvent.change(screen.getByLabelText(/code/i), { target: { value: '123456' } });
+    
+    // CodeInput uses multiple inputs, simulate typing in first input
+    const codeInputs = document.querySelectorAll('input[type="text"][inputmode="numeric"]');
+    expect(codeInputs.length).toBe(6);
+    
+    // Type code digit by digit
+    codeInputs.forEach((input, index) => {
+      fireEvent.change(input, { target: { value: String(index + 1) } });
+    });
+    
     fireEvent.click(screen.getByRole('button', { name: /verify email/i }));
 
     await waitFor(() => {
@@ -83,7 +92,13 @@ describe('VerifyForm', () => {
     );
 
     fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'invalid-email' } });
-    fireEvent.change(screen.getByLabelText(/code/i), { target: { value: '123456' } });
+    
+    // Type code
+    const codeInputs = document.querySelectorAll('input[type="text"][inputmode="numeric"]');
+    codeInputs.forEach((input, index) => {
+      fireEvent.change(input, { target: { value: String(index + 1) } });
+    });
+    
     fireEvent.click(screen.getByRole('button', { name: /verify email/i }));
 
     await waitFor(() => {
@@ -104,11 +119,19 @@ describe('VerifyForm', () => {
     );
 
     fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'test@example.com' } });
-    fireEvent.change(screen.getByLabelText(/verification code/i), { target: { value: '123' } });
+    
+    // Type only 3 digits instead of 6
+    const codeInputs = document.querySelectorAll('input[type="text"][inputmode="numeric"]');
+    codeInputs.forEach((input, index) => {
+      if (index < 3) {
+        fireEvent.change(input, { target: { value: String(index + 1) } });
+      }
+    });
+    
     fireEvent.click(screen.getByRole('button', { name: /verify email/i }));
 
     await waitFor(() => {
-      const errors = screen.queryAllByText(/invalid|email/i);
+      const errors = screen.queryAllByText(/invalid|code|required/i);
       expect(errors.length).toBeGreaterThan(0);
     });
     expect(handleSubmit).not.toHaveBeenCalled();
@@ -124,26 +147,28 @@ describe('VerifyForm', () => {
       />
     );
 
-    const resendLink = screen.getByText(/resend/i);
+    const resendLink = screen.getByText(/send code again|отправить код/i);
     fireEvent.click(resendLink);
 
     expect(handleSwitch).toHaveBeenCalled();
   });
 
-  it('calls onSwitchToLogin when login link clicked', () => {
-    const handleSwitch = vi.fn();
+  it('calls onBack when back button is clicked', () => {
+    const handleBack = vi.fn();
     renderWithProviders(
       <VerifyForm
         onSubmit={vi.fn()}
         onSwitchToResend={vi.fn()}
-        onSwitchToLogin={handleSwitch}
+        onSwitchToLogin={vi.fn()}
+        onBack={handleBack}
       />
     );
 
-    const loginLinks = screen.getAllByText(/sign in/i);
-    fireEvent.click(loginLinks[0]);
+    const backButton = screen.getByRole('button', { name: /back/i });
+    expect(backButton).toBeInTheDocument();
 
-    expect(handleSwitch).toHaveBeenCalled();
+    fireEvent.click(backButton);
+    expect(handleBack).toHaveBeenCalled();
   });
 
   it('disables inputs when loading', () => {
@@ -157,7 +182,12 @@ describe('VerifyForm', () => {
     );
 
     expect(screen.getByLabelText(/email/i)).toBeDisabled();
-    expect(screen.getByLabelText(/code/i)).toBeDisabled();
+    
+    // CodeInput uses multiple inputs
+    const codeInputs = document.querySelectorAll('input[type="text"][inputmode="numeric"]');
+    codeInputs.forEach(input => {
+      expect(input).toBeDisabled();
+    });
   });
 
   it('disables submit button when loading', () => {
@@ -200,7 +230,17 @@ describe('VerifyForm', () => {
       />
     );
 
-    const codeInput = screen.getByLabelText(/code/i);
-    expect(codeInput).toHaveAttribute('maxLength', '6');
+    // CodeInput renders multiple input fields, find by label text
+    const codeLabel = screen.getByText(/verification code/i);
+    expect(codeLabel).toBeInTheDocument();
+    
+    // Find the input container or inputs
+    const codeInputs = document.querySelectorAll('input[type="text"]');
+    expect(codeInputs.length).toBeGreaterThan(0);
+    
+    // Check that inputs have maxLength attribute
+    codeInputs.forEach(input => {
+      expect(input).toHaveAttribute('maxLength', '1');
+    });
   });
 });

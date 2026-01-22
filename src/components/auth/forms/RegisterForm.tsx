@@ -25,21 +25,17 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
 
   const validator = useMemo(() => new RegisterFormValidator(t), [t]);
 
-  // Re-validate errors when locale changes
   useEffect(() => {
     if (Object.keys(errors).length > 0) {
       const validation = validator.validate({ username, email, password, confirmPassword });
       setErrors(validation.errors);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locale]);
 
-  // Clear errors on ESC key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && Object.keys(errors).length > 0) {
         setErrors({});
-        // Remove focus from active element
         if (document.activeElement instanceof HTMLElement) {
           document.activeElement.blur();
         }

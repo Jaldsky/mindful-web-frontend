@@ -139,3 +139,105 @@ describe('timezoneDetector singleton', () => {
     expect(typeof formatted).toBe('string');
   });
 });
+
+describe('TimezoneDetector - getSupportedTimezones', () => {
+  let detector: TimezoneDetector;
+
+  beforeEach(() => {
+    detector = new TimezoneDetector();
+  });
+
+  it('returns array of timezones', () => {
+    const timezones = detector.getSupportedTimezones();
+    expect(Array.isArray(timezones)).toBe(true);
+    expect(timezones.length).toBeGreaterThan(0);
+  });
+
+  it('returns sorted timezones', () => {
+    const timezones = detector.getSupportedTimezones();
+    const sorted = [...timezones].sort();
+    expect(timezones).toEqual(sorted);
+  });
+
+  it('includes common timezones', () => {
+    const timezones = detector.getSupportedTimezones();
+    // Check that it returns an array with timezones
+    expect(Array.isArray(timezones)).toBe(true);
+    expect(timezones.length).toBeGreaterThan(0);
+    // Check for UTC (might be in Intl.supportedValuesOf or fallback list)
+    // If Intl.supportedValuesOf is used, it might not include UTC, so check if it exists or has common patterns
+    const hasUTC = timezones.includes('UTC');
+    const hasCommonTimezones = timezones.some(tz => 
+      tz.includes('Europe') || tz.includes('America') || tz.includes('Asia') || tz.includes('Africa')
+    );
+    // Either UTC is present OR we have common timezone patterns
+    expect(hasUTC || hasCommonTimezones).toBe(true);
+  });
+
+  it('uses Intl.supportedValuesOf when available', () => {
+    const intlWithSupportedValues = Intl as typeof Intl & {
+      supportedValuesOf?: (key: 'timeZone') => string[];
+    };
+    
+    // Check if supportedValuesOf exists
+    if (typeof intlWithSupportedValues.supportedValuesOf === 'function') {
+      const mockSupportedValuesOf = vi.spyOn(intlWithSupportedValues, 'supportedValuesOf' as keyof typeof intlWithSupportedValues);
+      (mockSupportedValuesOf as ReturnType<typeof vi.spyOn>).mockReturnValue(['UTC', 'Europe/Moscow']);
+      
+      const result = detector.getSupportedTimezones();
+      
+      expect(mockSupportedValuesOf).toHaveBeenCalledWith('timeZone');
+      expect(result).toEqual(['Europe/Moscow', 'UTC']); // sorted
+      
+      mockSupportedValuesOf.mockRestore();
+    } else {
+      // If not available, just verify fallback works
+      expect(Array.isArray(detector.getSupportedTimezones())).toBe(true);
+    }
+  });
+
+  it('falls back to common timezones on error', () => {
+    const intlWithSupportedValues = Intl as typeof Intl & {
+      supportedValuesOf?: (key: 'timeZone') => string[];
+    };
+    
+    // Only test if supportedValuesOf exists
+    if (typeof intlWithSupportedValues.supportedValuesOf === 'function') {
+      const mockSupportedValuesOf = vi.spyOn(intlWithSupportedValues, 'supportedValuesOf' as keyof typeof intlWithSupportedValues);
+      (mockSupportedValuesOf as ReturnType<typeof vi.spyOn>).mockImplementation(() => {
+        throw new Error('Not supported');
+      });
+      
+      const timezones = detector.getSupportedTimezones();
+      
+      // Should return fallback list
+      expect(Array.isArray(timezones)).toBe(true);
+      expect(timezones.length).toBeGreaterThan(0);
+      expect(timezones).toContain('UTC');
+      
+      mockSupportedValuesOf.mockRestore();
+    } else {
+      // If not available, just verify fallback works
+      const timezones = detector.getSupportedTimezones();
+      expect(Array.isArray(timezones)).toBe(true);
+      expect(timezones).toContain('UTC');
+    }
+  });
+
+  it('handles missing supportedValuesOf gracefully', () => {
+    const intlWithSupportedValues = Intl as typeof Intl & {
+      supportedValuesOf?: (key: 'timeZone') => string[];
+    };
+    
+    // Remove supportedValuesOf if it exists
+    if (intlWithSupportedValues.supportedValuesOf) {
+      delete (intlWithSupportedValues as Partial<typeof intlWithSupportedValues>).supportedValuesOf;
+    }
+    
+    const timezones = detector.getSupportedTimezones();
+    
+    // Should return fallback list
+    expect(Array.isArray(timezones)).toBe(true);
+    expect(timezones.length).toBeGreaterThan(0);
+  });
+});

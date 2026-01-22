@@ -66,7 +66,7 @@ export class TimezoneDetector implements ITimezoneDetector {
         return intlWithSupportedValues.supportedValuesOf('timeZone').sort();
       }
     } catch {
-      // Fallback to common timezones
+      // Fallback to common timezones below
     }
 
     return [

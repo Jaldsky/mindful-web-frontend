@@ -1,4 +1,3 @@
-// Types (re-export from common types file)
 export type {
   ButtonProps,
   ButtonVariant,
@@ -12,7 +11,6 @@ export type {
   LoadingSpinnerSize,
 } from './types';
 
-// Constants (re-export from common constants file)
 export {
   BUTTON_VARIANT_CLASSES,
   BUTTON_SIZE_CLASSES,
@@ -22,7 +20,6 @@ export {
   SPINNER_SIZE_CLASSES,
 } from './constants';
 
-// Components
 export { Button } from './buttons';
 export { Input } from './inputs';
 export { Card } from './cards';

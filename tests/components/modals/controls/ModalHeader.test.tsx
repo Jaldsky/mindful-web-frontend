@@ -1,5 +1,5 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect } from 'vitest';
+import { render, screen } from '@testing-library/react';
 import { ModalHeader } from '../../../../src/components/modals/controls/ModalHeader';
 
 describe('ModalHeader', () => {
@@ -8,12 +8,6 @@ describe('ModalHeader', () => {
       <ModalHeader
         title="Welcome"
         subtitle="Get started with Mindful Web"
-        onToggleTheme={vi.fn()}
-        onToggleLocale={vi.fn()}
-        themeIcon="☀️"
-        themeTitle="Toggle theme"
-        localeIcon="🇺🇸"
-        localeTitle="Switch language"
       />
     );
     
@@ -21,59 +15,28 @@ describe('ModalHeader', () => {
     expect(screen.getByText('Get started with Mindful Web')).toBeInTheDocument();
   });
 
-  it('renders theme and locale toggle buttons', () => {
-    render(
+  it('renders with animation by default', () => {
+    const { container } = render(
       <ModalHeader
         title="Welcome"
         subtitle="Subtitle"
-        onToggleTheme={vi.fn()}
-        onToggleLocale={vi.fn()}
-        themeIcon="☀️"
-        themeTitle="Toggle theme"
-        localeIcon="🇺🇸"
-        localeTitle="Switch language"
       />
     );
     
-    expect(screen.getByTitle('Toggle theme')).toBeInTheDocument();
-    expect(screen.getByTitle('Switch language')).toBeInTheDocument();
+    const header = container.firstChild as HTMLElement;
+    expect(header.style.animation).toContain('slideDown');
   });
 
-  it('calls onToggleTheme when theme button is clicked', () => {
-    const handleToggleTheme = vi.fn();
-    render(
+  it('can disable animation', () => {
+    const { container } = render(
       <ModalHeader
         title="Welcome"
         subtitle="Subtitle"
-        onToggleTheme={handleToggleTheme}
-        onToggleLocale={vi.fn()}
-        themeIcon="☀️"
-        themeTitle="Toggle theme"
-        localeIcon="🇺🇸"
-        localeTitle="Switch language"
+        shouldAnimate={false}
       />
     );
     
-    fireEvent.click(screen.getByTitle('Toggle theme'));
-    expect(handleToggleTheme).toHaveBeenCalledTimes(1);
-  });
-
-  it('calls onToggleLocale when locale button is clicked', () => {
-    const handleToggleLocale = vi.fn();
-    render(
-      <ModalHeader
-        title="Welcome"
-        subtitle="Subtitle"
-        onToggleTheme={vi.fn()}
-        onToggleLocale={handleToggleLocale}
-        themeIcon="☀️"
-        themeTitle="Toggle theme"
-        localeIcon="🇺🇸"
-        localeTitle="Switch language"
-      />
-    );
-    
-    fireEvent.click(screen.getByTitle('Switch language'));
-    expect(handleToggleLocale).toHaveBeenCalledTimes(1);
+    const header = container.firstChild as HTMLElement;
+    expect(header.style.animation).toBe('none');
   });
 });
