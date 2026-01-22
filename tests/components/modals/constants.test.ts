@@ -32,13 +32,16 @@ describe('MODAL_STYLES', () => {
 
 describe('MODAL_ANIMATION', () => {
   it('has transition duration', () => {
-    expect(MODAL_ANIMATION.TRANSITION_DURATION).toBe(300);
+    expect(MODAL_ANIMATION.TRANSITION_DURATION).toBe(600);
   });
 
   it('has fade delays', () => {
-    expect(MODAL_ANIMATION.FADE_DELAYS.FEATURES).toBe('0.1s');
-    expect(MODAL_ANIMATION.FADE_DELAYS.ACTIONS).toBe('0.15s');
-    expect(MODAL_ANIMATION.FADE_DELAYS.FOOTER).toBe('0.2s');
+    expect(MODAL_ANIMATION.FADE_DELAYS.HEADER).toBe('0.1s');
+    expect(MODAL_ANIMATION.FADE_DELAYS.FEATURE1).toBe('0.18s');
+    expect(MODAL_ANIMATION.FADE_DELAYS.FEATURE2).toBe('0.26s');
+    expect(MODAL_ANIMATION.FADE_DELAYS.FEATURE3).toBe('0.34s');
+    expect(MODAL_ANIMATION.FADE_DELAYS.ACTIONS).toBe('0.42s');
+    expect(MODAL_ANIMATION.FADE_DELAYS.FOOTER).toBe('0.5s');
   });
 
   it('has visible and hidden states', () => {

@@ -28,7 +28,6 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
   const hasAnimatedRef = useRef(false);
   const contentContainerRef = useRef<HTMLDivElement>(null);
 
-  // Hide elements immediately on mount to prevent flash
   useLayoutEffect(() => {
     if (isOpen && !hasAnimatedRef.current) {
       const hideElements = () => {
@@ -47,26 +46,21 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
     }
   }, [isOpen]);
 
-  // Helper function to animate children (like plugin)
   const animateChildren = (children: HTMLElement[]) => {
-    // Ensure all children are hidden (they should already be from useLayoutEffect)
     children.forEach((child) => {
       child.style.opacity = '0';
       child.style.transform = 'translateY(20px)';
       child.style.transition = 'none';
       child.style.animation = 'none';
     });
-    
-    // Force reflow
+
     if (children.length > 0 && contentContainerRef.current) {
       void contentContainerRef.current.offsetHeight;
     }
-    
-    // Animate each child with delay (like plugin: 100ms + index * 80ms)
+
     children.forEach((child, index) => {
       setTimeout(() => {
         child.style.transition = 'opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
-        // Force reflow
         void child.offsetHeight;
         child.style.opacity = '1';
         child.style.transform = 'translateY(0)';
@@ -77,18 +71,15 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       document.title = t('common.appName');
-      
-      // Apply plugin-style animation - wait for modal to be visible
+
       if (isVisible && !isTransitioning && !hasAnimatedRef.current) {
         hasAnimatedRef.current = true;
-        
-        // Start animation immediately when modal is visible
+
         requestAnimationFrame(() => {
           if (contentContainerRef.current) {
             const children = Array.from(contentContainerRef.current.children) as HTMLElement[];
             
             if (children.length === 0) {
-              // Retry if children not found yet
               requestAnimationFrame(() => {
                 requestAnimationFrame(() => {
                   const retryChildren = Array.from(contentContainerRef.current?.children || []) as HTMLElement[];
@@ -104,7 +95,6 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
           }
         });
       } else if (isVisible && !isTransitioning && hasAnimatedRef.current) {
-        // Fallback: if modal is visible but elements are still hidden, make them visible
         if (contentContainerRef.current) {
           const children = Array.from(contentContainerRef.current.children) as HTMLElement[];
           children.forEach((child) => {
@@ -118,7 +108,6 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
         }
       }
     } else {
-      // Reset animation flag when modal closes
       hasAnimatedRef.current = false;
     }
     

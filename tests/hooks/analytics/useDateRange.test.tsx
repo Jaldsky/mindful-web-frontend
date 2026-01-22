@@ -60,4 +60,47 @@ describe('useDateRange', () => {
     expect(result.current.dateRange.start).toBe('2024-01-01');
     expect(result.current.dateRange.end).toBe('2024-01-31');
   });
+
+  it('resets to default date range', () => {
+    const { result } = renderHook(() => useDateRange(7));
+    
+    // Change date range first
+    act(() => {
+      result.current.setDateRange({ start: '2024-01-01', end: '2024-01-31' });
+    });
+    
+    expect(result.current.dateRange.start).toBe('2024-01-01');
+    
+    // Reset to default
+    act(() => {
+      result.current.resetToDefault();
+    });
+    
+    // Should be back to 7 days range
+    const start = new Date(result.current.dateRange.start);
+    const end = new Date(result.current.dateRange.end);
+    const diffDays = Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+    
+    expect(diffDays).toBe(7);
+  });
+
+  it('resets to custom default days', () => {
+    const { result } = renderHook(() => useDateRange(30));
+    
+    // Change date range first
+    act(() => {
+      result.current.setDateRange({ start: '2024-01-01', end: '2024-01-31' });
+    });
+    
+    // Reset to default (30 days)
+    act(() => {
+      result.current.resetToDefault();
+    });
+    
+    const start = new Date(result.current.dateRange.start);
+    const end = new Date(result.current.dateRange.end);
+    const diffDays = Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+    
+    expect(diffDays).toBe(30);
+  });
 });

@@ -85,19 +85,20 @@ describe('ResendForm', () => {
     expect(handleSubmit).not.toHaveBeenCalled();
   });
 
-  it('calls onSwitchToLogin when login link clicked', () => {
-    const handleSwitch = vi.fn();
+  it('calls onBack when back button is clicked', () => {
+    const handleBack = vi.fn();
     renderWithProviders(
       <ResendForm
         onSubmit={vi.fn()}
-        onSwitchToLogin={handleSwitch}
+        onSwitchToLogin={vi.fn()}
+        onBack={handleBack}
       />
     );
 
-    const loginLink = screen.getByText(/sign in/i);
-    fireEvent.click(loginLink);
+    const backButton = screen.getByRole('button', { name: /back/i });
+    fireEvent.click(backButton);
 
-    expect(handleSwitch).toHaveBeenCalled();
+    expect(handleBack).toHaveBeenCalled();
   });
 
   it('disables input when loading', () => {

@@ -22,21 +22,17 @@ export const ResendForm: React.FC<ResendFormProps> = ({
 
   const emailValidator = useMemo(() => new EmailValidator(), []);
 
-  // Re-validate error when locale changes
   useEffect(() => {
     if (error) {
       const validationError = emailValidator.validate(email, t);
       setError(validationError);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locale]);
 
-  // Clear error on ESC key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && error) {
         setError(undefined);
-        // Remove focus from active element
         if (document.activeElement instanceof HTMLElement) {
           document.activeElement.blur();
         }

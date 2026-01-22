@@ -18,7 +18,6 @@ export const CodeInput: React.FC<CodeInputProps> = ({
   const [digits, setDigits] = useState<string[]>(Array(length).fill(''));
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  // Sync value with digits
   useEffect(() => {
     const newDigits = Array(length).fill('');
     for (let i = 0; i < length && i < value.length; i++) {
@@ -28,7 +27,6 @@ export const CodeInput: React.FC<CodeInputProps> = ({
   }, [value, length]);
 
   const handleChange = (index: number, newValue: string) => {
-    // Only allow digits
     if (newValue && !/^\d$/.test(newValue)) {
       return;
     }
@@ -37,11 +35,9 @@ export const CodeInput: React.FC<CodeInputProps> = ({
     newDigits[index] = newValue;
     setDigits(newDigits);
 
-    // Update parent value
     const code = newDigits.join('');
     onChange(code);
 
-    // Move to next input if value entered
     if (newValue && index < length - 1) {
       inputRefs.current[index + 1]?.focus();
     }
@@ -49,7 +45,6 @@ export const CodeInput: React.FC<CodeInputProps> = ({
 
   const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Backspace' && !digits[index] && index > 0) {
-      // Move to previous input if current is empty
       inputRefs.current[index - 1]?.focus();
     }
   };
@@ -68,7 +63,6 @@ export const CodeInput: React.FC<CodeInputProps> = ({
       const code = newDigits.join('');
       onChange(code);
 
-      // Focus the next empty input or the last one
       const nextIndex = Math.min(pastedData.length, length - 1);
       inputRefs.current[nextIndex]?.focus();
     }

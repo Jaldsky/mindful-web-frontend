@@ -46,5 +46,4 @@ export class LocalStorageManager implements IStorageManager {
   }
 }
 
-// Singleton instance
 export const storageManager = new LocalStorageManager();
