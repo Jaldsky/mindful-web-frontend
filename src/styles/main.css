@@ -330,6 +330,3 @@ body {
 .btn-secondary.btn-anonymous:hover:not(:disabled)::before {
   content: '👤';
 }
-
-
-
