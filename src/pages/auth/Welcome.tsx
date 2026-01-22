@@ -17,8 +17,12 @@ export const Welcome: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  if (status !== 'welcome') {
+  if (status !== 'welcome' && status !== 'loading') {
     return <Navigate to="/" replace />;
+  }
+
+  if (status === 'loading') {
+    return null;
   }
 
   const handleCreateAnonymous = async () => {
