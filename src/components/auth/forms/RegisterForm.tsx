@@ -1,33 +1,59 @@
-import React, { useState, FormEvent } from 'react';
+import React, { useState, FormEvent, useEffect, useMemo } from 'react';
 import { useTranslation } from "../../../hooks";
 import { FormField } from '../FormField';
 import { RegisterFormValidator } from '../validators';
 
 interface RegisterFormProps {
   onSubmit: (username: string, email: string, password: string) => Promise<void>;
-  onSwitchToLogin: () => void;
+  onSwitchToVerify: () => void;
   onBack?: () => void;
   loading?: boolean;
 }
 
 export const RegisterForm: React.FC<RegisterFormProps> = ({
   onSubmit,
-  onSwitchToLogin,
+  onSwitchToVerify,
   onBack,
   loading = false,
 }) => {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const validator = new RegisterFormValidator(t);
+  const validator = useMemo(() => new RegisterFormValidator(t), [t]);
+
+  // Re-validate errors when locale changes
+  useEffect(() => {
+    if (Object.keys(errors).length > 0) {
+      const validation = validator.validate({ username, email, password, confirmPassword });
+      setErrors(validation.errors);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [locale]);
+
+  // Clear errors on ESC key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && Object.keys(errors).length > 0) {
+        setErrors({});
+        // Remove focus from active element
+        if (document.activeElement instanceof HTMLElement) {
+          document.activeElement.blur();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [errors]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
-    const validation = validator.validate({ username, email, password });
+    const validation = validator.validate({ username, email, password, confirmPassword });
     setErrors(validation.errors);
 
     if (!validation.isValid) return;
@@ -43,7 +69,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
           color: 'var(--color-primary)',
           fontSize: '32px',
           marginTop: '0',
-          marginBottom: 'var(--spacing-xl)'
+          marginBottom: 'var(--spacing-lg)'
         }}
       >
         {t('auth.registerTab')}
@@ -87,13 +113,26 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
         required
       />
 
+      <FormField
+        id="register-confirm-password"
+        label={t('auth.confirmPassword')}
+        type="password"
+        value={confirmPassword}
+        onChange={setConfirmPassword}
+        error={errors.confirmPassword}
+        placeholder={t('auth.confirmPasswordPlaceholder')}
+        disabled={loading}
+        autoComplete="new-password"
+        required
+      />
+
       <div
         className="button-group auth-buttons"
         style={{
           display: 'flex',
           flexDirection: 'column',
-          gap: 'var(--spacing-md)',
-          marginTop: 'var(--spacing-xl)',
+          gap: 'var(--spacing-sm)',
+          marginTop: 'var(--spacing-md)',
           marginBottom: 'var(--spacing-sm)'
         }}
       >
@@ -117,14 +156,17 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
       </div>
 
       <div
-        className="app-login-link text-center"
+        className="app-register-link text-center"
         style={{ marginTop: 'var(--spacing-sm)' }}
       >
+        <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)' }}>
+          {t('auth.alreadyHaveCode')}{' '}
+        </span>
         <a
           href="#"
           onClick={(e) => {
             e.preventDefault();
-            onSwitchToLogin();
+            onSwitchToVerify();
           }}
           className="transition-colors"
           style={{
@@ -139,7 +181,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
             e.currentTarget.style.textDecoration = 'none';
           }}
         >
-          {t('auth.loginLink')}
+          {t('auth.verify')}
         </a>
       </div>
     </form>

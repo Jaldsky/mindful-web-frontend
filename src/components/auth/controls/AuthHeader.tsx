@@ -1,57 +1,67 @@
 /**
  * Auth Header Component
  * Theme and locale switchers for auth screens
+ * Matching WelcomeModal design
  */
 
 import React from 'react';
-import { Globe, Moon, Sun } from 'lucide-react';
-import { useLocale } from '../../../contexts';
+import { useLocale, SUPPORTED_LOCALES } from '../../../contexts';
 import { useTheme } from '../../../contexts';
 import { THEME } from '../../../constants';
+import { useTranslation } from '../../../hooks';
+import { ModalToggleButton } from '../../modals/controls/ModalToggleButton';
 
 export const AuthHeader: React.FC = () => {
   const { locale, setLocale } = useLocale();
   const { theme, setTheme } = useTheme();
+  const { t } = useTranslation();
 
   const toggleTheme = () => {
     setTheme(theme === THEME.LIGHT ? THEME.DARK : THEME.LIGHT);
   };
 
   const toggleLocale = () => {
-    setLocale(locale === 'en' ? 'ru' : 'en');
+    setLocale(locale === SUPPORTED_LOCALES.EN ? SUPPORTED_LOCALES.RU : SUPPORTED_LOCALES.EN);
   };
+
+  const themeIcon =
+    theme === THEME.LIGHT ? (
+      '☀️'
+    ) : (
+      <span style={{ fontSize: '14px' }}>🌙</span>
+    );
+
+  const localeIcon = locale === SUPPORTED_LOCALES.EN ? '🇺🇸' : '🇷🇺';
+
+  const themeTitle =
+    theme === THEME.LIGHT ? t('common.themeDark') : t('common.themeLight');
+
+  const localeTitle =
+    locale === SUPPORTED_LOCALES.EN
+      ? 'Переключить на русский / Switch to Russian'
+      : 'Switch to English / Переключить на английский';
 
   return (
     <div
-      className="flex gap-2 mb-6"
       style={{
-        justifyContent: 'flex-end',
+        position: 'absolute',
+        top: 'var(--spacing-sm)',
+        right: 'var(--spacing-sm)',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '6px',
       }}
     >
-      <button
-        type="button"
+      <ModalToggleButton
+        icon={themeIcon}
         onClick={toggleTheme}
-        className="p-2 rounded-lg transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
-        style={{
-          color: 'var(--color-text-secondary)',
-        }}
-        aria-label="Toggle theme"
-      >
-        {theme === THEME.LIGHT ? <Moon size={20} /> : <Sun size={20} />}
-      </button>
-
-      <button
-        type="button"
+        title={themeTitle}
+      />
+      <ModalToggleButton
+        icon={localeIcon}
         onClick={toggleLocale}
-        className="p-2 rounded-lg transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-1"
-        style={{
-          color: 'var(--color-text-secondary)',
-        }}
-        aria-label="Change language"
-      >
-        <Globe size={20} />
-        <span className="text-sm font-medium uppercase">{locale}</span>
-      </button>
+        title={localeTitle}
+      />
     </div>
   );
 };

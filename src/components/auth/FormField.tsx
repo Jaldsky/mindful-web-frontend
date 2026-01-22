@@ -32,7 +32,7 @@ export const FormField: React.FC<FormFieldProps> = ({
   const [isFocused, setIsFocused] = useState(false);
 
   return (
-    <div className="auth-form-group" style={{ marginBottom: 'var(--spacing-lg)' }}>
+    <div className="auth-form-group" style={{ marginBottom: 'var(--spacing-sm)' }}>
       <label
         htmlFor={id}
         className="block font-medium"
@@ -62,10 +62,15 @@ export const FormField: React.FC<FormFieldProps> = ({
           color: 'var(--color-text-primary)',
           background: 'var(--color-bg-primary)',
           borderColor: error ? 'var(--color-error)' : isFocused ? 'var(--color-primary)' : 'var(--border-color)',
+          borderWidth: '1px',
           padding: '10px 12px',
           borderRadius: 'var(--border-radius-md)',
           transition: 'border-color var(--transition-normal), box-shadow var(--transition-normal)',
-          boxShadow: isFocused ? '0 0 0 2px rgba(76, 175, 80, 0.1)' : 'none'
+          boxShadow: error 
+            ? '0 0 0 2px rgba(229, 115, 115, 0.1)' 
+            : isFocused 
+              ? '0 0 0 2px rgba(76, 175, 80, 0.1)' 
+              : 'none'
         }}
       />
       {error && (
@@ -73,6 +78,7 @@ export const FormField: React.FC<FormFieldProps> = ({
           className="text-sm"
           style={{
             color: 'var(--color-error)',
+            fontSize: 'var(--font-size-xs)',
             marginTop: 'var(--spacing-xs)'
           }}
         >

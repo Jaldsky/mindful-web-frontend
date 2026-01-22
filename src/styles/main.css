@@ -12,6 +12,12 @@
   --color-warning-hover: #F57C00;
   --color-danger: #f44336;
   --color-danger-hover: #da190b;
+  --color-error: #e57373;
+  --color-error-text: #ffffff;
+  --color-error-border: #d32f2f;
+  --color-success: #4CAF50;
+  --color-success-text: #ffffff;
+  --color-success-border: #388E3C;
   --color-info: #9C27B0;
   --color-info-hover: #7B1FA2;
   
@@ -24,12 +30,42 @@
   --color-bg-primary: #ffffff;
   --color-bg-secondary: #f8f9fa;
   --color-bg-tertiary: #f5f5f5;
+  --color-bg-overlay: #d9d9d9;
+  
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 24px;
+  --spacing-xxl: 32px;
+  
+  /* Font sizes */
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+  --font-size-md: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
+  --font-size-xxl: 24px;
+  
+  /* Border radius */
+  --border-radius-sm: 6px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+  
+  /* Font family */
+  --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  
+  /* Transitions */
+  --transition-normal: 0.2s ease;
+  --transition-slow: 0.5s ease;
   
   /* Border and shadow */
   --border-color: #ddd;
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.08);
   --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
   --shadow-md: 0 2px 10px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
 
 /* Dark theme - matching plugin style */
@@ -43,6 +79,12 @@
   --color-warning-hover: #FFB74D;
   --color-danger: #EF5350;
   --color-danger-hover: #E57373;
+  --color-error: #E57373;
+  --color-error-text: #ffffff;
+  --color-error-border: #EF5350;
+  --color-success: #4CAF50;
+  --color-success-text: #ffffff;
+  --color-success-border: #66BB6A;
   --color-info: #AB47BC;
   --color-info-hover: #BA68C8;
   
@@ -55,12 +97,14 @@
   --color-bg-primary: #1e1e1e;
   --color-bg-secondary: #2a2a2a;
   --color-bg-tertiary: #121212;
+  --color-bg-overlay: #2d2d2d;
   
   /* Border and shadow */
   --border-color: #404040;
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.5);
   --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 2px 10px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 4px 20px rgba(0, 0, 0, 0.6);
 }
 
 body {
@@ -72,4 +116,220 @@ body {
 [data-theme="dark"] body {
   @apply text-slate-100;
 }
+
+/* Welcome Modal Animations */
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Welcome modal content animation - like plugin */
+.welcome-content-item {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.welcome-content-item.animate {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@keyframes slideDownError {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Button animations - matching plugin style */
+.button-animated {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease,
+              border-color 0.2s ease,
+              color 0.2s ease,
+              box-shadow 0.2s ease,
+              opacity 0.2s ease;
+}
+
+.button-animated::before {
+  content: '';
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 0;
+  height: 1.3em;
+  margin-right: 0;
+  overflow: hidden;
+  opacity: 0;
+  font-size: 13px;
+  line-height: 1;
+  transition: width 0.2s ease,
+              margin-right 0.2s ease,
+              opacity 0.2s ease;
+}
+
+.button-animated:hover:not(:disabled)::before {
+  width: 1.3em;
+  margin-right: 6px;
+  opacity: 1;
+}
+
+.button-animated:hover:not(:disabled) {
+  box-shadow: var(--shadow-sm);
+}
+
+.button-animated:active:not(:disabled) {
+  box-shadow: var(--shadow-xs);
+  transform: scale(0.98);
+}
+
+.button-animated:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* Primary button emoji on hover */
+.button-animated.bg-primary:hover:not(:disabled)::before,
+.button-animated.bg-primary-dark:hover:not(:disabled)::before {
+  content: '✅';
+}
+
+/* Secondary button emoji on hover - back arrow */
+.button-animated.bg-gray-500:hover:not(:disabled)::before,
+.button-animated.bg-gray-600:hover:not(:disabled)::before {
+  content: '←';
+}
+
+/* Outline button emoji on hover */
+.button-animated.border:hover:not(:disabled)::before {
+  content: '👤';
+}
+
+/* Auth form button styles - matching plugin style */
+.btn-base {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 40px;
+  padding: 8px 16px;
+  border-radius: var(--border-radius-sm, 6px);
+  border: 1px solid var(--border-color);
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm, 14px);
+  font-weight: 500;
+  line-height: 1;
+  box-shadow: var(--shadow-xs);
+  cursor: pointer;
+  transition: background-color 0.2s ease,
+              border-color 0.2s ease,
+              color 0.2s ease,
+              box-shadow 0.2s ease,
+              opacity 0.2s ease;
+  white-space: nowrap;
+  overflow: visible;
+}
+
+.btn-base::before {
+  content: '';
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 0;
+  height: 1.5em;
+  margin-right: 0;
+  overflow: visible;
+  opacity: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  vertical-align: middle;
+  transition: width 0.2s ease,
+              margin-right 0.2s ease,
+              opacity 0.2s ease;
+}
+
+.btn-base:hover:not(:disabled) {
+  box-shadow: var(--shadow-sm);
+  background-color: var(--color-bg-tertiary);
+  border-color: var(--color-primary);
+}
+
+.btn-base:hover:not(:disabled)::before {
+  width: 1.3em;
+  margin-right: 6px;
+  opacity: 1;
+}
+
+.btn-base:active:not(:disabled) {
+  box-shadow: var(--shadow-xs);
+  transform: scale(0.98);
+}
+
+.btn-base:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* Primary button - checkmark emoji for login/register */
+.btn-primary:hover:not(:disabled)::before {
+  content: '✅';
+}
+
+/* Verify button - envelope emoji */
+.btn-verify:hover:not(:disabled)::before {
+  content: '✉️';
+}
+
+/* Secondary button - back arrow */
+.btn-secondary:hover:not(:disabled)::before {
+  content: '←';
+}
+
+/* Sign in button - lock emoji (overrides btn-primary) */
+.btn-primary.btn-signin:hover:not(:disabled)::before {
+  content: '🔐';
+}
+
+/* Anonymous button - anonymous user emoji (overrides btn-secondary) */
+.btn-secondary.btn-anonymous:hover:not(:disabled)::before {
+  content: '👤';
+}
+
+
 

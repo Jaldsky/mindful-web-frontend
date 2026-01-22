@@ -4,7 +4,7 @@
  * Matching plugin design
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation, useAuthAnimation } from '../../hooks';
 import { useAuth } from '../../contexts';
@@ -19,6 +19,7 @@ export const Auth: React.FC = () => {
 
   const [isVisible, setIsVisible] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [isErrorVisible, setIsErrorVisible] = useState(false);
   const [authMessage, setAuthMessage] = useState<string | null>(null);
   const [authLoading, setAuthLoading] = useState(false);
   const [registeredEmail, setRegisteredEmail] = useState('');
@@ -32,6 +33,103 @@ export const Auth: React.FC = () => {
     containerRef,
     switchScreen,
   } = useAuthAnimation('login' as AuthScreen, !isVisible);
+  
+  const formRef = useRef<HTMLDivElement>(null);
+  const hasAnimatedRef = useRef(false);
+  const prevDisplayScreenRef = useRef<AuthScreen | null>(null);
+
+  // Helper function to animate form children (like plugin)
+  const animateFormChildren = (children: HTMLElement[]) => {
+    // Ensure all children are hidden
+    children.forEach((child) => {
+      child.style.opacity = '0';
+      child.style.transform = 'translateY(20px)';
+      child.style.transition = 'none';
+      child.style.animation = 'none';
+    });
+    
+    // Force reflow
+    if (children.length > 0 && formRef.current) {
+      void formRef.current.offsetHeight;
+    }
+    
+    // Animate each child with delay (like plugin: 100ms + index * 80ms)
+    children.forEach((child, index) => {
+      setTimeout(() => {
+        child.style.transition = 'opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+        // Force reflow
+        void child.offsetHeight;
+        child.style.opacity = '1';
+        child.style.transform = 'translateY(0)';
+      }, 100 + (index * 80));
+    });
+  };
+
+  // Hide form elements immediately on mount or screen change
+  useLayoutEffect(() => {
+    if (formRef.current && !isMeasuring) {
+      const formElement = formRef.current.querySelector('.auth-form');
+      if (formElement) {
+        const children = Array.from(formElement.children) as HTMLElement[];
+        // Hide children when screen changes
+        if (prevDisplayScreenRef.current !== displayScreen) {
+          hasAnimatedRef.current = false; // Reset animation flag on screen change
+          children.forEach((child) => {
+            child.style.opacity = '0';
+            child.style.transform = 'translateY(20px)';
+            child.style.transition = 'none';
+            child.style.animation = 'none';
+          });
+        } else if (!hasAnimatedRef.current) {
+          // Hide on first mount
+          children.forEach((child) => {
+            child.style.opacity = '0';
+            child.style.transform = 'translateY(20px)';
+            child.style.transition = 'none';
+            child.style.animation = 'none';
+          });
+        }
+      }
+    }
+  }, [displayScreen, isMeasuring]);
+
+  // Animate form elements simultaneously with container size animation
+  useEffect(() => {
+    // Start animation when:
+    // 1. Transition begins (isTransitioning becomes true) - for screen changes
+    // 2. Content is visible and not measuring - for initial render
+    const shouldAnimate = isVisible && 
+      ((isTransitioning && !isMeasuring) || (!isTransitioning && !isMeasuring)) && 
+      formRef.current && 
+      !hasAnimatedRef.current;
+    
+    if (shouldAnimate) {
+      const formElement = formRef.current.querySelector('.auth-form');
+      if (formElement) {
+        const children = Array.from(formElement.children) as HTMLElement[];
+        
+        if (children.length > 0) {
+          hasAnimatedRef.current = true;
+          prevDisplayScreenRef.current = displayScreen;
+          
+          // Start animation immediately
+          // For transitions: happens simultaneously with size change
+          // For initial render: happens when content becomes visible
+          requestAnimationFrame(() => {
+            if (formRef.current) {
+              const currentFormElement = formRef.current.querySelector('.auth-form');
+              if (currentFormElement) {
+                const currentChildren = Array.from(currentFormElement.children) as HTMLElement[];
+                if (currentChildren.length > 0) {
+                  animateFormChildren(currentChildren);
+                }
+              }
+            }
+          });
+        }
+      }
+    }
+  }, [isVisible, isTransitioning, isMeasuring, displayScreen]);
 
   useEffect(() => {
     document.title = `${t('auth.loginTab')} - ${t('common.appName')}`;
@@ -42,7 +140,13 @@ export const Auth: React.FC = () => {
 
   useEffect(() => {
     if (authError) {
-      return messageManager.scheduleHide(() => setAuthError(null), 5000);
+      setIsErrorVisible(true);
+      return messageManager.scheduleHide(() => {
+        setIsErrorVisible(false);
+        setTimeout(() => setAuthError(null), 300); // Wait for exit animation
+      }, 5000);
+    } else {
+      setIsErrorVisible(false);
     }
   }, [authError]);
 
@@ -58,8 +162,7 @@ export const Auth: React.FC = () => {
     setAuthLoading(true);
     try {
       await login(username, password);
-      setAuthMessage(t('auth.loginSuccess'));
-      navigationService.scheduleNavigation(() => navigate('/'), 1000);
+      navigate('/');
     } catch (err) {
       setAuthError((err as Error).message || t('auth.genericError'));
     } finally {
@@ -74,7 +177,7 @@ export const Auth: React.FC = () => {
     try {
       await register(username, email, password);
       setRegisteredEmail(email);
-      setAuthMessage(t('auth.registerSuccess'));
+      // Immediately switch to verify screen after successful registration
       switchScreen('verify');
     } catch (err) {
       setAuthError((err as Error).message || t('auth.genericError'));
@@ -90,8 +193,8 @@ export const Auth: React.FC = () => {
     setAuthLoading(true);
     try {
       await verify(email, code);
-      setAuthMessage(t('auth.verifySuccess'));
-      navigationService.scheduleNavigation(() => switchScreen('login'), 1500);
+      // Immediately switch to login screen after successful verification
+      switchScreen('login');
     } catch (err) {
       setAuthError((err as Error).message || t('auth.genericError'));
       throw err;
@@ -106,7 +209,9 @@ export const Auth: React.FC = () => {
     setAuthLoading(true);
     try {
       await resendCode(email);
-      setAuthMessage(t('auth.resendSuccess'));
+      setRegisteredEmail(email);
+      // Immediately switch to verify screen after successful resend
+      switchScreen('verify');
     } catch (err) {
       setAuthError((err as Error).message || t('auth.genericError'));
     } finally {
@@ -121,13 +226,17 @@ export const Auth: React.FC = () => {
   const renderForm = () => {
     const formStyle = {
       opacity: isMeasuring ? 0 : 1,
-      transition: 'none' as const,
+      transition: isMeasuring ? 'none' as const : 'opacity 0.2s ease',
+      pointerEvents: isMeasuring ? 'none' as const : 'auto' as const,
+      position: isMeasuring ? ('absolute' as const) : ('relative' as const),
+      width: isMeasuring ? '100%' : 'auto',
+      visibility: isMeasuring ? ('hidden' as const) : ('visible' as const),
     };
 
     const className = `auth-form ${isTransitioning ? 'transitioning' : ''} ${isMeasuring ? 'measuring' : ''}`;
 
     return (
-      <div style={formStyle} className={className}>
+      <div ref={formRef} style={formStyle} className={className}>
         {displayScreen === 'login' && (
           <LoginForm
             onSubmit={handleLogin}
@@ -139,8 +248,8 @@ export const Auth: React.FC = () => {
         {displayScreen === 'register' && (
           <RegisterForm
             onSubmit={handleRegister}
-            onSwitchToLogin={() => switchScreen('login')}
-            onBack={handleBack}
+            onSwitchToVerify={() => switchScreen('verify')}
+            onBack={() => switchScreen('login')}
             loading={authLoading}
           />
         )}
@@ -148,8 +257,7 @@ export const Auth: React.FC = () => {
           <VerifyForm
             onSubmit={handleVerify}
             onSwitchToResend={() => switchScreen('resend')}
-            onSwitchToLogin={() => switchScreen('login')}
-            onBack={handleBack}
+            onBack={() => switchScreen('register')}
             loading={authLoading}
             initialEmail={registeredEmail}
           />
@@ -157,8 +265,7 @@ export const Auth: React.FC = () => {
         {displayScreen === 'resend' && (
           <ResendForm
             onSubmit={handleResend}
-            onSwitchToLogin={() => switchScreen('login')}
-            onBack={handleBack}
+            onBack={() => switchScreen('verify')}
             loading={authLoading}
             initialEmail={registeredEmail}
           />
@@ -199,55 +306,67 @@ export const Auth: React.FC = () => {
             position: 'relative',
             overflow: 'hidden',
             height: containerHeight,
-            transition: !isVisible ? 'none' : 'height 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+            transition: (!isVisible && !isTransitioning) ? 'none' : 'height 0.4s cubic-bezier(0.4, 0, 0.2, 1), width 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
           }}
         >
           <AuthHeader />
+          
+          {/* Error Messages - placed at top of form for better visibility, absolute to not affect container height */}
+          {authError && (
+            <div
+              style={{
+                position: 'absolute',
+                top: '70px',
+                left: 'var(--spacing-xxl)',
+                right: 'var(--spacing-xxl)',
+                backgroundColor: 'var(--color-error)',
+                color: 'var(--color-error-text)',
+                border: '1px solid var(--color-error-border)',
+                fontSize: 'var(--font-size-sm)',
+                padding: 'var(--spacing-md)',
+                borderRadius: 'var(--border-radius-md)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: 'var(--spacing-sm)',
+                animation: isErrorVisible ? 'slideDownError 0.3s ease' : 'none',
+                opacity: isErrorVisible ? 1 : 0,
+                transform: isErrorVisible ? 'translateY(0)' : 'translateY(-20px)',
+                transition: 'opacity 0.3s ease, transform 0.3s ease',
+                boxShadow: 'var(--shadow-lg)',
+                zIndex: 10,
+                pointerEvents: isErrorVisible ? 'auto' : 'none',
+              }}
+            >
+              <span style={{ flex: 1, textAlign: 'center' }}>{authError}</span>
+              <button
+                onClick={() => {
+                  setIsErrorVisible(false);
+                  setTimeout(() => setAuthError(null), 300);
+                }}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: 'var(--color-error-text)',
+                  cursor: 'pointer',
+                  fontSize: '20px',
+                  padding: '0',
+                  lineHeight: '1',
+                  opacity: 0.7,
+                  transition: 'opacity 0.2s',
+                  flexShrink: 0,
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.opacity = '1')}
+                onMouseLeave={(e) => (e.currentTarget.style.opacity = '0.7')}
+                aria-label="Close"
+              >
+                ×
+              </button>
+            </div>
+          )}
+
           {renderForm()}
         </div>
-
-        {/* Error Messages */}
-        {authError && (
-          <div
-            style={{
-              backgroundColor: 'var(--color-error)',
-              color: 'var(--color-error-text)',
-              border: '1px solid var(--color-error-border)',
-              fontSize: 'var(--font-size-sm)',
-              marginTop: 'var(--spacing-md)',
-              padding: 'var(--spacing-md)',
-              borderRadius: 'var(--border-radius-md)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: 'var(--spacing-sm)',
-              animation: 'slideUp 0.3s ease',
-              boxShadow: 'var(--shadow-lg)',
-            }}
-          >
-            <span style={{ flex: 1, textAlign: 'center' }}>{authError}</span>
-            <button
-              onClick={() => setAuthError(null)}
-              style={{
-                background: 'transparent',
-                border: 'none',
-                color: 'var(--color-error-text)',
-                cursor: 'pointer',
-                fontSize: '20px',
-                padding: '0',
-                lineHeight: '1',
-                opacity: 0.7,
-                transition: 'opacity 0.2s',
-                flexShrink: 0,
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.opacity = '1')}
-              onMouseLeave={(e) => (e.currentTarget.style.opacity = '0.7')}
-              aria-label="Close"
-            >
-              ×
-            </button>
-          </div>
-        )}
 
         {/* Success Messages */}
         {authMessage && (

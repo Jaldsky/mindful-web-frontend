@@ -4,14 +4,14 @@
  * Matching plugin design with animations
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useLayoutEffect } from 'react';
 import { useTranslation } from "../../hooks";
 import { useLocale, SUPPORTED_LOCALES } from '../../contexts';
 import { useTheme } from '../../contexts';
 import { THEME } from '../../constants';
 import { WelcomeModalProps } from './types';
-import { MODAL_STYLES, MODAL_ANIMATION } from './constants';
-import { ModalHeader, ModalFeatureItem, ModalActionButtons } from './controls';
+import { MODAL_STYLES } from './constants';
+import { ModalHeader, ModalFeatureItem, ModalActionButtons, ModalToggleButton } from './controls';
 import { useModalAnimation } from './hooks/useModalAnimation';
 
 export const WelcomeModal: React.FC<WelcomeModalProps> = ({
@@ -24,12 +24,106 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
   const { locale, setLocale } = useLocale();
   const { theme, setTheme } = useTheme();
   const { isVisible, isTransitioning, handleTransition } = useModalAnimation(isOpen);
+  const prevIsOpenRef = useRef(false);
+  const hasAnimatedRef = useRef(false);
+  const contentContainerRef = useRef<HTMLDivElement>(null);
+
+  // Hide elements immediately on mount to prevent flash
+  useLayoutEffect(() => {
+    if (isOpen && !hasAnimatedRef.current) {
+      const hideElements = () => {
+        if (contentContainerRef.current) {
+          const children = Array.from(contentContainerRef.current.children) as HTMLElement[];
+          children.forEach((child) => {
+            child.style.opacity = '0';
+            child.style.transform = 'translateY(20px)';
+            child.style.transition = 'none';
+            child.style.animation = 'none';
+          });
+        }
+      };
+      hideElements();
+      requestAnimationFrame(hideElements);
+    }
+  }, [isOpen]);
+
+  // Helper function to animate children (like plugin)
+  const animateChildren = (children: HTMLElement[]) => {
+    // Ensure all children are hidden (they should already be from useLayoutEffect)
+    children.forEach((child) => {
+      child.style.opacity = '0';
+      child.style.transform = 'translateY(20px)';
+      child.style.transition = 'none';
+      child.style.animation = 'none';
+    });
+    
+    // Force reflow
+    if (children.length > 0 && contentContainerRef.current) {
+      void contentContainerRef.current.offsetHeight;
+    }
+    
+    // Animate each child with delay (like plugin: 100ms + index * 80ms)
+    children.forEach((child, index) => {
+      setTimeout(() => {
+        child.style.transition = 'opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+        // Force reflow
+        void child.offsetHeight;
+        child.style.opacity = '1';
+        child.style.transform = 'translateY(0)';
+      }, 100 + (index * 80));
+    });
+  };
 
   useEffect(() => {
     if (isOpen) {
       document.title = t('common.appName');
+      
+      // Apply plugin-style animation - wait for modal to be visible
+      if (isVisible && !isTransitioning && !hasAnimatedRef.current) {
+        hasAnimatedRef.current = true;
+        
+        // Start animation immediately when modal is visible
+        requestAnimationFrame(() => {
+          if (contentContainerRef.current) {
+            const children = Array.from(contentContainerRef.current.children) as HTMLElement[];
+            
+            if (children.length === 0) {
+              // Retry if children not found yet
+              requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                  const retryChildren = Array.from(contentContainerRef.current?.children || []) as HTMLElement[];
+                  if (retryChildren.length > 0) {
+                    animateChildren(retryChildren);
+                  }
+                });
+              });
+              return;
+            }
+            
+            animateChildren(children);
+          }
+        });
+      } else if (isVisible && !isTransitioning && hasAnimatedRef.current) {
+        // Fallback: if modal is visible but elements are still hidden, make them visible
+        if (contentContainerRef.current) {
+          const children = Array.from(contentContainerRef.current.children) as HTMLElement[];
+          children.forEach((child) => {
+            const opacity = window.getComputedStyle(child).opacity;
+            if (opacity === '0') {
+              child.style.opacity = '1';
+              child.style.transform = 'translateY(0)';
+              child.style.transition = 'opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+            }
+          });
+        }
+      }
+    } else {
+      // Reset animation flag when modal closes
+      hasAnimatedRef.current = false;
     }
-  }, [isOpen, t]);
+    
+    prevIsOpenRef.current = isOpen;
+  }, [isOpen, isVisible, isTransitioning, t]);
 
   if (!isOpen) return null;
 
@@ -74,86 +168,112 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
 
   return (
     <div
-      className="min-h-screen flex justify-center p-4 pt-12"
+      className="fixed inset-0 flex justify-center z-[1000] overflow-y-auto p-4 pt-12"
       style={{
         backgroundColor: 'var(--color-bg-overlay)',
         fontFamily: 'var(--font-family)',
       }}
     >
-      <div className="w-full" style={{ maxWidth: MODAL_STYLES.CONTAINER.MAX_WIDTH }}>
+      <div
+        className="w-full"
+        style={{
+          maxWidth: MODAL_STYLES.CONTAINER.MAX_WIDTH,
+        }}
+      >
         <div
-          className="w-full rounded-lg border"
+          className="w-full rounded-lg border text-center"
           style={{
             background: 'var(--color-bg-primary)',
             borderColor: 'var(--border-color)',
+            borderRadius: 'var(--border-radius-lg)',
             padding: 'var(--spacing-xxl)',
             boxShadow: 'var(--shadow-lg)',
             position: 'relative',
             overflow: 'hidden',
-            opacity:
-              isVisible && !isTransitioning
-                ? MODAL_ANIMATION.STATES.VISIBLE.opacity
-                : MODAL_ANIMATION.STATES.HIDDEN.opacity,
+            opacity: isVisible && !isTransitioning ? 1 : 0,
             transform:
               isVisible && !isTransitioning
-                ? `scale(${MODAL_ANIMATION.STATES.VISIBLE.scale})`
-                : `scale(${MODAL_ANIMATION.STATES.HIDDEN.scale})`,
+                ? 'translateY(0) scale(1)'
+                : 'translateY(-30px) scale(0.95)',
             transition:
-              'opacity 0.3s cubic-bezier(0.25, 0.1, 0.25, 1), transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1), max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), height 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+              'opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+            animation: isVisible && !isTransitioning ? 'modalSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
+            pointerEvents: isVisible && !isTransitioning ? 'auto' : 'none',
           }}
         >
-          <ModalHeader
-            title={t('welcome.title')}
-            subtitle={t('welcome.subtitle')}
-            onToggleTheme={toggleTheme}
-            onToggleLocale={toggleLocale}
-            themeIcon={themeIcon}
-            themeTitle={themeTitle}
-            localeIcon={localeIcon}
-            localeTitle={localeTitle}
-          />
-
-          {/* Features */}
+          {/* Theme and Language Toggles - positioned like in Auth page */}
           <div
-            key={`features-${locale}`}
-            className="mb-8"
             style={{
-              transition: 'opacity 0.3s ease',
-              animation: `fadeIn 0.3s ease ${MODAL_ANIMATION.FADE_DELAYS.FEATURES} backwards`,
-              paddingLeft: 'var(--spacing-lg)',
-              paddingRight: 'var(--spacing-lg)',
+              position: 'absolute',
+              top: 'var(--spacing-sm)',
+              right: 'var(--spacing-sm)',
               display: 'flex',
-              flexDirection: 'column',
-              gap: 'var(--spacing-md)',
+              alignItems: 'center',
+              gap: '6px',
+              zIndex: 10,
             }}
           >
-            {features.map((feature, index) => (
-              <ModalFeatureItem key={index} text={feature} />
-            ))}
+            <ModalToggleButton
+              icon={themeIcon}
+              onClick={toggleTheme}
+              title={themeTitle}
+            />
+            <ModalToggleButton
+              icon={localeIcon}
+              onClick={toggleLocale}
+              title={localeTitle}
+            />
           </div>
 
-          {/* Actions */}
-          <ModalActionButtons
-            onSignIn={handleSignIn}
-            onAnonymous={handleAnonymous}
-            disabled={loading || isTransitioning}
-            signInText={t('welcome.signIn')}
-            anonymousText={t('welcome.continueAnonymous')}
-          />
+          <div ref={contentContainerRef}>
+            {/* Header */}
+            <div>
+              <ModalHeader
+                title={t('welcome.title')}
+                subtitle={t('welcome.subtitle')}
+                shouldAnimate={false}
+              />
+            </div>
 
-          {/* Footer */}
-          <p
-            key={`footer-${locale}`}
-            className="text-center mt-6"
-            style={{
-              fontSize: 'var(--font-size-xs)',
-              color: 'var(--color-text-secondary)',
-              marginTop: 'var(--spacing-xl)',
-              animation: `fadeIn 0.3s ease ${MODAL_ANIMATION.FADE_DELAYS.FOOTER} backwards`,
-            }}
-          >
-            {t('welcome.footer')}
-          </p>
+            {/* Features */}
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 'var(--spacing-sm)',
+                marginBottom: 0,
+              }}
+            >
+              {features.map((feature, index) => (
+                <ModalFeatureItem key={index} text={feature} index={index} shouldAnimate={false} />
+              ))}
+            </div>
+
+            {/* Actions */}
+            <div>
+              <ModalActionButtons
+                onSignIn={handleSignIn}
+                onAnonymous={handleAnonymous}
+                disabled={loading || isTransitioning}
+                signInText={t('welcome.signIn')}
+                anonymousText={t('welcome.continueAnonymous')}
+                shouldAnimate={false}
+              />
+            </div>
+
+            {/* Footer */}
+            <p
+              className="text-center"
+              style={{
+                fontSize: 'var(--font-size-xs)',
+                color: 'var(--color-text-secondary)',
+                marginTop: 'var(--spacing-lg)',
+                marginBottom: 0,
+              }}
+            >
+              {t('welcome.footer')}
+            </p>
+          </div>
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import React, { useState, FormEvent } from 'react';
+import React, { useState, FormEvent, useEffect, useMemo } from 'react';
 import { useTranslation } from "../../../hooks";
 import { FormField } from '../FormField';
 import { LoginFormValidator } from '../validators';
@@ -16,12 +16,37 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   onBack,
   loading = false,
 }) => {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const validator = new LoginFormValidator(t);
+  const validator = useMemo(() => new LoginFormValidator(t), [t]);
+
+  // Re-validate errors when locale changes
+  useEffect(() => {
+    if (Object.keys(errors).length > 0) {
+      const validation = validator.validate({ username, password });
+      setErrors(validation.errors);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [locale]);
+
+  // Clear errors on ESC key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && Object.keys(errors).length > 0) {
+        setErrors({});
+        // Remove focus from active element
+        if (document.activeElement instanceof HTMLElement) {
+          document.activeElement.blur();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [errors]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -42,7 +67,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           color: 'var(--color-primary)',
           fontSize: '32px',
           marginTop: '0',
-          marginBottom: 'var(--spacing-xl)'
+          marginBottom: 'var(--spacing-lg)'
         }}
       >
         {t('auth.loginTab')}
@@ -78,8 +103,8 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         style={{
           display: 'flex',
           flexDirection: 'column',
-          gap: 'var(--spacing-md)',
-          marginTop: 'var(--spacing-xl)',
+          gap: 'var(--spacing-sm)',
+          marginTop: 'var(--spacing-md)',
           marginBottom: 'var(--spacing-sm)'
         }}
       >
@@ -106,6 +131,9 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         className="app-register-link text-center"
         style={{ marginTop: 'var(--spacing-sm)' }}
       >
+        <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)' }}>
+          {t('auth.noAccount')}{' '}
+        </span>
         <a
           href="#"
           onClick={(e) => {

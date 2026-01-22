@@ -13,6 +13,7 @@ export const Button: React.FC<ButtonProps> = ({
 }) => {
   const classes = [
     BUTTON_BASE_CLASSES,
+    'button-animated', // Add animation class
     BUTTON_VARIANT_CLASSES[variant],
     BUTTON_SIZE_CLASSES[size],
     fullWidth ? 'w-full' : '',

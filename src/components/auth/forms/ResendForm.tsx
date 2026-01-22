@@ -1,11 +1,10 @@
-import React, { useState, FormEvent } from 'react';
+import React, { useState, FormEvent, useEffect, useMemo } from 'react';
 import { useTranslation } from "../../../hooks";
 import { FormField } from '../FormField';
 import { EmailValidator } from '../validators';
 
 interface ResendFormProps {
   onSubmit: (email: string) => Promise<void>;
-  onSwitchToLogin: () => void;
   onBack?: () => void;
   loading?: boolean;
   initialEmail?: string;
@@ -13,16 +12,40 @@ interface ResendFormProps {
 
 export const ResendForm: React.FC<ResendFormProps> = ({
   onSubmit,
-  onSwitchToLogin,
   onBack,
   loading = false,
   initialEmail = '',
 }) => {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const [email, setEmail] = useState(initialEmail);
   const [error, setError] = useState<string>();
 
-  const emailValidator = new EmailValidator();
+  const emailValidator = useMemo(() => new EmailValidator(), []);
+
+  // Re-validate error when locale changes
+  useEffect(() => {
+    if (error) {
+      const validationError = emailValidator.validate(email, t);
+      setError(validationError);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [locale]);
+
+  // Clear error on ESC key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && error) {
+        setError(undefined);
+        // Remove focus from active element
+        if (document.activeElement instanceof HTMLElement) {
+          document.activeElement.blur();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [error]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -43,7 +66,7 @@ export const ResendForm: React.FC<ResendFormProps> = ({
           color: 'var(--color-primary)',
           fontSize: '32px',
           marginTop: '0',
-          marginBottom: 'var(--spacing-xl)'
+          marginBottom: 'var(--spacing-lg)'
         }}
       >
         {t('auth.resendTab')}
@@ -67,15 +90,15 @@ export const ResendForm: React.FC<ResendFormProps> = ({
         style={{
           display: 'flex',
           flexDirection: 'column',
-          gap: 'var(--spacing-md)',
-          marginTop: 'var(--spacing-xl)',
+          gap: 'var(--spacing-sm)',
+          marginTop: 'var(--spacing-md)',
           marginBottom: 'var(--spacing-sm)'
         }}
       >
         <button
           type="submit"
           disabled={loading}
-          className="btn-base btn-primary w-full"
+          className="btn-base btn-primary btn-verify w-full"
         >
           {t('auth.resend')}
         </button>
@@ -91,32 +114,6 @@ export const ResendForm: React.FC<ResendFormProps> = ({
         )}
       </div>
 
-      <div
-        className="app-login-link text-center"
-        style={{ marginTop: 'var(--spacing-sm)' }}
-      >
-        <a
-          href="#"
-          onClick={(e) => {
-            e.preventDefault();
-            onSwitchToLogin();
-          }}
-          className="transition-colors"
-          style={{
-            color: 'var(--color-primary)',
-            textDecoration: 'none',
-            fontSize: 'var(--font-size-sm)'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.textDecoration = 'underline';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.textDecoration = 'none';
-          }}
-        >
-          {t('auth.loginLink')}
-        </a>
-      </div>
     </form>
   );
 };
