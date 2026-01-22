@@ -68,7 +68,7 @@ export const useAuthAnimation = (
         requestAnimationFrame(() => {
           if (!container) return;
           
-          const formElement = container.querySelector('.auth-form');
+          const formElement = container.querySelector('.auth-form') as HTMLElement | null;
           if (!formElement) return;
           
           const tempHeight = window.getComputedStyle(container).height;
@@ -139,11 +139,24 @@ export const useAuthAnimation = (
           
           setIsMeasuring(false);
           
+          const resetToAuto = () => {
+            if (!container) return;
+            setTimeout(() => {
+              if (container) {
+                flushSync(() => {
+                  setContainerHeight('auto');
+                  setContainerWidth('100%');
+                });
+              }
+            }, 100);
+          };
+          
           const handleTransitionEnd = () => {
             setIsTransitioning(false);
             document.body.style.overflow = '';
             document.body.style.paddingRight = '';
             container.removeEventListener('transitionend', handleTransitionEnd);
+            resetToAuto();
           };
           
           container.addEventListener('transitionend', handleTransitionEnd);
@@ -153,6 +166,7 @@ export const useAuthAnimation = (
             document.body.style.overflow = '';
             document.body.style.paddingRight = '';
             container.removeEventListener('transitionend', handleTransitionEnd);
+            resetToAuto();
           }, 500);
         });
       });

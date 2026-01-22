@@ -289,7 +289,7 @@ export const Auth: React.FC = () => {
             maxWidth: '360px',
             width: containerWidth,
             position: 'relative',
-            overflow: 'hidden',
+            overflow: containerHeight === 'auto' ? 'visible' : 'hidden',
             height: containerHeight,
             transition: (!isVisible && !isTransitioning) ? 'none' : 'height 0.4s cubic-bezier(0.4, 0, 0.2, 1), width 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
           }}

@@ -132,7 +132,7 @@ export const CodeInput: React.FC<CodeInputProps> = ({
             color: 'var(--color-error)',
             fontSize: 'var(--font-size-xs)',
             marginTop: 'var(--spacing-xs)',
-            textAlign: 'center',
+            textAlign: 'left',
           }}
         >
           {error}
