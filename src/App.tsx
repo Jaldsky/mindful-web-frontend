@@ -1,6 +1,44 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { ThemeProvider, UserProvider, LocaleProvider, AuthProvider } from './contexts';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { ThemeProvider, UserProvider, LocaleProvider, AuthProvider, useAuth } from './contexts';
 import { Home, Dashboard, Profile, Settings, Auth, Welcome } from './pages';
+
+function AuthGuard({ children }: { children: React.ReactNode }) {
+  const { status } = useAuth();
+  const location = useLocation();
+
+  if (status === 'loading') {
+    return <>{children}</>;
+  }
+
+  const allowedPaths = ['/auth', '/welcome'];
+  if (allowedPaths.includes(location.pathname)) {
+    return <>{children}</>;
+  }
+
+  if (status === 'welcome' && location.pathname !== '/welcome') {
+    return <Navigate to="/welcome" replace />;
+  }
+
+  return <>{children}</>;
+}
+
+function AppRoutes() {
+  return (
+    <BrowserRouter>
+      <AuthGuard>
+        <Routes>
+          <Route path="/welcome" element={<Welcome />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/" element={<Home />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </AuthGuard>
+    </BrowserRouter>
+  );
+}
 
 function App() {
   return (
@@ -8,17 +46,7 @@ function App() {
       <LocaleProvider>
         <AuthProvider>
           <UserProvider>
-            <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="/auth" element={<Auth />} />
-                <Route path="/welcome" element={<Welcome />} />
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
-            </BrowserRouter>
+            <AppRoutes />
           </UserProvider>
         </AuthProvider>
       </LocaleProvider>
