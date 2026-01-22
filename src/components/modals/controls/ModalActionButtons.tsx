@@ -8,6 +8,7 @@ export const ModalActionButtons: React.FC<ModalActionButtonsProps> = ({
   disabled,
   signInText,
   anonymousText,
+  shouldAnimate = true,
 }) => {
   return (
     <div
@@ -15,15 +16,15 @@ export const ModalActionButtons: React.FC<ModalActionButtonsProps> = ({
       style={{
         display: 'flex',
         flexDirection: 'column',
-        gap: 'var(--spacing-md)',
-        marginTop: 'var(--spacing-lg)',
-        animation: `fadeIn 0.3s ease ${MODAL_ANIMATION.FADE_DELAYS.ACTIONS} backwards`,
+        gap: 'var(--spacing-sm)',
+        marginTop: 'var(--spacing-md)',
+        animation: shouldAnimate ? `slideDown 0.6s cubic-bezier(0.4, 0, 0.2, 1) ${MODAL_ANIMATION.FADE_DELAYS.ACTIONS} backwards` : 'none',
       }}
     >
       <button
         onClick={onSignIn}
         disabled={disabled}
-        className="btn-base btn-primary w-full"
+        className="btn-base btn-primary btn-signin w-full"
       >
         {signInText}
       </button>
@@ -31,7 +32,7 @@ export const ModalActionButtons: React.FC<ModalActionButtonsProps> = ({
       <button
         onClick={onAnonymous}
         disabled={disabled}
-        className="btn-base btn-secondary w-full"
+        className="btn-base btn-secondary btn-anonymous w-full"
       >
         {anonymousText}
       </button>

@@ -13,17 +13,14 @@ export interface ModalToggleButtonProps {
 
 export interface ModalFeatureItemProps {
   text: string;
+  index?: number;
+  shouldAnimate?: boolean;
 }
 
 export interface ModalHeaderProps {
   title: string;
   subtitle: string;
-  onToggleTheme: () => void;
-  onToggleLocale: () => void;
-  themeIcon: React.ReactNode;
-  themeTitle: string;
-  localeIcon: React.ReactNode;
-  localeTitle: string;
+  shouldAnimate?: boolean;
 }
 
 export interface ModalActionButtonsProps {
@@ -32,4 +29,5 @@ export interface ModalActionButtonsProps {
   disabled: boolean;
   signInText: string;
   anonymousText: string;
+  shouldAnimate?: boolean;
 }

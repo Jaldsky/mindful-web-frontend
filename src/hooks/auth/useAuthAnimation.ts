@@ -4,6 +4,7 @@
  */
 
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { flushSync } from 'react-dom';
 import type { AuthScreen } from '../../components/auth';
 import type { UseAuthAnimationReturn } from '../types';
 
@@ -28,7 +29,9 @@ export const useAuthAnimation = (
   }, [isExiting]);
 
   const switchScreen = useCallback((newScreen: AuthScreen) => {
-    if (newScreen === activeScreen || isTransitioning) return;
+    if (newScreen === activeScreen || isTransitioning) {
+      return;
+    }
     
     const container = containerRef.current;
     if (!container) {
@@ -42,19 +45,27 @@ export const useAuthAnimation = (
     document.body.style.overflow = 'hidden';
     document.body.style.paddingRight = `${scrollbarWidth}px`;
 
-    // Get current dimensions
     const currentHeight = container.scrollHeight;
     const currentWidth = container.offsetWidth;
     
-    setContainerHeight(`${currentHeight}px`);
-    setContainerWidth(`${currentWidth}px`);
+    container.style.height = `${currentHeight}px`;
+    container.style.width = `${currentWidth}px`;
+    
+    flushSync(() => {
+      setContainerHeight(`${currentHeight}px`);
+      setContainerWidth(`${currentWidth}px`);
+    });
+    
+    void container.offsetHeight;
     
     setIsMeasuring(true);
-    setDisplayScreen(newScreen);
-    setActiveScreen(newScreen);
     
-    // Triple RAF for DOM update
     requestAnimationFrame(() => {
+      void container.offsetHeight;
+      
+      setDisplayScreen(newScreen);
+      setActiveScreen(newScreen);
+      
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           if (!container) return;
@@ -62,26 +73,89 @@ export const useAuthAnimation = (
           const formElement = container.querySelector('.auth-form');
           if (!formElement) return;
           
+          const tempHeight = window.getComputedStyle(container).height;
+          const tempWidth = window.getComputedStyle(container).width;
+          
+          const originalFormOpacity = formElement.style.opacity;
+          const originalFormVisibility = formElement.style.visibility;
+          const originalFormPosition = formElement.style.position;
+          
+          formElement.style.opacity = '1';
+          formElement.style.visibility = 'visible';
+          formElement.style.position = 'relative';
+          
+          container.style.height = 'auto';
+          container.style.width = 'auto';
+          
+          void container.offsetHeight;
           formElement.getBoundingClientRect();
           
           const newHeight = container.scrollHeight;
           const newWidth = container.offsetWidth;
           
-          setIsMeasuring(false);
-          setIsTransitioning(true);
+          formElement.style.opacity = originalFormOpacity;
+          formElement.style.visibility = originalFormVisibility;
+          formElement.style.position = originalFormPosition;
+          
+          container.style.height = tempHeight;
+          container.style.width = tempWidth;
+          
+          void container.offsetHeight;
+          
+          if (newHeight === 0 || newWidth === 0) {
+            setTimeout(() => {
+              if (!container) return;
+              const retryHeight = container.scrollHeight;
+              const retryWidth = container.offsetWidth;
+              if (retryHeight > 0 && retryWidth > 0) {
+                setIsTransitioning(true);
+                void container.offsetHeight;
+                flushSync(() => {
+                  setContainerHeight(`${retryHeight}px`);
+                  setContainerWidth(`${retryWidth}px`);
+                });
+                setTimeout(() => {
+                  setIsMeasuring(false);
+                }, 16);
+              }
+            }, 50);
+            return;
+          }
+          
+          flushSync(() => {
+            setIsTransitioning(true);
+          });
+          
+          void container.offsetHeight;
           
           requestAnimationFrame(() => {
-            setContainerHeight(`${newHeight}px`);
-            setContainerWidth(`${newWidth}px`);
+            void container.offsetHeight;
+            
+            flushSync(() => {
+              setContainerHeight(`${newHeight}px`);
+              setContainerWidth(`${newWidth}px`);
+            });
+            
+            void container.offsetHeight;
           });
+          
+          setIsMeasuring(false);
+          
+          const handleTransitionEnd = () => {
+            setIsTransitioning(false);
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
+            container.removeEventListener('transitionend', handleTransitionEnd);
+          };
+          
+          container.addEventListener('transitionend', handleTransitionEnd);
           
           setTimeout(() => {
             setIsTransitioning(false);
-            setContainerHeight('auto');
-            setContainerWidth('100%');
             document.body.style.overflow = '';
             document.body.style.paddingRight = '';
-          }, 300);
+            container.removeEventListener('transitionend', handleTransitionEnd);
+          }, 500);
         });
       });
     });

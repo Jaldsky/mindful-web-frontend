@@ -23,7 +23,7 @@ export const ControlButton: React.FC<ControlButtonProps> = ({
   return (
     <button
       onClick={onClick}
-      className="inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 border rounded font-semibold text-xs transition-all"
+      className="inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 border rounded font-semibold text-xs transition-all whitespace-nowrap"
       style={currentStyle}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}

@@ -15,7 +15,7 @@ export const HeaderControls: React.FC = () => {
   };
 
   return (
-    <>
+    <div className="flex items-center gap-2">
       <ControlButton
         onClick={toggleLocale}
         icon={<Globe size={14} />}
@@ -28,6 +28,6 @@ export const HeaderControls: React.FC = () => {
         label={isDark ? 'LIGHT' : 'DARK'}
         title="Toggle theme"
       />
-    </>
+    </div>
   );
 };

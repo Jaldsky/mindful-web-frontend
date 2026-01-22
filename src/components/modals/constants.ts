@@ -33,11 +33,14 @@ export const MODAL_STYLES = {
 } as const;
 
 export const MODAL_ANIMATION = {
-  TRANSITION_DURATION: 300,
+  TRANSITION_DURATION: 600,
   FADE_DELAYS: {
-    FEATURES: '0.1s',
-    ACTIONS: '0.15s',
-    FOOTER: '0.2s',
+    HEADER: '0.1s',
+    FEATURE1: '0.18s',
+    FEATURE2: '0.26s',
+    FEATURE3: '0.34s',
+    ACTIONS: '0.42s',
+    FOOTER: '0.5s',
   },
   STATES: {
     VISIBLE: {

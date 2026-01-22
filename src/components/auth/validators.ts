@@ -91,14 +91,14 @@ export class LoginFormValidator implements Validator<{ username: string; passwor
   }
 }
 
-export class RegisterFormValidator implements Validator<{ username: string; email: string; password: string }> {
+export class RegisterFormValidator implements Validator<{ username: string; email: string; password: string; confirmPassword: string }> {
   private usernameValidator = new UsernameValidator();
   private emailValidator = new EmailValidator();
   private passwordValidator = new PasswordValidator();
 
   constructor(private t: (key: string) => string) {}
 
-  validate(data: { username: string; email: string; password: string }): ValidationResult {
+  validate(data: { username: string; email: string; password: string; confirmPassword: string }): ValidationResult {
     const errors: Record<string, string> = {};
 
     const usernameError = this.usernameValidator.validate(data.username, this.t);
@@ -114,6 +114,12 @@ export class RegisterFormValidator implements Validator<{ username: string; emai
     const passwordError = this.passwordValidator.validate(data.password, this.t);
     if (passwordError) {
       errors.password = passwordError;
+    }
+
+    if (!data.confirmPassword.trim()) {
+      errors.confirmPassword = this.t('auth.errors.confirmPasswordRequired');
+    } else if (data.password !== data.confirmPassword) {
+      errors.confirmPassword = this.t('auth.errors.passwordsDoNotMatch');
     }
 
     return {

@@ -1,13 +1,13 @@
-import React, { useState, FormEvent } from 'react';
+import React, { useState, FormEvent, useEffect, useMemo } from 'react';
 import { useTranslation } from "../../../hooks";
 import { FormField } from '../FormField';
+import { CodeInput } from '../CodeInput';
 import { VerifyFormValidator } from '../validators';
 import { AUTH_VALIDATION } from '../constants';
 
 interface VerifyFormProps {
   onSubmit: (email: string, code: string) => Promise<void>;
   onSwitchToResend: () => void;
-  onSwitchToLogin: () => void;
   onBack?: () => void;
   loading?: boolean;
   initialEmail?: string;
@@ -16,17 +16,41 @@ interface VerifyFormProps {
 export const VerifyForm: React.FC<VerifyFormProps> = ({
   onSubmit,
   onSwitchToResend,
-  onSwitchToLogin,
   onBack,
   loading = false,
   initialEmail = '',
 }) => {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const [email, setEmail] = useState(initialEmail);
   const [code, setCode] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const validator = new VerifyFormValidator(t);
+  const validator = useMemo(() => new VerifyFormValidator(t), [t]);
+
+  // Re-validate errors when locale changes
+  useEffect(() => {
+    if (Object.keys(errors).length > 0) {
+      const validation = validator.validate({ email, code });
+      setErrors(validation.errors);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [locale]);
+
+  // Clear errors on ESC key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && Object.keys(errors).length > 0) {
+        setErrors({});
+        // Remove focus from active element
+        if (document.activeElement instanceof HTMLElement) {
+          document.activeElement.blur();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [errors]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -47,7 +71,7 @@ export const VerifyForm: React.FC<VerifyFormProps> = ({
           color: 'var(--color-primary)',
           fontSize: '32px',
           marginTop: '0',
-          marginBottom: 'var(--spacing-xl)'
+          marginBottom: 'var(--spacing-lg)'
         }}
       >
         {t('auth.verifyTab')}
@@ -66,33 +90,42 @@ export const VerifyForm: React.FC<VerifyFormProps> = ({
         required
       />
 
-      <FormField
-        id="verify-code"
-        label={t('auth.verificationCode')}
-        value={code}
-        onChange={setCode}
-        error={errors.code}
-        placeholder={t('auth.codePlaceholder')}
-        disabled={loading}
-        autoComplete="off"
-        maxLength={AUTH_VALIDATION.CODE_LENGTH}
-        required
-      />
+      <div className="auth-form-group" style={{ marginBottom: 'var(--spacing-sm)' }}>
+        <label
+          htmlFor="verify-code"
+          className="block font-medium"
+          style={{
+            color: 'var(--color-text-primary)',
+            marginBottom: 'var(--spacing-sm)',
+            fontSize: 'var(--font-size-sm)',
+          }}
+        >
+          {t('auth.verificationCode')}
+          <span style={{ color: 'var(--color-error)' }}> *</span>
+        </label>
+        <CodeInput
+          value={code}
+          onChange={setCode}
+          error={errors.code}
+          disabled={loading}
+          length={AUTH_VALIDATION.CODE_LENGTH}
+        />
+      </div>
 
       <div
         className="button-group auth-buttons"
         style={{
           display: 'flex',
           flexDirection: 'column',
-          gap: 'var(--spacing-md)',
-          marginTop: 'var(--spacing-xl)',
+          gap: 'var(--spacing-sm)',
+          marginTop: 'var(--spacing-md)',
           marginBottom: 'var(--spacing-sm)'
         }}
       >
         <button
           type="submit"
           disabled={loading}
-          className="btn-base btn-primary w-full"
+          className="btn-base btn-primary btn-verify w-full"
         >
           {t('auth.verify')}
         </button>
@@ -109,9 +142,12 @@ export const VerifyForm: React.FC<VerifyFormProps> = ({
       </div>
 
       <div
-        className="flex flex-col gap-2 text-center"
+        className="text-center"
         style={{ marginTop: 'var(--spacing-sm)' }}
       >
+        <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)' }}>
+          {t('auth.needCode')}{' '}
+        </span>
         <a
           href="#"
           onClick={(e) => {
@@ -131,28 +167,7 @@ export const VerifyForm: React.FC<VerifyFormProps> = ({
             e.currentTarget.style.textDecoration = 'none';
           }}
         >
-          {t('auth.resendLink')}
-        </a>
-        <a
-          href="#"
-          onClick={(e) => {
-            e.preventDefault();
-            onSwitchToLogin();
-          }}
-          className="transition-colors"
-          style={{
-            color: 'var(--color-primary)',
-            textDecoration: 'none',
-            fontSize: 'var(--font-size-sm)'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.textDecoration = 'underline';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.textDecoration = 'none';
-          }}
-        >
-          {t('auth.loginLink')}
+          {t('auth.resend')}
         </a>
       </div>
     </form>
