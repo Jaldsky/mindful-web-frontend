@@ -7,3 +7,4 @@ export { formatTime, getDefaultDateRange, formatDate, getDateRangeForDays } from
 
 export { extractErrorMessage, createApiError, isApiError } from './errorUtils';
 export type { ApiError } from './errorUtils';
+export { decodeJwtPayload, extractUserIdFromToken } from './jwtUtils';

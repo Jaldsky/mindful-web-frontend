@@ -1,10 +1,33 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { AuthContext } from '../contexts';
+import { AuthContext, UserContext } from '../contexts';
 import { tokenManager } from './TokenManager';
 import { welcomeManager } from './WelcomeManager';
 import { authService, userService } from '../../services';
+import { extractUserIdFromToken } from '../../utils';
 import type { AuthContextType, AuthStatus } from '../types';
 import type { UserProfile } from '../../types';
+
+/**
+ * Component that synchronizes userId with user profile from AuthProvider
+ */
+function UserIdSync() {
+  const authContext = React.useContext(AuthContext);
+  const userContext = React.useContext(UserContext);
+
+  useEffect(() => {
+    // When user is authenticated and profile is loaded, update userId from user.user_id
+    if (
+      authContext &&
+      userContext &&
+      authContext.status === 'authenticated' &&
+      authContext.user?.user_id
+    ) {
+      userContext.setUserId(authContext.user.user_id);
+    }
+  }, [authContext?.user?.user_id, authContext?.status, userContext]);
+
+  return null;
+}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [status, setStatus] = useState<AuthStatus>('loading');
@@ -14,7 +37,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const reloadProfile = useCallback(async () => {
     const response = await userService.getProfile();
-    setUser(response.data);
+    const accessToken = tokenManager.getAccessToken();
+    const userId = extractUserIdFromToken(accessToken);
+
+    const profileData: UserProfile = {
+      ...response.data,
+      user_id: userId || response.data.user_id || '',
+    };
+    
+    setUser(profileData);
   }, []);
 
   const ensureAnonymous = useCallback(async () => {
@@ -189,5 +220,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     ]
   );
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      <UserIdSync />
+      {children}
+    </AuthContext.Provider>
+  );
 }

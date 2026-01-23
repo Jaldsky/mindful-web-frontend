@@ -44,11 +44,11 @@ function App() {
   return (
     <ThemeProvider>
       <LocaleProvider>
-        <AuthProvider>
-          <UserProvider>
+        <UserProvider>
+          <AuthProvider>
             <AppRoutes />
-          </UserProvider>
-        </AuthProvider>
+          </AuthProvider>
+        </UserProvider>
       </LocaleProvider>
     </ThemeProvider>
   );

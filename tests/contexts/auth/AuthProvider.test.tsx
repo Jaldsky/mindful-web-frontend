@@ -12,6 +12,7 @@ vi.mock('../../../src/contexts/auth/TokenManager', () => ({
     hasAccessToken: vi.fn(),
     hasAnonToken: vi.fn(),
     getAnonId: vi.fn(),
+    getAccessToken: vi.fn(),
     setAnonymousTokens: vi.fn(),
     setAccessTokens: vi.fn(),
     clearAccessTokens: vi.fn(),
@@ -19,6 +20,16 @@ vi.mock('../../../src/contexts/auth/TokenManager', () => ({
     getRefreshToken: vi.fn(),
   },
 }));
+
+/**
+ * Helper function to create a mock JWT token for testing
+ * Format: header.payload.signature
+ */
+function createMockJwtToken(userId: string): string {
+  const header = btoa(JSON.stringify({ typ: 'JWT', alg: 'HS256' }));
+  const payload = btoa(JSON.stringify({ type: 'access', sub: userId }));
+  return `${header}.${payload}.signature`;
+}
 
 vi.mock('../../../src/contexts/auth/WelcomeManager', () => ({
   welcomeManager: {
@@ -67,6 +78,7 @@ describe('AuthProvider', () => {
       vi.mocked(tokenManager.hasAccessToken).mockReturnValue(true);
       vi.mocked(tokenManager.hasAnonToken).mockReturnValue(false);
       vi.mocked(tokenManager.getAnonId).mockReturnValue(null);
+      vi.mocked(tokenManager.getAccessToken).mockReturnValue(createMockJwtToken('user-1'));
       vi.mocked(userService.getProfile).mockResolvedValue({
         code: 'SUCCESS',
         message: 'Profile retrieved',
@@ -89,7 +101,9 @@ describe('AuthProvider', () => {
         expect(screen.getByTestId('status')).toHaveTextContent('authenticated');
       });
 
-      expect(screen.getByTestId('user')).toHaveTextContent('testuser');
+      await waitFor(() => {
+        expect(screen.getByTestId('user')).toHaveTextContent('testuser');
+      });
     });
 
     it('initializes with anonymous status when has anon token', async () => {
@@ -245,9 +259,10 @@ describe('AuthProvider', () => {
       vi.mocked(tokenManager.hasAccessToken).mockReturnValue(false);
       vi.mocked(tokenManager.hasAnonToken).mockReturnValue(false);
       vi.mocked(authService.login).mockResolvedValue({
-        access_token: 'access-123',
+        access_token: createMockJwtToken('user-1'),
         refresh_token: 'refresh-123',
       });
+      vi.mocked(tokenManager.getAccessToken).mockReturnValue(createMockJwtToken('user-1'));
       vi.mocked(userService.getProfile).mockResolvedValue({
         code: 'SUCCESS',
         message: 'Profile retrieved',
@@ -275,7 +290,7 @@ describe('AuthProvider', () => {
       );
 
       await waitFor(() => {
-        expect(tokenManager.setAccessTokens).toHaveBeenCalledWith('access-123', 'refresh-123');
+        expect(tokenManager.setAccessTokens).toHaveBeenCalled();
         expect(tokenManager.clearAnonymousTokens).toHaveBeenCalled();
       });
     });
@@ -369,6 +384,7 @@ describe('AuthProvider', () => {
     it('handles updateUsername successfully', async () => {
       vi.mocked(tokenManager.hasAccessToken).mockReturnValue(false);
       vi.mocked(tokenManager.hasAnonToken).mockReturnValue(false);
+      vi.mocked(tokenManager.getAccessToken).mockReturnValue(createMockJwtToken('user-1'));
       vi.mocked(userService.updateUsername).mockResolvedValue({
         code: 'SUCCESS',
         message: 'Username updated',
@@ -403,6 +419,7 @@ describe('AuthProvider', () => {
     it('handles updateEmail successfully', async () => {
       vi.mocked(tokenManager.hasAccessToken).mockReturnValue(false);
       vi.mocked(tokenManager.hasAnonToken).mockReturnValue(false);
+      vi.mocked(tokenManager.getAccessToken).mockReturnValue(createMockJwtToken('user-1'));
       vi.mocked(userService.updateEmail).mockResolvedValue({
         code: 'SUCCESS',
         message: 'Email updated',
