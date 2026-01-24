@@ -8,6 +8,7 @@ import { Layout } from '../../components/layout';
 import { Settings as SettingsIcon, Moon, Sun } from 'lucide-react';
 import { useTheme } from '../../contexts';
 import { useTranslation } from '../../hooks';
+import { Card, PageHeader } from '../../components/ui';
 
 export const Settings: React.FC = () => {
   const { isDark, toggleTheme } = useTheme();
@@ -15,18 +16,11 @@ export const Settings: React.FC = () => {
 
   return (
     <Layout>
-      <div className="space-y-4 max-w-md mx-auto">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
-            {t('settings.title')}
-          </h1>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            {t('settings.subtitle')}
-          </p>
-        </div>
+      <div className="mx-auto max-w-2xl space-y-6">
+        <PageHeader title={t('settings.title')} subtitle={t('settings.subtitle')} />
 
         {/* General Settings */}
-        <div className="bg-background-primary rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 divide-y divide-gray-100 dark:divide-gray-800">
+        <Card noPadding className="overflow-hidden">
           <div className="px-4 py-3 flex items-center gap-3">
             <div className="p-1.5 bg-blue-100 dark:bg-blue-900/20 rounded-lg text-blue-600 flex-shrink-0">
               <SettingsIcon size={16} />
@@ -62,7 +56,7 @@ export const Settings: React.FC = () => {
               />
             </button>
           </div>
-        </div>
+        </Card>
       </div>
     </Layout>
   );
