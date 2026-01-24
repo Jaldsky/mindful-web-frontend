@@ -1,9 +1,9 @@
 export const MODAL_STYLES = {
   TOGGLE_BUTTON: {
     BASE: {
-      width: '32px',
-      height: '32px',
-      fontSize: '20px',
+      width: '36px',
+      height: '36px',
+      fontSize: '22px',
       opacity: 0.85,
     },
     HOVER: {
