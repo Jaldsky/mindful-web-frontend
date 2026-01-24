@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { Layout } from '../../components/layout';
 import { useAnalytics, useDateRange, useTranslation } from '../../hooks';
 import { DateRangeSelector, StatsCard, DomainsChart, DomainsTable } from '../../components/analytics';
-import { LoadingSpinner, ErrorMessage, EmptyState } from '../../components/ui';
+import { LoadingSpinner, ErrorMessage, EmptyState, PageHeader, Card } from '../../components/ui';
 import { Clock, Globe, MousePointer2 } from 'lucide-react';
 import { formatTime } from '../../utils';
 import { DATE_RANGES } from '../../constants';
@@ -39,11 +39,21 @@ export const Dashboard: React.FC = () => {
   return (
     <Layout>
       <div className="space-y-6">
-        <DateRangeSelector
-          dateRange={dateRange}
-          onStartDateChange={setStartDate}
-          onEndDateChange={setEndDate}
-          onQuickSelect={selectQuickRange}
+        <PageHeader
+          title={t('navigation.dashboard')}
+          subtitle={t('home.subtitle')}
+          right={
+            <div className="w-full sm:w-auto">
+              <Card className="p-3" noPadding>
+                <DateRangeSelector
+                  dateRange={dateRange}
+                  onStartDateChange={setStartDate}
+                  onEndDateChange={setEndDate}
+                  onQuickSelect={selectQuickRange}
+                />
+              </Card>
+            </div>
+          }
         />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -70,7 +80,9 @@ export const Dashboard: React.FC = () => {
         {error && <ErrorMessage message={error} />}
 
         {!error && !loading && chartData.length === 0 && (
-          <EmptyState message={t('dashboard.noData')} />
+          <Card>
+            <EmptyState message={t('dashboard.noData')} />
+          </Card>
         )}
 
         {chartData.length > 0 && (
