@@ -4,6 +4,7 @@ import path from 'path';
 import os from 'os';
 
 export default defineConfig({
+  root: __dirname,
   plugins: [react()],
   test: {
     pool: 'threads',

@@ -4,19 +4,19 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "start": "vite",
-    "build": "tsc -b && vite build",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "type-check": "tsc --noEmit",
-    "test": "vitest run",
-    "test:coverage": "vitest run --coverage",
-    "preview": "vite preview",
+    "start": "vite --config web/vite.config.ts",
+    "build": "tsc -p web/tsconfig.app.json --noEmit && vite build --config web/vite.config.ts",
+    "lint": "eslint web --config web/eslint.config.js",
+    "lint:fix": "eslint web --config web/eslint.config.js --fix",
+    "type-check": "tsc -p web/tsconfig.app.json --noEmit",
+    "test": "vitest run --config web/vitest.config.ts",
+    "test:coverage": "vitest run --config web/vitest.config.ts --coverage",
+    "preview": "vite preview --config web/vite.config.ts",
     "prepare": "husky"
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx}": [
-      "eslint --fix"
+    "web/**/*.{js,jsx,ts,tsx}": [
+      "eslint --config web/eslint.config.js --fix"
     ]
   },
   "dependencies": {
