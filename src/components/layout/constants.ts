@@ -26,10 +26,11 @@ export const HEADER_STYLES = {
     boxShadow: 'var(--shadow-xs)',
   },
   logo: {
-    fontSize: 'var(--font-size-xl)',
-    fontWeight: 'bold',
+    fontSize: '28px',
+    fontWeight: 700,
     color: 'var(--color-primary)',
     textDecoration: 'none',
+    letterSpacing: '-0.5px',
   },
   button: {
     base: {
