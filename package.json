@@ -4,6 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "compose-up": "docker compose -f deploy/docker-compose.yml build mwf-build-image && docker compose -f deploy/docker-compose.yml up -d --build",
+    "prepare": "husky",
     "start": "vite --config web/vite.config.ts",
     "build": "tsc -p web/tsconfig.app.json --noEmit && vite build --config web/vite.config.ts",
     "lint": "eslint web --config web/eslint.config.js",
@@ -11,8 +13,7 @@
     "type-check": "tsc -p web/tsconfig.app.json --noEmit",
     "test": "vitest run --config web/vitest.config.ts",
     "test:coverage": "vitest run --config web/vitest.config.ts --coverage",
-    "preview": "vite preview --config web/vite.config.ts",
-    "prepare": "husky"
+    "preview": "vite preview --config web/vite.config.ts"
   },
   "lint-staged": {
     "web/**/*.{js,jsx,ts,tsx}": [
@@ -20,6 +21,7 @@
     ]
   },
   "dependencies": {
+    "@types/node": "^25.0.10",
     "axios": "^1.13.2",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
