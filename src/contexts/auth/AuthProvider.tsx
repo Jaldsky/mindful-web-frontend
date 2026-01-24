@@ -15,7 +15,6 @@ function UserIdSync() {
   const userContext = React.useContext(UserContext);
 
   useEffect(() => {
-    // When user is authenticated and profile is loaded, update userId from user.user_id
     if (
       authContext &&
       userContext &&
@@ -24,7 +23,7 @@ function UserIdSync() {
     ) {
       userContext.setUserId(authContext.user.user_id);
     }
-  }, [authContext?.user?.user_id, authContext?.status, userContext]);
+  }, [authContext, userContext]);
 
   return null;
 }
