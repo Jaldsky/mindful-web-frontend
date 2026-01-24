@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AuthContext, UserContext } from '../contexts';
 import { tokenManager } from './TokenManager';
 import { welcomeManager } from './WelcomeManager';
@@ -33,6 +33,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [anonId, setAnonId] = useState<string | null>(() => tokenManager.getAnonId());
   const [showWelcome, setShowWelcome] = useState(false);
+  const bootstrapStartedRef = useRef(false);
 
   const reloadProfile = useCallback(async () => {
     const response = await userService.getProfile();
@@ -72,6 +73,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [status, showWelcome]);
 
   useEffect(() => {
+    if (bootstrapStartedRef.current) return;
+    bootstrapStartedRef.current = true;
+
     let isMounted = true;
 
     const bootstrap = async () => {
