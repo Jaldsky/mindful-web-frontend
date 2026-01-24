@@ -23,5 +23,6 @@ export {
 export { Button } from './buttons';
 export { Input } from './inputs';
 export { Card } from './cards';
+export { PageHeader } from './layout';
 export { ErrorMessage, InfoMessage, EmptyState, BaseMessage } from './feedback';
 export { LoadingSpinner } from './loaders';
