@@ -22,6 +22,10 @@ describe('useProfileEditing', () => {
         username: 'user1',
         setUsername: vi.fn(),
         updateUsername: vi.fn().mockResolvedValue(undefined),
+        updateEmail: vi.fn().mockResolvedValue(undefined),
+        verifyEmail: vi.fn().mockResolvedValue(undefined),
+        resendCode: vi.fn().mockResolvedValue(undefined),
+        reloadProfile: vi.fn().mockResolvedValue(undefined),
         t: (key: string) => key,
         setServerError: vi.fn(),
       })
@@ -35,16 +39,20 @@ describe('useProfileEditing', () => {
     expect(result.current.usernameInput).toBe('user1');
   });
 
-  it('validates and saves email to storage', () => {
+  it('saves email to storage for anonymous user', () => {
     const setEmail = vi.fn();
     const { result } = renderHook(() =>
       useProfileEditing({
-        isAuthenticated: true,
+        isAuthenticated: false,
         email: null,
         setEmail,
         username: null,
         setUsername: vi.fn(),
         updateUsername: vi.fn().mockResolvedValue(undefined),
+        updateEmail: vi.fn().mockResolvedValue(undefined),
+        verifyEmail: vi.fn().mockResolvedValue(undefined),
+        resendCode: vi.fn().mockResolvedValue(undefined),
+        reloadProfile: vi.fn().mockResolvedValue(undefined),
         t: (key: string) => key,
         setServerError: vi.fn(),
       })
@@ -77,6 +85,10 @@ describe('useProfileEditing', () => {
         username: 'old',
         setUsername: vi.fn(),
         updateUsername,
+        updateEmail: vi.fn().mockResolvedValue(undefined),
+        verifyEmail: vi.fn().mockResolvedValue(undefined),
+        resendCode: vi.fn().mockResolvedValue(undefined),
+        reloadProfile: vi.fn().mockResolvedValue(undefined),
         t: (key: string) => key,
         setServerError,
       })

@@ -19,6 +19,7 @@ import {
   useProfileErrorState,
 } from '../../hooks';
 import { Card } from '../../components/ui';
+import { EmailVerificationModal } from '../../components/modals';
 import {
   ProfileCardHeader,
   ProfileErrorBanner,
@@ -28,7 +29,16 @@ import {
 
 export const Profile: React.FC = () => {
   const { userId } = useUser();
-  const { status, user: authUser, updateUsername, logout } = useAuth();
+  const {
+    status,
+    user: authUser,
+    updateUsername,
+    updateEmail,
+    verify,
+    resendCode,
+    reloadProfile,
+    logout,
+  } = useAuth();
   const { t } = useTranslation();
   const { timezone: detectedTimezone } = useTimezone();
   const navigate = useNavigate();
@@ -56,6 +66,18 @@ export const Profile: React.FC = () => {
     handleCancelEmail,
     handleSaveUsername,
     handleCancelUsername,
+    isVerificationOpen,
+    verificationCode,
+    setVerificationCode,
+    verificationError,
+    verificationInfo,
+    verificationInfoTone,
+    verificationSuccess,
+    isVerifying,
+    isResending,
+    handleVerifyEmail,
+    handleResendCode,
+    handleCloseVerification,
   } = useProfileEditing({
     isAuthenticated,
     email,
@@ -63,6 +85,10 @@ export const Profile: React.FC = () => {
     username,
     setUsername,
     updateUsername,
+    updateEmail,
+    verifyEmail: verify,
+    resendCode,
+    reloadProfile,
     t,
     setServerError,
   });
@@ -125,6 +151,21 @@ export const Profile: React.FC = () => {
           </Card>
         </div>
       </div>
+      <EmailVerificationModal
+        isOpen={isVerificationOpen}
+        email={emailInput}
+        code={verificationCode}
+        onCodeChange={setVerificationCode}
+        onClose={handleCloseVerification}
+        onVerify={handleVerifyEmail}
+        onResend={handleResendCode}
+        isVerifying={isVerifying}
+        isResending={isResending}
+        error={verificationError}
+        info={verificationInfo}
+        infoTone={verificationInfoTone}
+        isSuccess={verificationSuccess}
+      />
     </Layout>
   );
 };
