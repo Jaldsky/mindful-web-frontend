@@ -35,6 +35,34 @@ if [ $LINT_EXIT_CODE -ne 0 ]; then
 fi
 
 echo ""
+echo "🔍 Running type check..."
+npm run type-check
+
+TYPECHECK_EXIT_CODE=$?
+if [ $TYPECHECK_EXIT_CODE -ne 0 ]; then
+  echo ""
+  echo "=========================================="
+  echo "❌ TYPE CHECK FAILED! COMMIT ABORTED."
+  echo "=========================================="
+  echo ""
+  exit $TYPECHECK_EXIT_CODE
+fi
+
+echo ""
+echo "🧪 Running tests..."
+npm test
+
+TEST_EXIT_CODE=$?
+if [ $TEST_EXIT_CODE -ne 0 ]; then
+  echo ""
+  echo "=========================================="
+  echo "❌ TESTS FAILED! COMMIT ABORTED."
+  echo "=========================================="
+  echo ""
+  exit $TEST_EXIT_CODE
+fi
+
+echo ""
 echo "=========================================="
 echo "✅ ALL CHECKS PASSED!"
 echo "=========================================="
