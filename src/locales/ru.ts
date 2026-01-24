@@ -20,8 +20,8 @@ export const ru = {
     themeLight: 'Светлая тема',
   },
   profile: {
-    title: 'Личная информация',
-    subtitle: 'Управление вашим профилем и настройками',
+    title: 'Профиль',
+    subtitle: 'Управление профилем и настройками',
     userId: 'Идентификатор пользователя',
     username: 'Логин',
     email: 'Email',
@@ -31,7 +31,7 @@ export const ru = {
   },
   navigation: {
     home: 'Главная',
-    dashboard: 'Панель управления',
+    dashboard: 'Аналитика',
     profile: 'Профиль',
   },
   dashboard: {
@@ -83,6 +83,8 @@ export const ru = {
     confirmPassword: 'Подтвердите пароль',
     verificationCode: 'Код подтверждения',
     login: 'Войти',
+    logout: 'Выйти',
+    loggingOut: 'Выход...',
     register: 'Создать аккаунт',
     verify: 'Подтвердить',
     resend: 'Отправить код снова',

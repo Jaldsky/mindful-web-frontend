@@ -20,8 +20,8 @@ export const en = {
     themeLight: 'Light Theme',
   },
   profile: {
-    title: 'Personal Information',
-    subtitle: 'Manage your profile and settings',
+    title: 'Profile',
+    subtitle: 'Manage profile and settings',
     userId: 'User ID',
     username: 'Username',
     email: 'Email',
@@ -31,7 +31,7 @@ export const en = {
   },
   navigation: {
     home: 'Home',
-    dashboard: 'Dashboard',
+    dashboard: 'Analytics',
     profile: 'Profile',
   },
   dashboard: {
@@ -83,6 +83,8 @@ export const en = {
     confirmPassword: 'Confirm Password',
     verificationCode: 'Verification Code',
     login: 'Sign In',
+    logout: 'Sign Out',
+    loggingOut: 'Signing out...',
     register: 'Create Account',
     verify: 'Verify Email',
     resend: 'Send Code Again',
