@@ -6,6 +6,7 @@ interface CodeInputProps {
   error?: string;
   disabled?: boolean;
   length?: number;
+  showErrorText?: boolean;
 }
 
 export const CodeInput: React.FC<CodeInputProps> = ({
@@ -14,6 +15,7 @@ export const CodeInput: React.FC<CodeInputProps> = ({
   error,
   disabled = false,
   length = 6,
+  showErrorText = true,
 }) => {
   const [digits, setDigits] = useState<string[]>(Array(length).fill(''));
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -125,7 +127,7 @@ export const CodeInput: React.FC<CodeInputProps> = ({
           />
         ))}
       </div>
-      {error && (
+      {error && showErrorText && (
         <div
           className="text-sm"
           style={{

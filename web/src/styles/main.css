@@ -327,6 +327,11 @@ html {
   content: '←';
 }
 
+/* Secondary verify button - envelope emoji */
+.btn-secondary.btn-verify:hover:not(:disabled)::before {
+  content: '✉️';
+}
+
 /* Sign in button - lock emoji (overrides btn-primary) */
 .btn-primary.btn-signin:hover:not(:disabled)::before {
   content: '🔐';

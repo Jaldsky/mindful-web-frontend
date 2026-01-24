@@ -1,5 +1,8 @@
 export { useProfileData } from './useProfileData';
 export { useProfileEditing } from './useProfileEditing';
+export { useEmailEditing } from './useEmailEditing';
+export { useEmailVerification } from './useEmailVerification';
+export { useUsernameEditing } from './useUsernameEditing';
 export { useProfileTimezone } from './useProfileTimezone';
 export { useProfileCopy } from './useProfileCopy';
 export { useProfileLogout } from './useProfileLogout';
