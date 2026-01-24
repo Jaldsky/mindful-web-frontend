@@ -23,20 +23,25 @@ const renderHeader = () => {
 describe('Header', () => {
   it('renders the logo', () => {
     renderHeader();
-    expect(screen.getByText(/Mindful Web/i)).toBeInTheDocument();
+    const logos = screen.getAllByText(/Mindful Web/i);
+    expect(logos.length).toBeGreaterThan(0);
   });
 
   it('renders navigation items', () => {
     renderHeader();
     
-    expect(screen.getByText('Home')).toBeInTheDocument();
-    expect(screen.getByText('Dashboard')).toBeInTheDocument();
-    expect(screen.getByText('Profile')).toBeInTheDocument();
+    const homeLinks = screen.getAllByText('Home');
+    expect(homeLinks.length).toBeGreaterThan(0);
+    const dashboardLinks = screen.getAllByText('Analytics');
+    expect(dashboardLinks.length).toBeGreaterThan(0);
+    const profileLinks = screen.getAllByText('Profile');
+    expect(profileLinks.length).toBeGreaterThan(0);
   });
 
   it('renders auth button', () => {
     renderHeader();
-    expect(screen.getByText('Sign In')).toBeInTheDocument();
+    const signInButtons = screen.getAllByText('Sign In');
+    expect(signInButtons.length).toBeGreaterThan(0);
   });
 
   it('renders header controls', () => {
@@ -57,14 +62,25 @@ describe('Header', () => {
     renderHeader();
     
     // Logo section
-    expect(screen.getByText(/Mindful Web/i)).toBeInTheDocument();
+    const logos = screen.getAllByText(/Mindful Web/i);
+    expect(logos.length).toBeGreaterThan(0);
     
     // Navigation section
-    const nav = screen.getByRole('navigation');
-    expect(nav).toBeInTheDocument();
+    const navs = screen.getAllByRole('navigation');
+    expect(navs.length).toBeGreaterThan(0);
     
-    // Controls section
-    expect(screen.getByText(/EN|RU/i)).toBeInTheDocument();
-    expect(screen.getByText(/LIGHT|DARK/i)).toBeInTheDocument();
+    // Controls section - EN/RU button exists
+    const localeButtons = screen.getAllByText(/EN|RU/i);
+    expect(localeButtons.length).toBeGreaterThan(0);
+    
+    // Theme button exists (by icon or title)
+    const buttons = screen.getAllByRole('button');
+    const themeButton = buttons.find(btn => 
+      btn.getAttribute('title')?.includes('Theme') || 
+      btn.getAttribute('title')?.includes('тема') ||
+      btn.textContent?.includes('☀️') ||
+      btn.textContent?.includes('🌙')
+    );
+    expect(themeButton).toBeDefined();
   });
 });

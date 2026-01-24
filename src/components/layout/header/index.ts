@@ -5,3 +5,4 @@ export { Navigation } from './Navigation';
 export { NavigationItem } from './NavigationItem';
 export { HeaderControls } from './HeaderControls';
 export { ControlButton } from './ControlButton';
+export { BurgerButton } from './BurgerButton';

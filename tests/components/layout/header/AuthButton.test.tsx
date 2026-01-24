@@ -2,14 +2,18 @@ import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { AuthButton } from '../../../../src/components/layout';
-import { AuthProvider } from '../../../../src/contexts';
+import { AuthProvider, LocaleProvider, ThemeProvider } from '../../../../src/contexts';
 
 const renderAuthButton = () => {
   return render(
     <BrowserRouter>
-      <AuthProvider>
-        <AuthButton />
-      </AuthProvider>
+      <ThemeProvider>
+        <LocaleProvider>
+          <AuthProvider>
+            <AuthButton />
+          </AuthProvider>
+        </LocaleProvider>
+      </ThemeProvider>
     </BrowserRouter>
   );
 };

@@ -19,7 +19,7 @@ describe('Navigation', () => {
     renderNavigation();
     
     expect(screen.getByText('Home')).toBeInTheDocument();
-    expect(screen.getByText('Dashboard')).toBeInTheDocument();
+    expect(screen.getByText('Analytics')).toBeInTheDocument();
     expect(screen.getByText('Profile')).toBeInTheDocument();
   });
 
@@ -34,7 +34,7 @@ describe('Navigation', () => {
     renderNavigation();
     
     const homeLink = screen.getByText('Home').closest('a');
-    const dashboardLink = screen.getByText('Dashboard').closest('a');
+    const dashboardLink = screen.getByText('Analytics').closest('a');
     const profileLink = screen.getByText('Profile').closest('a');
     
     expect(homeLink).toHaveAttribute('href', '/');
