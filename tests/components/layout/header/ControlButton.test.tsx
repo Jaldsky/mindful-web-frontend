@@ -61,4 +61,18 @@ describe('ControlButton', () => {
     const label = screen.getByText('test');
     expect(label).toHaveStyle({ textTransform: 'uppercase' });
   });
+
+  it('hides label in compact variant', () => {
+    render(
+      <ControlButton
+        onClick={() => {}}
+        icon={<span>🌙</span>}
+        label="DARK"
+        title="Toggle theme"
+        variant="compact"
+      />
+    );
+    
+    expect(screen.queryByText('DARK')).not.toBeInTheDocument();
+  });
 });

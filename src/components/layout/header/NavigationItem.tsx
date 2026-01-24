@@ -19,7 +19,11 @@ export const NavigationItem: React.FC<NavigationItemProps> = ({ item, isActive }
       return HEADER_STYLES.navLink.active;
     }
     if (isHovered) {
-      return { ...HEADER_STYLES.navLink.inactive, backgroundColor: 'var(--color-bg-secondary)' };
+      return { 
+        ...HEADER_STYLES.navLink.inactive, 
+        backgroundColor: 'var(--color-bg-secondary)',
+        color: 'var(--color-primary)',
+      };
     }
     return HEADER_STYLES.navLink.inactive;
   };
@@ -27,13 +31,15 @@ export const NavigationItem: React.FC<NavigationItemProps> = ({ item, isActive }
   return (
     <Link
       to={item.path}
-      className="px-3 py-2 rounded text-sm font-medium transition-all"
+      className="px-3 py-2 rounded text-sm font-medium transition-all whitespace-nowrap flex-shrink-0"
       style={getStyle()}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       <div className="flex items-center gap-2">
-        <Icon size={16} />
+        <span className="flex-shrink-0">
+          <Icon size={16} />
+        </span>
         <span>{t(item.labelKey)}</span>
       </div>
     </Link>
