@@ -108,13 +108,17 @@ describe('useAuthAnimation', () => {
     // Assign container
     result.current.containerRef.current = mockContainer;
     
-    // Start transition
+    // Start transition to register
     act(() => {
       result.current.switchScreen('register');
     });
     
-    // Wait a bit for transition to start
-    await new Promise(resolve => setTimeout(resolve, 10));
+    // Wait for transition to start and isTransitioning to become true
+    await new Promise(resolve => setTimeout(resolve, 50));
+    
+    // Verify we're transitioning
+    expect(result.current.isTransitioning).toBe(true);
+    expect(result.current.activeScreen).toBe('register');
     
     // Try to switch again while transitioning - should be ignored
     act(() => {
