@@ -47,7 +47,11 @@ export const DomainsChart: React.FC<DomainsChartProps> = ({ data }) => {
             />
             <Tooltip
               contentStyle={TOOLTIP_STYLE}
-              formatter={(value: number) => formatTime(value)}
+              formatter={(value) => {
+                const numericValue =
+                  typeof value === 'number' ? value : Number(value) || 0;
+                return formatTime(numericValue);
+              }}
             />
             <Bar
               dataKey="total_seconds"
