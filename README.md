@@ -1,7 +1,6 @@
 # 🌐 Mindful Web Frontend
 *React dashboard and analytics for mindful internet tracking*
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![React](https://img.shields.io/badge/React-18%2B-61dafb)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5%2B-blue)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-6%2B-646cff)](https://vite.dev/)
@@ -86,7 +85,7 @@ The frontend expects API calls under `/api/v1` by default. In Docker, Nginx prox
 
 For local development, override the API URL via `.env`:
 ```
-VITE_API_URL=http://localhost:8000/api/v1
+VITE_API_URL=/api/v1
 ```
 
 ---
