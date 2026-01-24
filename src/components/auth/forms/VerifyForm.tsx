@@ -26,13 +26,22 @@ export const VerifyForm: React.FC<VerifyFormProps> = ({
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const validator = useMemo(() => new VerifyFormValidator(t), [t]);
+  const hasErrors = Object.keys(errors).length > 0;
+
+  const areErrorsEqual = (nextErrors: Record<string, string>) => {
+    const keys = Object.keys(errors);
+    const nextKeys = Object.keys(nextErrors);
+    if (keys.length !== nextKeys.length) return false;
+    return keys.every((key) => errors[key] === nextErrors[key]);
+  };
 
   useEffect(() => {
-    if (Object.keys(errors).length > 0) {
-      const validation = validator.validate({ email, code });
+    if (!hasErrors) return;
+    const validation = validator.validate({ email, code });
+    if (!areErrorsEqual(validation.errors)) {
       setErrors(validation.errors);
     }
-  }, [locale]);
+  }, [code, email, hasErrors, locale, validator]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {

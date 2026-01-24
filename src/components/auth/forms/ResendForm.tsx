@@ -27,7 +27,7 @@ export const ResendForm: React.FC<ResendFormProps> = ({
       const validationError = emailValidator.validate(email, t);
       setError(validationError);
     }
-  }, [locale]);
+  }, [email, emailValidator, error, locale, t]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
