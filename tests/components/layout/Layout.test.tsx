@@ -28,7 +28,8 @@ describe('Layout', () => {
 
   it('renders app logo/title', () => {
     renderLayout(<div>Content</div>);
-    expect(screen.getByText(/Mindful Web/i)).toBeInTheDocument();
+    const logos = screen.getAllByText(/Mindful Web/i);
+    expect(logos.length).toBeGreaterThan(0);
   });
 
   it('renders navigation links', () => {
@@ -42,8 +43,15 @@ describe('Layout', () => {
   it('renders theme toggle button', () => {
     renderLayout(<div>Content</div>);
     
-    const themeButton = screen.getByTitle('Toggle theme');
-    expect(themeButton).toBeInTheDocument();
+    // Theme button uses title from translation, try to find by role or title
+    const buttons = screen.getAllByRole('button');
+    const themeButton = buttons.find(btn => 
+      btn.getAttribute('title')?.includes('Theme') || 
+      btn.getAttribute('title')?.includes('тема') ||
+      btn.textContent?.includes('☀️') ||
+      btn.textContent?.includes('🌙')
+    );
+    expect(themeButton).toBeDefined();
   });
 
   it('renders language toggle button', () => {
