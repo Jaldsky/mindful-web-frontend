@@ -113,6 +113,12 @@ body {
   background-color: var(--color-bg-tertiary);
 }
 
+/* Prevent layout shift when vertical scrollbar appears/disappears */
+html {
+  scrollbar-gutter: stable;
+  overflow-y: scroll; /* fallback for browsers without scrollbar-gutter */
+}
+
 [data-theme="dark"] body {
   @apply text-slate-100;
 }
@@ -234,9 +240,9 @@ body {
   content: '←';
 }
 
-/* Outline button emoji on hover */
+/* Outline button hover: no emoji (avoid "anonymous" icon) */
 .button-animated.border:hover:not(:disabled)::before {
-  content: '👤';
+  content: '';
 }
 
 /* Auth form button styles - matching plugin style */

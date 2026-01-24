@@ -1,10 +1,19 @@
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import path from 'path';
+import os from 'os';
 
 export default defineConfig({
   plugins: [react()],
   test: {
+    pool: 'threads',
+    poolOptions: {
+      threads: {
+        minThreads: 2,
+        maxThreads: Math.max(2, Math.floor(os.cpus().length * 0.75)),
+      },
+    },
+    fileParallelism: true,
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./tests/setup.ts'],
