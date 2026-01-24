@@ -285,7 +285,7 @@ describe('ApiClient', () => {
     logError() {}
   }
 
-  it('should create client with custom storage and logger', () => {
+  it('should create web with custom storage and logger', () => {
     const storage = new MockStorage();
     const logger = new MockLogger();
     const client = new ApiClient(storage, logger);
@@ -293,12 +293,12 @@ describe('ApiClient', () => {
     expect(client.instance).toBeDefined();
   });
 
-  it('should create client with factory method', () => {
+  it('should create web with factory method', () => {
     const client = ApiClient.create();
     expect(client.instance).toBeDefined();
   });
 
-  it('should create client with default dependencies', () => {
+  it('should create web with default dependencies', () => {
     const client = ApiClient.create(new LocalStorageTokenStorage(), new ConsoleLogger());
     expect(client.instance).toBeDefined();
   });
@@ -310,7 +310,7 @@ describe('ResponseInterceptor', () => {
     const storage = new LocalStorageTokenStorage();
     const client = new ApiClient(storage, logger);
     
-    // Verify client is created successfully
+    // Verify web is created successfully
     expect(client.instance).toBeDefined();
     expect(client.instance.interceptors).toBeDefined();
   });
