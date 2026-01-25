@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useState } from 'react';
+import { Dispatch, SetStateAction, useRef, useState } from 'react';
 
 interface UseUsernameEditingParams {
   isAuthenticated: boolean;
@@ -22,6 +22,9 @@ export const useUsernameEditing = ({
   const [editingUsername, setEditingUsername] = useState(false);
   const [usernameInput, setUsernameInput] = useState('');
   const [usernameError, setUsernameError] = useState<string>('');
+  const [isUpdatingUsername, setIsUpdatingUsername] = useState(false);
+  const lastUsernameRequestAtRef = useRef<number | null>(null);
+  const USERNAME_CHANGE_COOLDOWN_MS = 30000;
 
   const startEditUsername = () => {
     if (!isAuthenticated) return;
@@ -43,8 +46,25 @@ export const useUsernameEditing = ({
       setUsernameError(t('auth.errors.usernameTooLong'));
       return;
     }
+
+    if (isUpdatingUsername) {
+      setUsernameError(t('profile.usernameChangeInProgress'));
+      return;
+    }
+
+    if (lastUsernameRequestAtRef.current) {
+      const elapsedMs = Date.now() - lastUsernameRequestAtRef.current;
+      if (elapsedMs < USERNAME_CHANGE_COOLDOWN_MS) {
+        const secondsLeft = Math.ceil((USERNAME_CHANGE_COOLDOWN_MS - elapsedMs) / 1000);
+        setUsernameError(t('profile.usernameChangeCooldown', { seconds: secondsLeft }));
+        return;
+      }
+    }
+
+    setIsUpdatingUsername(true);
     try {
       await updateUsername(usernameInput);
+      lastUsernameRequestAtRef.current = Date.now();
       setUsername(usernameInput);
       setEditingUsername(false);
       setUsernameError('');
@@ -52,6 +72,8 @@ export const useUsernameEditing = ({
       const errorMessage = error instanceof Error ? error.message : t('auth.genericError');
       setServerError(errorMessage);
       setUsernameError('');
+    } finally {
+      setIsUpdatingUsername(false);
     }
   };
 

@@ -36,6 +36,8 @@ export const en = {
     verifyEmailTooOften: 'Too many requests. Please wait and try again.',
     emailChangeCooldown: 'Please wait {seconds}s before requesting another code.',
     emailChangeInProgress: 'Email change is already in progress.',
+    usernameChangeCooldown: 'Please wait {seconds}s before changing username again.',
+    usernameChangeInProgress: 'Username change is already in progress.',
   },
   navigation: {
     home: 'Home',
