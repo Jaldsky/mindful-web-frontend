@@ -36,6 +36,8 @@ export const ru = {
     verifyEmailTooOften: 'Слишком часто. Подождите и попробуйте снова.',
     emailChangeCooldown: 'Подождите {seconds}с перед повторной отправкой кода.',
     emailChangeInProgress: 'Смена email уже выполняется.',
+    usernameChangeCooldown: 'Подождите {seconds}с перед повторной сменой логина.',
+    usernameChangeInProgress: 'Смена логина уже выполняется.',
   },
   navigation: {
     home: 'Главная',
