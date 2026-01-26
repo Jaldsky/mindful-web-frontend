@@ -51,20 +51,31 @@ export const en = {
     noData: 'No data available for the selected period. Try selecting a different date range.',
   },
   home: {
-    subtitle: 'Track your web usage and get mindful insights about your digital habits',
+    title: 'Your time online under your control with',
+    titleBrand: '🧘 Mindful Web',
+    subtitle: 'Track time on websites and analyze your digital habits',
     viewDashboard: 'View Dashboard',
+    sections: {
+      features: 'Features',
+      featuresDescription: 'Key tools to control your time online.',
+      extension: 'Download Extension',
+    },
+    extension: {
+      description: 'Install the browser extension to automatically track time on websites.',
+      users: 'users',
+    },
     features: {
       tracking: {
         title: 'Time Tracking',
-        description: 'Monitor how much time you spend on different websites and domains',
+        description: 'Monitor time spent on all visited websites',
       },
       analytics: {
         title: 'Analytics',
-        description: 'Get detailed insights and statistics about your browsing patterns',
+        description: 'Charts and reports on your web activity',
       },
       mindful: {
         title: 'Mindful Usage',
-        description: 'Understand your digital habits and make more conscious choices',
+        description: 'Manage your time online consciously and mindfully',
       },
     },
   },
