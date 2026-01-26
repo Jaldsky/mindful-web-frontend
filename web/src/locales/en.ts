@@ -152,5 +152,10 @@ export const en = {
     continueAnonymous: 'Continue as Guest',
     footer: 'By continuing, you agree to Terms of Service and Privacy Policy',
   },
+  footer: {
+    terms: 'Terms of Service',
+    privacy: 'Privacy Policy',
+    reportBug: 'Report a bug',
+  },
 } as const;
 
