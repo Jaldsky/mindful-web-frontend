@@ -151,11 +151,63 @@ export const en = {
     signIn: 'Sign In or Register',
     continueAnonymous: 'Continue as Guest',
     footer: 'By continuing, you agree to Terms of Service and Privacy Policy',
+    footerPrefix: 'By continuing, you agree to',
+    footerTerms: 'Terms of Service',
+    footerAnd: 'and',
+    footerPrivacy: 'Privacy Policy',
   },
   footer: {
     terms: 'Terms of Service',
     privacy: 'Privacy Policy',
     reportBug: 'Report a bug',
+  },
+  legal: {
+    terms: {
+      title: 'Terms of Service',
+      acceptance: {
+        title: 'Acceptance of Terms',
+        content:
+          'By using Mindful Web, you agree to these terms of service. If you do not agree to any of these terms, please do not use our service.',
+      },
+      service: {
+        title: 'Service Description',
+        content:
+          'Mindful Web is a service for tracking time spent on websites. We provide a browser extension and web dashboard for analyzing your internet activity.',
+      },
+      usage: {
+        title: 'Usage Rules',
+        content:
+          'You agree to use the service only for lawful purposes. It is prohibited to use the service to violate the rights of other users or third parties.',
+      },
+      changes: {
+        title: 'Changes to Terms',
+        content:
+          'We reserve the right to modify these terms at any time. By continuing to use the service after changes are made, you accept the updated terms.',
+      },
+    },
+    privacy: {
+      title: 'Privacy Policy',
+      collection: {
+        title: 'Data Collection',
+        content:
+          'We collect information about the websites you visit and the time spent on them. This data is used exclusively to provide you with statistics and analytics.',
+      },
+      usage: {
+        title: 'Data Usage',
+        content:
+          'Your data is used only to display personal statistics. We do not sell or share your data with third parties.',
+      },
+      storage: {
+        title: 'Data Storage',
+        content:
+          'Data is stored on secure servers. You can request deletion of all your data at any time through your profile settings.',
+      },
+      rights: {
+        title: 'Your Rights',
+        content:
+          'You have the right to access, correct, and delete your personal data. To exercise these rights, contact us through GitHub.',
+      },
+    },
   },
 } as const;
 

@@ -5,6 +5,7 @@
  */
 
 import React, { useEffect, useRef, useLayoutEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useTranslation } from "../../hooks";
 import { useLocale, SUPPORTED_LOCALES } from '../../contexts';
 import { useTheme } from '../../contexts';
@@ -260,7 +261,26 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
                 marginBottom: 0,
               }}
             >
-              {t('welcome.footer')}
+              {t('welcome.footerPrefix')}{' '}
+              <Link
+                to="/terms"
+                style={{
+                  color: 'var(--color-primary)',
+                  textDecoration: 'none',
+                }}
+              >
+                {t('welcome.footerTerms')}
+              </Link>
+              {' '}{t('welcome.footerAnd')}{' '}
+              <Link
+                to="/privacy"
+                style={{
+                  color: 'var(--color-primary)',
+                  textDecoration: 'none',
+                }}
+              >
+                {t('welcome.footerPrivacy')}
+              </Link>
             </p>
           </div>
         </div>

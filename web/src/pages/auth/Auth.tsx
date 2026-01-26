@@ -5,7 +5,7 @@
  */
 
 import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation, useAuthAnimation } from '../../hooks';
 import { useAuth } from '../../contexts';
 import { AuthHeader, LoginForm, RegisterForm, VerifyForm, ResendForm } from '../../components/auth';
@@ -395,6 +395,37 @@ export const Auth: React.FC = () => {
             </button>
           </div>
         )}
+
+        {/* Legal Links */}
+        <p
+          style={{
+            fontSize: 'var(--font-size-xs)',
+            color: 'var(--color-text-secondary)',
+            marginTop: 'var(--spacing-lg)',
+            textAlign: 'center',
+          }}
+        >
+          {t('welcome.footerPrefix')}{' '}
+          <Link
+            to="/terms"
+            style={{
+              color: 'var(--color-primary)',
+              textDecoration: 'none',
+            }}
+          >
+            {t('welcome.footerTerms')}
+          </Link>
+          {' '}{t('welcome.footerAnd')}{' '}
+          <Link
+            to="/privacy"
+            style={{
+              color: 'var(--color-primary)',
+              textDecoration: 'none',
+            }}
+          >
+            {t('welcome.footerPrivacy')}
+          </Link>
+        </p>
       </div>
     </div>
   );
