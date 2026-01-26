@@ -32,8 +32,8 @@ describe('Header', () => {
     
     const homeLinks = screen.getAllByText('Home');
     expect(homeLinks.length).toBeGreaterThan(0);
-    const dashboardLinks = screen.getAllByText('Analytics');
-    expect(dashboardLinks.length).toBeGreaterThan(0);
+    const analyticsLinks = screen.getAllByText('Analytics');
+    expect(analyticsLinks.length).toBeGreaterThan(0);
     const profileLinks = screen.getAllByText('Profile');
     expect(profileLinks.length).toBeGreaterThan(0);
   });

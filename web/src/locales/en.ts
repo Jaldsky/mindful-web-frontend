@@ -41,10 +41,10 @@ export const en = {
   },
   navigation: {
     home: 'Home',
-    dashboard: 'Analytics',
+    analytics: 'Analytics',
     profile: 'Profile',
   },
-  dashboard: {
+  analytics: {
     totalDomains: 'Total Domains',
     activeTime: 'Active Time',
     domainsTracked: 'Domains Tracked',
@@ -54,7 +54,7 @@ export const en = {
     title: 'Your time online under your control with',
     titleBrand: '🧘 Mindful Web',
     subtitle: 'Track time on websites and analyze your digital habits',
-    viewDashboard: 'View Dashboard',
+    viewAnalytics: 'View Analytics',
     sections: {
       features: 'Features',
       featuresDescription: 'Key tools to control your time online.',
