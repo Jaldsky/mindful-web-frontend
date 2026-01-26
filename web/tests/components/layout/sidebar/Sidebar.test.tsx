@@ -1,7 +1,6 @@
-import React from 'react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { Sidebar } from '../../../../src/components/layout/sidebar/Sidebar';
+import { Sidebar } from '../../../../src/components/layout';
 
 const mockNavigate = vi.fn();
 const mockOnClose = vi.fn();
@@ -20,7 +19,7 @@ vi.mock('../../../../src/hooks', () => ({
     t: (key: string) => {
       const labels: Record<string, string> = {
         'navigation.home': 'Home',
-        'navigation.dashboard': 'Analytics',
+        'navigation.analytics': 'Analytics',
         'navigation.profile': 'Profile',
       };
       return labels[key] || key;

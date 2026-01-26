@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { ThemeProvider, UserProvider, LocaleProvider, AuthProvider, useAuth } from './contexts';
-import { Home, Dashboard, Profile, Settings, Auth, Welcome, Terms, Privacy } from './pages';
+import { Home, Analytics, Profile, Settings, Auth, Welcome, Terms, Privacy } from './pages';
 
 function AuthGuard({ children }: { children: React.ReactNode }) {
   const { status } = useAuth();
@@ -30,7 +30,7 @@ function AppRoutes() {
           <Route path="/welcome" element={<Welcome />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/" element={<Home />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/analytics" element={<Analytics />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/terms" element={<Terms />} />

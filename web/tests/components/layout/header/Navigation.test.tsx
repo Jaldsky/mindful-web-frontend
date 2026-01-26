@@ -34,11 +34,11 @@ describe('Navigation', () => {
     renderNavigation();
     
     const homeLink = screen.getByText('Home').closest('a');
-    const dashboardLink = screen.getByText('Analytics').closest('a');
+    const analyticsLink = screen.getByText('Analytics').closest('a');
     const profileLink = screen.getByText('Profile').closest('a');
     
     expect(homeLink).toHaveAttribute('href', '/');
-    expect(dashboardLink).toHaveAttribute('href', '/dashboard');
+    expect(analyticsLink).toHaveAttribute('href', '/analytics');
     expect(profileLink).toHaveAttribute('href', '/profile');
   });
 

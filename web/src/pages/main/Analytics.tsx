@@ -7,7 +7,7 @@ import { Clock, Globe, MousePointer2 } from 'lucide-react';
 import { formatTime } from '../../utils';
 import { DATE_RANGES } from '../../constants';
 
-export const Dashboard: React.FC = () => {
+export const Analytics: React.FC = () => {
   const { t } = useTranslation();
   const { dateRange, setStartDate, setEndDate, selectQuickRange } = useDateRange(DATE_RANGES.DAYS_7);
   
@@ -40,7 +40,7 @@ export const Dashboard: React.FC = () => {
     <Layout>
       <div className="space-y-6">
         <PageHeader
-          title={t('navigation.dashboard')}
+          title={t('navigation.analytics')}
           subtitle={t('home.subtitle')}
           right={
             <div className="w-full sm:w-auto">
@@ -59,19 +59,19 @@ export const Dashboard: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <StatsCard
             icon={Globe}
-            label={t('dashboard.totalDomains')}
+            label={t('analytics.totalDomains')}
             value={stats.totalDomains}
             variant="primary"
           />
           <StatsCard
             icon={Clock}
-            label={t('dashboard.activeTime')}
+            label={t('analytics.activeTime')}
             value={stats.activeTime}
             variant="success"
           />
           <StatsCard
             icon={MousePointer2}
-            label={t('dashboard.domainsTracked')}
+            label={t('analytics.domainsTracked')}
             value={stats.domainsTracked}
             variant="secondary"
           />
@@ -81,7 +81,7 @@ export const Dashboard: React.FC = () => {
 
         {!error && !loading && chartData.length === 0 && (
           <Card>
-            <EmptyState message={t('dashboard.noData')} />
+            <EmptyState message={t('analytics.noData')} />
           </Card>
         )}
 

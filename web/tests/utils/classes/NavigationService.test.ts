@@ -154,17 +154,17 @@ describe('NavigationService', () => {
   describe('Integration scenarios', () => {
     it('should support login success navigation flow', () => {
       const setVisible = vi.fn();
-      const navigateToDashboard = vi.fn();
+      const navigateToAnalytics = vi.fn();
 
       // Simulate successful login with fade-out
-      service.fadeOutAndNavigate(setVisible, navigateToDashboard, 300);
+      service.fadeOutAndNavigate(setVisible, navigateToAnalytics, 300);
 
       // UI should fade out immediately
       expect(setVisible).toHaveBeenCalledWith(false);
 
       // Navigation happens after animation
       vi.advanceTimersByTime(300);
-      expect(navigateToDashboard).toHaveBeenCalledTimes(1);
+      expect(navigateToAnalytics).toHaveBeenCalledTimes(1);
     });
 
     it('should support back button with fade-out', () => {
@@ -221,11 +221,11 @@ describe('NavigationService', () => {
 
       service.fadeOutAndNavigate(
         setVisible,
-        () => mockNavigate('/dashboard')
+        () => mockNavigate('/analytics')
       );
 
       vi.advanceTimersByTime(300);
-      expect(mockNavigate).toHaveBeenCalledWith('/dashboard');
+      expect(mockNavigate).toHaveBeenCalledWith('/analytics');
     });
   });
 });

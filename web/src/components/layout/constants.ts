@@ -8,8 +8,8 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     icon: Home,
   },
   {
-    path: '/dashboard',
-    labelKey: 'navigation.dashboard',
+    path: '/analytics',
+    labelKey: 'navigation.analytics',
     icon: BarChart3,
   },
   {
