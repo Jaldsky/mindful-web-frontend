@@ -6,4 +6,5 @@
 export { Auth, Welcome } from './auth';
 export { Home, Dashboard } from './main';
 export { Profile, Settings } from './user';
+export { Terms, Privacy } from './legal';
 export type { MessageState, AuthFormState } from './types';

@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { ThemeProvider, UserProvider, LocaleProvider, AuthProvider, useAuth } from './contexts';
-import { Home, Dashboard, Profile, Settings, Auth, Welcome } from './pages';
+import { Home, Dashboard, Profile, Settings, Auth, Welcome, Terms, Privacy } from './pages';
 
 function AuthGuard({ children }: { children: React.ReactNode }) {
   const { status } = useAuth();
@@ -10,7 +10,7 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
     return <>{children}</>;
   }
 
-  const allowedPaths = ['/auth', '/welcome'];
+  const allowedPaths = ['/auth', '/welcome', '/terms', '/privacy'];
   if (allowedPaths.includes(location.pathname)) {
     return <>{children}</>;
   }
@@ -33,6 +33,8 @@ function AppRoutes() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </AuthGuard>
