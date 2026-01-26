@@ -5,6 +5,7 @@
 
 export { useAnalytics, useChartDimensions, useDateRange } from './analytics';
 export { useAuthAnimation } from './auth';
+export { useHomeEntranceAnimation } from './home';
 export { useTranslation, useTimezone } from './i18n';
 export {
   useProfileData,
