@@ -35,10 +35,10 @@ describe('StatsCard', () => {
         variant="success"
       />
     );
-    
-    const iconContainer = container.querySelector('.bg-green-100');
+
+    const iconContainer = container.querySelector('[class*="bg-emerald-"]');
     expect(iconContainer).toBeInTheDocument();
-    expect(iconContainer).toHaveClass('text-green-600');
+    expect(iconContainer).toHaveAttribute('class', expect.stringContaining('text-emerald-'));
   });
 
   it('uses primary variant by default', () => {
@@ -46,7 +46,7 @@ describe('StatsCard', () => {
       <StatsCard icon={Clock} label="Default" value="test" />
     );
     
-    const iconContainer = container.querySelector('.bg-blue-100');
+    const iconContainer = container.querySelector('[class*="bg-blue-"]');
     expect(iconContainer).toBeInTheDocument();
   });
 
@@ -55,7 +55,7 @@ describe('StatsCard', () => {
       <StatsCard icon={Clock} label="Warning" value="test" variant="warning" />
     );
     
-    const iconContainer = container.querySelector('.bg-orange-100');
+    const iconContainer = container.querySelector('[class*="bg-amber-"]');
     expect(iconContainer).toBeInTheDocument();
   });
 });

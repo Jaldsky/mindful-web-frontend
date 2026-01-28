@@ -15,9 +15,14 @@ describe('DateRangeSelector', () => {
 
   it('renders date inputs with values', () => {
     render(<DateRangeSelector {...mockProps} />);
-    
-    const startInput = screen.getByLabelText('From:') as HTMLInputElement;
-    const endInput = screen.getByLabelText('To:') as HTMLInputElement;
+
+    // Open dropdown first
+    fireEvent.click(screen.getByRole('button', { name: /—/ }));
+
+    const startLabel = screen.getByText('Start Date');
+    const endLabel = screen.getByText('End Date');
+    const startInput = startLabel.parentElement?.querySelector('input') as HTMLInputElement;
+    const endInput = endLabel.parentElement?.querySelector('input') as HTMLInputElement;
     
     expect(startInput.value).toBe('2024-01-01');
     expect(endInput.value).toBe('2024-01-31');
@@ -25,8 +30,10 @@ describe('DateRangeSelector', () => {
 
   it('calls onStartDateChange when start date changes', () => {
     render(<DateRangeSelector {...mockProps} />);
-    
-    const startInput = screen.getByLabelText('From:');
+
+    fireEvent.click(screen.getByRole('button', { name: /—/ }));
+    const startLabel = screen.getByText('Start Date');
+    const startInput = startLabel.parentElement?.querySelector('input') as HTMLInputElement;
     fireEvent.change(startInput, { target: { value: '2024-02-01' } });
     
     expect(mockProps.onStartDateChange).toHaveBeenCalledWith('2024-02-01');
@@ -34,8 +41,10 @@ describe('DateRangeSelector', () => {
 
   it('calls onEndDateChange when end date changes', () => {
     render(<DateRangeSelector {...mockProps} />);
-    
-    const endInput = screen.getByLabelText('To:');
+
+    fireEvent.click(screen.getByRole('button', { name: /—/ }));
+    const endLabel = screen.getByText('End Date');
+    const endInput = endLabel.parentElement?.querySelector('input') as HTMLInputElement;
     fireEvent.change(endInput, { target: { value: '2024-02-28' } });
     
     expect(mockProps.onEndDateChange).toHaveBeenCalledWith('2024-02-28');
@@ -43,22 +52,23 @@ describe('DateRangeSelector', () => {
 
   it('renders quick select buttons', () => {
     render(<DateRangeSelector {...mockProps} />);
-    
-    expect(screen.getByText('7 days')).toBeInTheDocument();
-    expect(screen.getByText('30 days')).toBeInTheDocument();
-    expect(screen.getByText('90 days')).toBeInTheDocument();
+
+    // Quick ranges exist in DOM (desktop) and also inside dropdown (mobile)
+    expect(screen.getAllByText(/7 days/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/30 days/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/90 days/).length).toBeGreaterThan(0);
   });
 
   it('calls onQuickSelect when quick button is clicked', () => {
     render(<DateRangeSelector {...mockProps} />);
     
-    fireEvent.click(screen.getByText('7 days'));
+    fireEvent.click(screen.getAllByText(/7 days/)[0]);
     expect(mockProps.onQuickSelect).toHaveBeenCalledWith(7);
     
-    fireEvent.click(screen.getByText('30 days'));
+    fireEvent.click(screen.getAllByText(/30 days/)[0]);
     expect(mockProps.onQuickSelect).toHaveBeenCalledWith(30);
     
-    fireEvent.click(screen.getByText('90 days'));
+    fireEvent.click(screen.getAllByText(/90 days/)[0]);
     expect(mockProps.onQuickSelect).toHaveBeenCalledWith(90);
   });
 });
