@@ -1,4 +1,4 @@
-import React, { useState, FormEvent, useEffect, useMemo } from 'react';
+import React, { useState, FormEvent, useEffect, useMemo, useCallback } from 'react';
 import { useTranslation } from "../../../hooks";
 import { FormField } from '../FormField';
 import { RegisterFormValidator } from '../validators';
@@ -26,12 +26,12 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
   const validator = useMemo(() => new RegisterFormValidator(t), [t]);
   const hasErrors = Object.keys(errors).length > 0;
 
-  const areErrorsEqual = (nextErrors: Record<string, string>) => {
+  const areErrorsEqual = useCallback((nextErrors: Record<string, string>) => {
     const keys = Object.keys(errors);
     const nextKeys = Object.keys(nextErrors);
     if (keys.length !== nextKeys.length) return false;
     return keys.every((key) => errors[key] === nextErrors[key]);
-  };
+  }, [errors]);
 
   useEffect(() => {
     if (!hasErrors) return;
@@ -39,7 +39,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
     if (!areErrorsEqual(validation.errors)) {
       setErrors(validation.errors);
     }
-  }, [confirmPassword, email, hasErrors, locale, password, username, validator]);
+  }, [areErrorsEqual, confirmPassword, email, hasErrors, locale, password, username, validator]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
