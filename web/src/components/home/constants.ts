@@ -3,14 +3,14 @@
  */
 
 export const FEATURE_COLORS = {
-  blue: { bg: '#E3F2FD', text: '#2196F3' },
-  green: { bg: '#E8F5E9', text: '#4CAF50' },
-  purple: { bg: '#F3E5F5', text: '#9C27B0' },
+  blue: { bg: '#E0F7FA', text: '#0D9488' },
+  green: { bg: '#E0F2FE', text: '#0284C7' },
+  purple: { bg: '#EEF2FF', text: '#4F46E5' },
 } as const;
 
 export const SECTION_COLORS = {
-  features: '#9C27B0',
-  extension: '#4CAF50',
+  features: '#0D9488',
+  extension: '#0284C7',
 } as const;
 
 export const EXTENSION_URLS = {
