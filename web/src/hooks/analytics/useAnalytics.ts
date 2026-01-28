@@ -3,41 +3,74 @@
  * Following React best practices
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { analyticsService } from '../../services';
 import { ApiError } from '../../utils';
-import type { UseAnalyticsReturn, AnalyticsRequestParams, AnalyticsUsageResponse } from '../types';
+import type { UseAnalyticsReturn, AnalyticsRequestParams } from '../types';
+import type { DomainUsageStat, PaginationMeta } from '../../types';
 
-export function useAnalytics(params: AnalyticsRequestParams): UseAnalyticsReturn {
-  const [data, setData] = useState<AnalyticsUsageResponse | null>(null);
+export function useAnalytics(params: Omit<AnalyticsRequestParams, 'page'>): UseAnalyticsReturn {
+  const { from, to } = params;
+  const [data, setData] = useState<DomainUsageStat[]>([]);
+  const [pagination, setPagination] = useState<PaginationMeta | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const currentPageRef = useRef(1);
 
-  const fetchData = useCallback(async () => {
+  const fetchData = useCallback(async (page: number = 1, append: boolean = false) => {
     try {
-      setLoading(true);
+      if (append) {
+        setLoadingMore(true);
+      } else {
+        setLoading(true);
+        setData([]);
+        currentPageRef.current = 1;
+      }
       setError(null);
       
-      const response = await analyticsService.getUsage(params);
-      setData(response);
+      const response = await analyticsService.getUsage({ from, to, page });
+      
+      if (append) {
+        setData(prev => [...prev, ...response.data]);
+      } else {
+        setData(response.data);
+      }
+      setPagination(response.pagination);
+      currentPageRef.current = page;
     } catch (err) {
       const apiError = err as ApiError;
       setError(apiError.message);
-      setData(null);
+      if (!append) {
+        setData([]);
+      }
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
-  }, [params]);
+  }, [from, to]);
+
+  const loadMore = useCallback(async () => {
+    if (loadingMore || !pagination || currentPageRef.current >= pagination.total_pages) {
+      return;
+    }
+    await fetchData(currentPageRef.current + 1, true);
+  }, [fetchData, loadingMore, pagination]);
 
   useEffect(() => {
-    fetchData();
+    fetchData(1, false);
   }, [fetchData]);
+
+  const hasMore = pagination ? currentPageRef.current < pagination.total_pages : false;
 
   return {
     data,
+    pagination,
     loading,
+    loadingMore,
+    hasMore,
     error,
-    refetch: fetchData,
+    refetch: () => fetchData(1, false),
+    loadMore,
   };
 }
-
