@@ -45,15 +45,16 @@ describe('useAnalytics', () => {
     const { result } = renderHook(() => useAnalytics(mockParams));
 
     expect(result.current.loading).toBe(true);
-    expect(result.current.data).toBeNull();
+    expect(result.current.data).toEqual([]);
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
     });
 
-    expect(result.current.data).toEqual(mockResponse);
+    expect(result.current.data).toEqual(mockResponse.data);
     expect(result.current.error).toBeNull();
-    expect(analyticsService.getUsage).toHaveBeenCalledWith(mockParams);
+    expect(result.current.pagination).toEqual(mockResponse.pagination);
+    expect(analyticsService.getUsage).toHaveBeenCalledWith({ ...mockParams, page: 1 });
   });
 
   it('handles errors correctly', async () => {
@@ -67,7 +68,7 @@ describe('useAnalytics', () => {
     });
 
     expect(result.current.error).toBe(errorMessage);
-    expect(result.current.data).toBeNull();
+    expect(result.current.data).toEqual([]);
   });
 
   it('refetches data when called', async () => {
@@ -104,11 +105,11 @@ describe('useAnalytics', () => {
 
     expect(analyticsService.getUsage).toHaveBeenCalledWith(mockParams);
 
-    const newParams = { ...mockParams, page: 2 };
+    const newParams = { ...mockParams, to: '2024-01-08' };
     rerender({ params: newParams });
 
     await waitFor(() => {
-      expect(analyticsService.getUsage).toHaveBeenCalledWith(newParams);
+      expect(analyticsService.getUsage).toHaveBeenCalledWith({ ...newParams, page: 1 });
     });
   });
 
@@ -149,7 +150,7 @@ describe('useAnalytics', () => {
 
     await waitFor(() => {
       expect(result.current.error).toBeNull();
-      expect(result.current.data).toEqual(mockResponse);
+      expect(result.current.data).toEqual(mockResponse.data);
     });
   });
 });
