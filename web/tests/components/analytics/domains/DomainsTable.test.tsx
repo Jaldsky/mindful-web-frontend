@@ -25,32 +25,32 @@ describe('DomainsTable', () => {
     expect(developmentElements).toHaveLength(2);
   });
 
-  it('displays dash for missing category', () => {
+  it('does not render category line when missing', () => {
     render(<DomainsTable data={mockData} />);
     
-    // youtube.com has no category, should show '-'
     const rows = screen.getAllByRole('row');
     const youtubeRow = rows.find(row => row.textContent?.includes('youtube.com'));
     expect(youtubeRow).toBeDefined();
+    expect(screen.queryByText('-')).not.toBeInTheDocument();
   });
 
   it('shows empty state when no data', () => {
     render(<DomainsTable data={[]} />);
     
-    expect(screen.getByText('No data available')).toBeInTheDocument();
+    expect(screen.getByText('No activity recorded')).toBeInTheDocument();
   });
 
   it('renders table headers', () => {
     render(<DomainsTable data={mockData} />);
     
     expect(screen.getByText('Domain')).toBeInTheDocument();
-    expect(screen.getByText('Category')).toBeInTheDocument();
-    expect(screen.getByText('Duration')).toBeInTheDocument();
+    expect(screen.getByText('Usage')).toBeInTheDocument();
+    expect(screen.getByText('Time')).toBeInTheDocument();
   });
 
   it('renders title', () => {
     render(<DomainsTable data={mockData} />);
     
-    expect(screen.getByText('Recent Activity')).toBeInTheDocument();
+    expect(screen.getByText('Activity Details')).toBeInTheDocument();
   });
 });

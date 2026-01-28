@@ -47,7 +47,7 @@ describe('TableRow', () => {
     expect(screen.getByText('1h')).toBeInTheDocument();
   });
 
-  it('renders placeholder when category is null', () => {
+  it('does not render category line when category is null', () => {
     const itemWithoutCategory: DomainUsageStat = {
       ...mockItem,
       category: null,
@@ -61,7 +61,7 @@ describe('TableRow', () => {
       </table>
     );
     
-    expect(screen.getByText('-')).toBeInTheDocument();
+    expect(screen.queryByText('-')).not.toBeInTheDocument();
   });
 
   it('applies hover styling classes', () => {
@@ -75,7 +75,7 @@ describe('TableRow', () => {
     
     const row = container.querySelector('tr');
     expect(row).toHaveClass('group');
-    expect(row).toHaveClass('hover:bg-gray-50');
-    expect(row).toHaveClass('transition-colors');
+    expect(row).toHaveClass('hover:bg-gray-50/50');
+    expect(row).toHaveClass('transition-all');
   });
 });
