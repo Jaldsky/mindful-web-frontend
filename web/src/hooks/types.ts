@@ -3,7 +3,7 @@
  * All hook-related types in one place
  */
 
-import type { AnalyticsUsageResponse } from '../types';
+import type { AnalyticsUsageResponse, DomainUsageStat, PaginationMeta } from '../types';
 import type { AnalyticsRequestParams } from '../services';
 import type { AuthScreen } from '../components/auth';
 
@@ -12,10 +12,14 @@ export type { AnalyticsUsageResponse };
 export type { AnalyticsRequestParams };
 
 export interface UseAnalyticsReturn {
-  data: AnalyticsUsageResponse | null;
+  data: DomainUsageStat[];
+  pagination: PaginationMeta | null;
   loading: boolean;
+  loadingMore: boolean;
+  hasMore: boolean;
   error: string | null;
   refetch: () => Promise<void>;
+  loadMore: () => Promise<void>;
 }
 
 export interface UseAuthAnimationReturn {
