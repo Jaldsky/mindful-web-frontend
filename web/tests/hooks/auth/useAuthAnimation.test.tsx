@@ -276,7 +276,7 @@ describe('useAuthAnimation', () => {
     expect(result.current.activeScreen).toBe('register');
   });
 
-  it('sets body overflow hidden during transition', async () => {
+  it('does not modify body overflow during transition', async () => {
     const { result } = renderHook(() => useAuthAnimation('login'));
     
     const mockContainer = document.createElement('div');
@@ -303,10 +303,10 @@ describe('useAuthAnimation', () => {
     
     await new Promise(resolve => setTimeout(resolve, 10));
     
-    // Body should have overflow hidden
-    expect(document.body.style.overflow).toBe('hidden');
-    
-    // Simulate transition end to clean up
+    // Body overflow should not be modified by the hook
+    expect(document.body.style.overflow).toBe('');
+
+    // Simulate transition end to ensure no side effects
     const transitionEndEvent = new Event('transitionend', { bubbles: true });
     Object.defineProperty(transitionEndEvent, 'propertyName', { value: 'height' });
     mockContainer.dispatchEvent(transitionEndEvent);

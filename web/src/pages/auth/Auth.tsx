@@ -35,7 +35,9 @@ export const Auth: React.FC = () => {
   } = useAuthAnimation('login' as AuthScreen, !isVisible);
   
   const formRef = useRef<HTMLDivElement>(null);
+  const legalTextRef = useRef<HTMLParagraphElement>(null);
   const hasAnimatedRef = useRef(false);
+  const hasLegalAnimatedRef = useRef(false);
   const prevDisplayScreenRef = useRef<AuthScreen | null>(null);
 
   const animateFormChildren = (children: HTMLElement[]) => {
@@ -70,12 +72,19 @@ export const Auth: React.FC = () => {
 
         if (prevDisplayScreenRef.current !== displayScreen) {
           hasAnimatedRef.current = false;
+          hasLegalAnimatedRef.current = false;
           children.forEach((child) => {
             child.style.opacity = '0';
             child.style.transform = 'translateY(20px)';
             child.style.transition = 'none';
             child.style.animation = 'none';
           });
+          if (legalTextRef.current && (displayScreen === 'login' || displayScreen === 'register')) {
+            legalTextRef.current.style.opacity = '0';
+            legalTextRef.current.style.transform = 'translateY(20px)';
+            legalTextRef.current.style.transition = 'none';
+            legalTextRef.current.style.animation = 'none';
+          }
         } else if (!hasAnimatedRef.current) {
           children.forEach((child) => {
             child.style.opacity = '0';
@@ -83,6 +92,12 @@ export const Auth: React.FC = () => {
             child.style.transition = 'none';
             child.style.animation = 'none';
           });
+          if (legalTextRef.current && !hasLegalAnimatedRef.current && (displayScreen === 'login' || displayScreen === 'register')) {
+            legalTextRef.current.style.opacity = '0';
+            legalTextRef.current.style.transform = 'translateY(20px)';
+            legalTextRef.current.style.transition = 'none';
+            legalTextRef.current.style.animation = 'none';
+          }
         }
       }
     }
@@ -110,6 +125,21 @@ export const Auth: React.FC = () => {
                 const currentChildren = Array.from(currentFormElement.children) as HTMLElement[];
                 if (currentChildren.length > 0) {
                   animateFormChildren(currentChildren);
+
+                  if (legalTextRef.current && !hasLegalAnimatedRef.current && (displayScreen === 'login' || displayScreen === 'register')) {
+                    hasLegalAnimatedRef.current = true;
+                    const lastChildIndex = currentChildren.length - 1;
+                    const delay = 100 + (lastChildIndex * 80) + 80;
+                    
+                    setTimeout(() => {
+                      if (legalTextRef.current) {
+                        legalTextRef.current.style.transition = 'opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+                        void legalTextRef.current.offsetHeight;
+                        legalTextRef.current.style.opacity = '1';
+                        legalTextRef.current.style.transform = 'translateY(0)';
+                      }
+                    }, delay);
+                  }
                 }
               }
             }
@@ -125,6 +155,10 @@ export const Auth: React.FC = () => {
       setIsVisible(true);
     });
   }, [t]);
+
+  // NOTE: Don't block global scroll here.
+  // Scroll flickер was less critical than невозможность проскроллить форму
+  // на маленьких экранах, поэтому логика блокировки скролла была убрана.
 
   useEffect(() => {
     if (authError) {
@@ -351,9 +385,43 @@ export const Auth: React.FC = () => {
           )}
 
           {renderForm()}
+
+          {(displayScreen === 'login' || displayScreen === 'register') && (
+            <p
+              ref={legalTextRef}
+              style={{
+                fontSize: 'var(--font-size-xs)',
+                color: 'var(--color-text-secondary)',
+                marginTop: 'var(--spacing-lg)',
+                textAlign: 'center',
+                opacity: 0,
+                transform: 'translateY(20px)',
+              }}
+            >
+              {t('welcome.footerPrefix')}{' '}
+              <Link
+                to="/terms"
+                style={{
+                  color: 'var(--color-primary)',
+                  textDecoration: 'none',
+                }}
+              >
+                {t('welcome.footerTerms')}
+              </Link>
+              {' '}{t('welcome.footerAnd')}{' '}
+              <Link
+                to="/privacy"
+                style={{
+                  color: 'var(--color-primary)',
+                  textDecoration: 'none',
+                }}
+              >
+                {t('welcome.footerPrivacy')}
+              </Link>
+            </p>
+          )}
         </div>
 
-        {/* Success Messages */}
         {authMessage && (
           <div
             style={{
@@ -395,37 +463,6 @@ export const Auth: React.FC = () => {
             </button>
           </div>
         )}
-
-        {/* Legal Links */}
-        <p
-          style={{
-            fontSize: 'var(--font-size-xs)',
-            color: 'var(--color-text-secondary)',
-            marginTop: 'var(--spacing-lg)',
-            textAlign: 'center',
-          }}
-        >
-          {t('welcome.footerPrefix')}{' '}
-          <Link
-            to="/terms"
-            style={{
-              color: 'var(--color-primary)',
-              textDecoration: 'none',
-            }}
-          >
-            {t('welcome.footerTerms')}
-          </Link>
-          {' '}{t('welcome.footerAnd')}{' '}
-          <Link
-            to="/privacy"
-            style={{
-              color: 'var(--color-primary)',
-              textDecoration: 'none',
-            }}
-          >
-            {t('welcome.footerPrivacy')}
-          </Link>
-        </p>
       </div>
     </div>
   );
