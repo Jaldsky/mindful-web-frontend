@@ -6,7 +6,6 @@ import {
   TokenProvider,
   TokenRefreshManager,
   AccessTokenRefreshStrategy,
-  AnonTokenRefreshStrategy,
   ApiClient,
   ITokenStorage,
   ILogger,
@@ -31,16 +30,6 @@ describe('LocalStorageTokenStorage', () => {
     expect(storage.getRefreshToken()).toBe('test-refresh');
   });
 
-  it('should set and get anon token', () => {
-    storage.setAnonToken('test-anon');
-    expect(storage.getAnonToken()).toBe('test-anon');
-  });
-
-  it('should set and get anon ID', () => {
-    storage.setAnonId('anon-123');
-    expect(storage.getAnonId()).toBe('anon-123');
-  });
-
   it('should clear auth tokens', () => {
     storage.setAccessToken('access');
     storage.setRefreshToken('refresh');
@@ -50,14 +39,6 @@ describe('LocalStorageTokenStorage', () => {
     expect(storage.getRefreshToken()).toBeNull();
   });
 
-  it('should clear anon tokens', () => {
-    storage.setAnonToken('anon');
-    storage.setAnonId('id');
-    storage.clearAnonTokens();
-    
-    expect(storage.getAnonToken()).toBeNull();
-    expect(storage.getAnonId()).toBeNull();
-  });
 });
 
 describe('ConsoleLogger', () => {
@@ -108,17 +89,6 @@ describe('TokenProvider', () => {
     expect(provider.getAuthToken()).toBe('access-token');
   });
 
-  it('should return anon token when access token not available', () => {
-    storage.setAnonToken('anon-token');
-    expect(provider.getAuthToken()).toBe('anon-token');
-  });
-
-  it('should prefer access token over anon token', () => {
-    storage.setAccessToken('access-token');
-    storage.setAnonToken('anon-token');
-    expect(provider.getAuthToken()).toBe('access-token');
-  });
-
   it('should return null when no tokens', () => {
     expect(provider.getAuthToken()).toBeNull();
   });
@@ -129,11 +99,6 @@ describe('TokenProvider', () => {
     expect(provider.hasAccessToken()).toBe(true);
   });
 
-  it('should check if has anon token', () => {
-    expect(provider.hasAnonToken()).toBe(false);
-    storage.setAnonToken('token');
-    expect(provider.hasAnonToken()).toBe(true);
-  });
 });
 
 describe('AccessTokenRefreshStrategy', () => {
@@ -176,48 +141,6 @@ describe('AccessTokenRefreshStrategy', () => {
     expect(storage.getAccessToken()).toBe('new-access');
     expect(storage.getRefreshToken()).toBe('new-refresh');
     expect(result.headers.Authorization).toBe('Bearer new-access');
-  });
-});
-
-describe('AnonTokenRefreshStrategy', () => {
-  let storage: ITokenStorage;
-  let mockRefreshClient: { post: ReturnType<typeof vi.fn> };
-  let strategy: AnonTokenRefreshStrategy;
-
-  beforeEach(() => {
-    localStorage.clear();
-    storage = new LocalStorageTokenStorage();
-    mockRefreshClient = {
-      post: vi.fn(),
-    };
-    strategy = new AnonTokenRefreshStrategy(storage, mockRefreshClient);
-  });
-
-  it('should handle when anon token exists', () => {
-    storage.setAnonToken('token');
-    expect(strategy.canHandle()).toBe(true);
-  });
-
-  it('should not handle when anon token missing', () => {
-    expect(strategy.canHandle()).toBe(false);
-  });
-
-  it('should refresh anon token', async () => {
-    storage.setAnonToken('old-anon');
-
-    mockRefreshClient.post.mockResolvedValue({
-      data: {
-        anon_token: 'new-anon',
-        anon_id: 'anon-id-123',
-      },
-    });
-
-    const request = { headers: {} };
-    const result = await strategy.refresh(request as InternalAxiosRequestConfig);
-
-    expect(storage.getAnonToken()).toBe('new-anon');
-    expect(storage.getAnonId()).toBe('anon-id-123');
-    expect(result.headers.Authorization).toBe('Bearer new-anon');
   });
 });
 
@@ -269,14 +192,9 @@ describe('ApiClient', () => {
     private tokens = new Map<string, string>();
     getAccessToken() { return this.tokens.get('access') || null; }
     getRefreshToken() { return this.tokens.get('refresh') || null; }
-    getAnonToken() { return this.tokens.get('anon') || null; }
-    getAnonId() { return this.tokens.get('anonId') || null; }
     setAccessToken(token: string) { this.tokens.set('access', token); }
     setRefreshToken(token: string) { this.tokens.set('refresh', token); }
-    setAnonToken(token: string) { this.tokens.set('anon', token); }
-    setAnonId(id: string) { this.tokens.set('anonId', id); }
     clearAuthTokens() { this.tokens.delete('access'); this.tokens.delete('refresh'); }
-    clearAnonTokens() { this.tokens.delete('anon'); this.tokens.delete('anonId'); }
   }
 
   class MockLogger implements ILogger {
@@ -338,13 +256,10 @@ describe('Storage Keys', () => {
   it('should have all required storage keys', () => {
     expect(STORAGE_KEYS.ACCESS_TOKEN).toBeDefined();
     expect(STORAGE_KEYS.REFRESH_TOKEN).toBeDefined();
-    expect(STORAGE_KEYS.ANON_TOKEN).toBeDefined();
-    expect(STORAGE_KEYS.ANON_ID).toBeDefined();
   });
 
   it('should use consistent naming', () => {
     expect(STORAGE_KEYS.ACCESS_TOKEN).toContain('access');
     expect(STORAGE_KEYS.REFRESH_TOKEN).toContain('refresh');
-    expect(STORAGE_KEYS.ANON_TOKEN).toContain('anon');
   });
 });
