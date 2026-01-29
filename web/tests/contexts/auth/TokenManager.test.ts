@@ -67,48 +67,4 @@ describe('TokenManager', () => {
     });
   });
 
-  describe('Anonymous Tokens', () => {
-    it('sets anonymous tokens', () => {
-      tokenManager.setAnonymousTokens('anon-id-123', 'anon-token-456');
-
-      expect(storageManager.setItem).toHaveBeenCalledWith(STORAGE_KEYS.ANON_ID, 'anon-id-123');
-      expect(storageManager.setItem).toHaveBeenCalledWith(
-        STORAGE_KEYS.ANON_TOKEN,
-        'anon-token-456'
-      );
-    });
-
-    it('gets anon id', () => {
-      vi.mocked(storageManager.getItem).mockReturnValue('anon-id-123');
-
-      const id = tokenManager.getAnonId();
-
-      expect(storageManager.getItem).toHaveBeenCalledWith(STORAGE_KEYS.ANON_ID);
-      expect(id).toBe('anon-id-123');
-    });
-
-    it('gets anon token', () => {
-      vi.mocked(storageManager.getItem).mockReturnValue('anon-token-456');
-
-      const token = tokenManager.getAnonToken();
-
-      expect(storageManager.getItem).toHaveBeenCalledWith(STORAGE_KEYS.ANON_TOKEN);
-      expect(token).toBe('anon-token-456');
-    });
-
-    it('clears anonymous tokens', () => {
-      tokenManager.clearAnonymousTokens();
-
-      expect(storageManager.removeItem).toHaveBeenCalledWith(STORAGE_KEYS.ANON_ID);
-      expect(storageManager.removeItem).toHaveBeenCalledWith(STORAGE_KEYS.ANON_TOKEN);
-    });
-
-    it('checks if has anon token', () => {
-      vi.mocked(storageManager.getItem).mockReturnValue('anon-token-456');
-      expect(tokenManager.hasAnonToken()).toBe(true);
-
-      vi.mocked(storageManager.getItem).mockReturnValue(null);
-      expect(tokenManager.hasAnonToken()).toBe(false);
-    });
-  });
 });

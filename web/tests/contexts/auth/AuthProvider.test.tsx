@@ -10,13 +10,9 @@ import { authService, userService } from '../../../src/services';
 vi.mock('../../../src/contexts/auth/TokenManager', () => ({
   tokenManager: {
     hasAccessToken: vi.fn(),
-    hasAnonToken: vi.fn(),
-    getAnonId: vi.fn(),
     getAccessToken: vi.fn(),
-    setAnonymousTokens: vi.fn(),
     setAccessTokens: vi.fn(),
     clearAccessTokens: vi.fn(),
-    clearAnonymousTokens: vi.fn(),
     getRefreshToken: vi.fn(),
   },
 }));
@@ -76,8 +72,6 @@ describe('AuthProvider', () => {
   describe('Bootstrap', () => {
     it('initializes with authenticated status when has access token', async () => {
       vi.mocked(tokenManager.hasAccessToken).mockReturnValue(true);
-      vi.mocked(tokenManager.hasAnonToken).mockReturnValue(false);
-      vi.mocked(tokenManager.getAnonId).mockReturnValue(null);
       vi.mocked(tokenManager.getAccessToken).mockReturnValue(createMockJwtToken('user-1'));
       vi.mocked(userService.getProfile).mockResolvedValue({
         code: 'SUCCESS',
@@ -106,26 +100,8 @@ describe('AuthProvider', () => {
       });
     });
 
-    it('initializes with anonymous status when has anon token', async () => {
-      vi.mocked(tokenManager.hasAccessToken).mockReturnValue(false);
-      vi.mocked(tokenManager.hasAnonToken).mockReturnValue(true);
-      vi.mocked(tokenManager.getAnonId).mockReturnValue('anon-123');
-
-      render(
-        <AuthProvider>
-          <TestComponent />
-        </AuthProvider>
-      );
-
-      await waitFor(() => {
-        expect(screen.getByTestId('status')).toHaveTextContent('anonymous');
-      });
-    });
-
     it('shows welcome screen when no tokens and welcome not shown', async () => {
       vi.mocked(tokenManager.hasAccessToken).mockReturnValue(false);
-      vi.mocked(tokenManager.hasAnonToken).mockReturnValue(false);
-      vi.mocked(tokenManager.getAnonId).mockReturnValue(null);
       vi.mocked(welcomeManager.shouldShowWelcome).mockReturnValue(true);
 
       render(
@@ -143,12 +119,9 @@ describe('AuthProvider', () => {
 
     it('creates anonymous user when no tokens and welcome already shown', async () => {
       vi.mocked(tokenManager.hasAccessToken).mockReturnValue(false);
-      vi.mocked(tokenManager.hasAnonToken).mockReturnValue(false);
-      vi.mocked(tokenManager.getAnonId).mockReturnValue(null);
       vi.mocked(welcomeManager.shouldShowWelcome).mockReturnValue(false);
       vi.mocked(authService.createAnonymous).mockResolvedValue({
         anon_id: 'anon-123',
-        anon_token: 'anon-token-123',
       });
 
       render(
@@ -162,18 +135,14 @@ describe('AuthProvider', () => {
       });
 
       expect(authService.createAnonymous).toHaveBeenCalled();
-      expect(tokenManager.setAnonymousTokens).toHaveBeenCalledWith('anon-123', 'anon-token-123');
     });
 
     it('handles profile loading failure gracefully', async () => {
       vi.mocked(tokenManager.hasAccessToken).mockReturnValue(true);
-      vi.mocked(tokenManager.hasAnonToken).mockReturnValue(false);
-      vi.mocked(tokenManager.getAnonId).mockReturnValue(null);
       vi.mocked(welcomeManager.shouldShowWelcome).mockReturnValue(false);
       vi.mocked(userService.getProfile).mockRejectedValue(new Error('Network error'));
       vi.mocked(authService.createAnonymous).mockResolvedValue({
         anon_id: 'anon-123',
-        anon_token: 'anon-token-123',
       });
 
       render(
@@ -191,8 +160,6 @@ describe('AuthProvider', () => {
 
     it('handles profile loading failure and shows welcome if needed', async () => {
       vi.mocked(tokenManager.hasAccessToken).mockReturnValue(true);
-      vi.mocked(tokenManager.hasAnonToken).mockReturnValue(true);
-      vi.mocked(tokenManager.getAnonId).mockReturnValue('anon-123');
       vi.mocked(welcomeManager.shouldShowWelcome).mockReturnValue(true);
       vi.mocked(userService.getProfile).mockRejectedValue(new Error('Network error'));
 
@@ -212,13 +179,10 @@ describe('AuthProvider', () => {
 
     it('handles profile loading failure and creates anonymous if welcome not needed', async () => {
       vi.mocked(tokenManager.hasAccessToken).mockReturnValue(true);
-      vi.mocked(tokenManager.hasAnonToken).mockReturnValue(true);
-      vi.mocked(tokenManager.getAnonId).mockReturnValue('anon-123');
       vi.mocked(welcomeManager.shouldShowWelcome).mockReturnValue(false);
       vi.mocked(userService.getProfile).mockRejectedValue(new Error('Network error'));
       vi.mocked(authService.createAnonymous).mockResolvedValue({
         anon_id: 'anon-456',
-        anon_token: 'anon-token-456',
       });
 
       render(
@@ -237,8 +201,6 @@ describe('AuthProvider', () => {
 
     it('handles anonymous creation failure', async () => {
       vi.mocked(tokenManager.hasAccessToken).mockReturnValue(false);
-      vi.mocked(tokenManager.hasAnonToken).mockReturnValue(false);
-      vi.mocked(tokenManager.getAnonId).mockReturnValue(null);
       vi.mocked(welcomeManager.shouldShowWelcome).mockReturnValue(false);
       vi.mocked(authService.createAnonymous).mockRejectedValue(new Error('Network error'));
 
@@ -257,7 +219,6 @@ describe('AuthProvider', () => {
   describe('Auth methods', () => {
     it('handles login successfully', async () => {
       vi.mocked(tokenManager.hasAccessToken).mockReturnValue(false);
-      vi.mocked(tokenManager.hasAnonToken).mockReturnValue(false);
       vi.mocked(authService.login).mockResolvedValue({
         access_token: createMockJwtToken('user-1'),
         refresh_token: 'refresh-123',
@@ -291,13 +252,11 @@ describe('AuthProvider', () => {
 
       await waitFor(() => {
         expect(tokenManager.setAccessTokens).toHaveBeenCalled();
-        expect(tokenManager.clearAnonymousTokens).toHaveBeenCalled();
       });
     });
 
     it('handles refresh successfully', async () => {
       vi.mocked(tokenManager.hasAccessToken).mockReturnValue(false);
-      vi.mocked(tokenManager.hasAnonToken).mockReturnValue(false);
       vi.mocked(tokenManager.getRefreshToken).mockReturnValue('refresh-123');
       vi.mocked(authService.refresh).mockResolvedValue({
         access_token: 'new-access-123',
@@ -325,11 +284,9 @@ describe('AuthProvider', () => {
 
     it('handles logout successfully', async () => {
       vi.mocked(tokenManager.hasAccessToken).mockReturnValue(true);
-      vi.mocked(tokenManager.hasAnonToken).mockReturnValue(false);
       vi.mocked(authService.logout).mockResolvedValue(undefined);
       vi.mocked(authService.createAnonymous).mockResolvedValue({
         anon_id: 'anon-123',
-        anon_token: 'anon-token-123',
       });
 
       function LogoutTestComponent() {
@@ -354,7 +311,6 @@ describe('AuthProvider', () => {
 
     it('handles logout with anonymous creation failure', async () => {
       vi.mocked(tokenManager.hasAccessToken).mockReturnValue(true);
-      vi.mocked(tokenManager.hasAnonToken).mockReturnValue(false);
       vi.mocked(authService.logout).mockResolvedValue(undefined);
       vi.mocked(authService.createAnonymous).mockRejectedValue(new Error('Network error'));
 
@@ -383,7 +339,6 @@ describe('AuthProvider', () => {
 
     it('handles updateUsername successfully', async () => {
       vi.mocked(tokenManager.hasAccessToken).mockReturnValue(false);
-      vi.mocked(tokenManager.hasAnonToken).mockReturnValue(false);
       vi.mocked(tokenManager.getAccessToken).mockReturnValue(createMockJwtToken('user-1'));
       vi.mocked(userService.updateUsername).mockResolvedValue({
         code: 'SUCCESS',
@@ -418,7 +373,6 @@ describe('AuthProvider', () => {
 
     it('handles updateEmail successfully', async () => {
       vi.mocked(tokenManager.hasAccessToken).mockReturnValue(false);
-      vi.mocked(tokenManager.hasAnonToken).mockReturnValue(false);
       vi.mocked(tokenManager.getAccessToken).mockReturnValue(createMockJwtToken('user-1'));
       vi.mocked(userService.updateEmail).mockResolvedValue({
         code: 'SUCCESS',
