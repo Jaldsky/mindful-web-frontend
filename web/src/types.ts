@@ -54,7 +54,12 @@ export interface AuthLogoutResponse {
 
 export interface AuthAnonymousResponse {
   anon_id: string;
-  anon_token: string;
+}
+
+export interface AuthSessionResponse {
+  status: 'authenticated' | 'anonymous' | 'none';
+  user_id?: string | null;
+  anon_id?: string | null;
 }
 
 export interface UserProfile {

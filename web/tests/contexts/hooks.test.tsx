@@ -17,12 +17,8 @@ import { THEME } from '../../src/constants';
 vi.mock('../../src/contexts/auth/TokenManager', () => ({
   tokenManager: {
     hasAccessToken: vi.fn(),
-    hasAnonToken: vi.fn(),
-    getAnonId: vi.fn(),
-    setAnonymousTokens: vi.fn(),
     setAccessTokens: vi.fn(),
     clearAccessTokens: vi.fn(),
-    clearAnonymousTokens: vi.fn(),
     getRefreshToken: vi.fn(),
   },
 }));
@@ -39,7 +35,6 @@ vi.mock('../../src/services/AuthService', () => ({
   authService: {
     createAnonymous: vi.fn().mockResolvedValue({
       anon_id: 'anon-123',
-      anon_token: 'anon-token-123',
     }),
     login: vi.fn(),
     register: vi.fn(),
@@ -63,8 +58,6 @@ describe('Context Hooks', () => {
     beforeEach(() => {
       vi.clearAllMocks();
       vi.mocked(tokenManager.hasAccessToken).mockReturnValue(false);
-      vi.mocked(tokenManager.hasAnonToken).mockReturnValue(false);
-      vi.mocked(tokenManager.getAnonId).mockReturnValue(null);
     });
 
     it('throws error when used outside AuthProvider', () => {

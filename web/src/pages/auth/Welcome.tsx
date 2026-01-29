@@ -32,8 +32,7 @@ export const Welcome: React.FC = () => {
       await createAnonymous();
       dismissWelcome();
       navigate('/', { replace: true });
-    } catch (error) {
-      console.error('[Welcome] Failed to create anonymous session:', error);
+    } catch {
       setError(t('common.serverUnavailable'));
       setLoading(false);
     }
