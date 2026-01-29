@@ -1,7 +1,7 @@
 {
   "name": "mindful-web-frontend",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "compose-up": "docker compose -f deploy/docker-compose.yml build mwf-build-image && docker compose -f deploy/docker-compose.yml up -d --build",

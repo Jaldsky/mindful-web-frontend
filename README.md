@@ -21,6 +21,7 @@
 ## ✨ Key Features
 
 - 🔐 **Auth Flow** — login, registration, verification, anonymous sessions
+- 🍪 **Cookie-Based SSO** — unified authentication with backend via HTTP-only cookies
 - 📊 **Analytics UI** — domain usage charts and statistics
 - 👤 **Profile** — username, email, timezone settings
 - 🎨 **Theming & i18n** — light/dark theme, locale support
@@ -68,8 +69,10 @@ Access: http://localhost:8080
 npm run start         # dev server
 npm run build         # type-check + production build
 npm run preview       # serve built dist
-npm run lint          # lint
-npm run test          # tests
+npm run lint          # lint code
+npm run lint:fix      # lint and auto-fix
+npm run test          # run tests
+npm run test:coverage # run tests with coverage
 npm run type-check    # types only
 npm run compose-up    # docker compose up -d --build
 ```
@@ -87,6 +90,17 @@ For local development, override the API URL via `.env`:
 ```
 VITE_API_URL=/api/v1
 ```
+
+## 🔐 Authentication
+
+The frontend uses **cookie-based authentication** for secure SSO with the backend:
+
+- **HTTP-only cookies** — tokens stored in secure, HTTP-only cookies
+- **Automatic SSO** — authentication syncs automatically between frontend and browser extension
+- **Session management** — `/api/v1/auth/session` endpoint provides current session status
+- **Anonymous sessions** — cookie-only anonymous sessions for unauthenticated users
+
+All authentication tokens are managed server-side via cookies, ensuring better security and seamless cross-origin synchronization.
 
 ---
 
