@@ -11,6 +11,7 @@ import type {
   AuthRefreshResponse,
   AuthRegisterResponse,
   AuthResendCodeResponse,
+  AuthSessionResponse,
   AuthVerifyResponse,
 } from '../../types';
 import { createApiError } from '../../utils';
@@ -81,6 +82,15 @@ export class AuthService implements IAuthService {
   async createAnonymous(): Promise<AuthAnonymousResponse> {
     try {
       const response = await apiClient.post<AuthAnonymousResponse>('/auth/anonymous');
+      return response.data;
+    } catch (error) {
+      throw createApiError(error);
+    }
+  }
+
+  async getSession(): Promise<AuthSessionResponse> {
+    try {
+      const response = await apiClient.get<AuthSessionResponse>('/auth/session');
       return response.data;
     } catch (error) {
       throw createApiError(error);

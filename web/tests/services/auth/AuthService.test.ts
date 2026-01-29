@@ -274,7 +274,6 @@ describe('AuthService', () => {
   describe('createAnonymous', () => {
     const mockResponse: AuthAnonymousResponse = {
       anon_id: 'anon-123',
-      anon_token: 'anon-token-456',
     };
 
     it('should create anonymous user successfully', async () => {
