@@ -28,28 +28,6 @@ export class TokenManager {
   hasAccessToken(): boolean {
     return !!this.getAccessToken();
   }
-
-  setAnonymousTokens(id: string, token: string): void {
-    storageManager.setItem(STORAGE_KEYS.ANON_ID, id);
-    storageManager.setItem(STORAGE_KEYS.ANON_TOKEN, token);
-  }
-
-  getAnonId(): string | null {
-    return storageManager.getItem(STORAGE_KEYS.ANON_ID);
-  }
-
-  getAnonToken(): string | null {
-    return storageManager.getItem(STORAGE_KEYS.ANON_TOKEN);
-  }
-
-  clearAnonymousTokens(): void {
-    storageManager.removeItem(STORAGE_KEYS.ANON_ID);
-    storageManager.removeItem(STORAGE_KEYS.ANON_TOKEN);
-  }
-
-  hasAnonToken(): boolean {
-    return !!this.getAnonToken();
-  }
 }
 
 export const tokenManager = new TokenManager();

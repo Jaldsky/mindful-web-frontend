@@ -15,13 +15,12 @@ function UserIdSync() {
   const userContext = React.useContext(UserContext);
 
   useEffect(() => {
-    if (
-      authContext &&
-      userContext &&
-      authContext.status === 'authenticated' &&
-      authContext.user?.user_id
-    ) {
+    if (!authContext || !userContext) return;
+
+    if (authContext.status === 'authenticated' && authContext.user?.user_id) {
       userContext.setUserId(authContext.user.user_id);
+    } else if (authContext.status === 'anonymous' && authContext.anonId) {
+      userContext.setUserId(authContext.anonId);
     }
   }, [authContext, userContext]);
 
@@ -31,7 +30,7 @@ function UserIdSync() {
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [status, setStatus] = useState<AuthStatus>('loading');
   const [user, setUser] = useState<UserProfile | null>(null);
-  const [anonId, setAnonId] = useState<string | null>(() => tokenManager.getAnonId());
+  const [anonId, setAnonId] = useState<string | null>(null); // Не инициализируем из localStorage, ждём bootstrap
   const [showWelcome, setShowWelcome] = useState(false);
   const bootstrapStartedRef = useRef(false);
 
@@ -50,11 +49,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const ensureAnonymous = useCallback(async () => {
     const response = await authService.createAnonymous();
-    tokenManager.setAnonymousTokens(response.anon_id, response.anon_token);
     setAnonId(response.anon_id);
     setStatus('anonymous');
     setShowWelcome(false);
   }, []);
+
+  const tryRestoreSessionFromCookies = useCallback(async () => {
+    try {
+      const sessionResponse = await authService.getSession();
+      
+      if (sessionResponse.status === 'authenticated') {
+        const refreshResponse = await authService.refresh();
+        tokenManager.setAccessTokens(refreshResponse.access_token, refreshResponse.refresh_token);
+        setAnonId(null);
+        setStatus('authenticated');
+        setShowWelcome(false);
+        welcomeManager.markWelcomeShown();
+        await reloadProfile();
+        return 'authenticated';
+      }
+      
+      if (sessionResponse.status === 'anonymous') {
+        setAnonId(sessionResponse.anon_id || null);
+        setStatus('anonymous');
+        setShowWelcome(false);
+        welcomeManager.markWelcomeShown();
+        return 'anonymous';
+      }
+
+      return null;
+    } catch {
+      return null;
+    }
+  }, [reloadProfile]);
 
   const dismissWelcome = useCallback(() => {
     welcomeManager.markWelcomeShown();
@@ -79,9 +106,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     let isMounted = true;
 
     const bootstrap = async () => {
-      const hasAccessToken = tokenManager.hasAccessToken();
-      const hasAnonToken = tokenManager.hasAnonToken();
+      const sessionStatus = await tryRestoreSessionFromCookies();
+      
+      if (sessionStatus === 'authenticated' || sessionStatus === 'anonymous') {
+        return;
+      }
 
+      const hasAccessToken = tokenManager.hasAccessToken();
       if (hasAccessToken) {
         setStatus('authenticated');
         try {
@@ -90,34 +121,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } catch {
           if (!isMounted) return;
           tokenManager.clearAccessTokens();
-          
-          if (welcomeManager.shouldShowWelcome(false, hasAnonToken)) {
+          const retryStatus = await tryRestoreSessionFromCookies();
+          if (retryStatus === 'authenticated' || retryStatus === 'anonymous') {
+            return;
+          }
+          const shouldShowWelcome = welcomeManager.shouldShowWelcome(false, false);
+          if (shouldShowWelcome) {
+            if (!isMounted) return;
             setStatus('welcome');
             setShowWelcome(true);
           } else {
             await ensureAnonymous();
+            if (!isMounted) return;
           }
-          return;
         }
         return;
       }
 
-      if (hasAnonToken) {
-        setStatus('anonymous');
-        return;
-      }
-
-      if (welcomeManager.shouldShowWelcome(false, false)) {
+      const shouldShowWelcome = welcomeManager.shouldShowWelcome(false, false);
+      if (shouldShowWelcome) {
+        if (!isMounted) return;
         setStatus('welcome');
         setShowWelcome(true);
-        return;
-      }
-
-      try {
-        await ensureAnonymous();
-      } catch {
-        if (!isMounted) return;
-        setStatus('anonymous');
+      } else {
+        try {
+          await ensureAnonymous();
+          if (!isMounted) return;
+          welcomeManager.markWelcomeShown();
+        } catch {
+          if (!isMounted) return;
+          setStatus('anonymous');
+        }
       }
     };
 
@@ -126,13 +160,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => {
       isMounted = false;
     };
-  }, [ensureAnonymous, reloadProfile]);
+  }, [ensureAnonymous, reloadProfile, tryRestoreSessionFromCookies]);
 
   const login = useCallback(
     async (username: string, password: string) => {
       const response = await authService.login({ username, password });
       tokenManager.setAccessTokens(response.access_token, response.refresh_token);
-      tokenManager.clearAnonymousTokens();
       setAnonId(null);
       setStatus('authenticated');
       setShowWelcome(false);
@@ -184,8 +217,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(response.data);
   }, []);
 
-  const value = useMemo<AuthContextType>(
-    () => ({
+  const value = useMemo<AuthContextType>(() => {
+    return {
       status,
       user,
       anonId,
@@ -202,7 +235,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       reloadProfile,
       updateUsername,
       updateEmail,
-    }),
+    };
+  },
     [
       anonId,
       dismissWelcome,
