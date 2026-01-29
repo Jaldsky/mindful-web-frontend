@@ -14,8 +14,6 @@ export const STORAGE_KEYS = {
   USER_ID: 'x-user-id',
   ACCESS_TOKEN: 'access-token',
   REFRESH_TOKEN: 'refresh-token',
-  ANON_ID: 'anon-id',
-  ANON_TOKEN: 'anon-token',
   WELCOME_SHOWN: 'welcome-shown',
   THEME: 'mindful_theme',
   LOCALE: 'mindful_locale',
