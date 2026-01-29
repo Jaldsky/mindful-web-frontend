@@ -1,0 +1,36 @@
+# Production Docker Compose
+# Сборка базового образа: docker build -f deploy/docker/base.Dockerfile -t mwf-web-build:latest .
+# Запуск: docker-compose -f deploy/docker-compose.prod.yml --env-file .env up -d
+
+services:
+  mwf-build-base:
+    build:
+      context: ..
+      dockerfile: deploy/docker/base.Dockerfile
+    image: mwf-web-build:latest
+    restart: "no"
+
+  mwf-build-image:
+    build:
+      context: ..
+      dockerfile: deploy/docker/service.Dockerfile
+    image: mwf-web:latest
+    depends_on:
+      mwf-build-base:
+        condition: service_completed_successfully
+    restart: "no"
+
+  mwf-web:
+    image: mwf-web:latest
+    depends_on:
+      mwf-build-image:
+        condition: service_completed_successfully
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    networks:
+      - mw-net
+
+networks:
+  mw-net:
+    driver: bridge

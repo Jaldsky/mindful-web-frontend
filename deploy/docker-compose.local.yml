@@ -1,0 +1,25 @@
+services:
+  mwf-build-image:
+    build:
+      context: ..
+      dockerfile: deploy/docker/base.Dockerfile
+    image: mwf-web-build:latest
+    restart: "no"
+
+  mwf-web:
+    build:
+      context: ..
+      dockerfile: deploy/docker/service.Dockerfile
+    image: mwf-web:latest
+    depends_on:
+      mwf-build-image:
+        condition: service_completed_successfully
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    networks:
+      - mw-net
+
+networks:
+  mw-net:
+    driver: bridge
