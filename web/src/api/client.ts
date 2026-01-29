@@ -1,18 +1,13 @@
 import axios, { AxiosInstance, AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { API_CONFIG, STORAGE_KEYS } from '../constants';
-import { AuthAnonymousResponse, AuthRefreshResponse } from '../types';
+import { AuthRefreshResponse } from '../types';
 
 export interface ITokenStorage {
   getAccessToken(): string | null;
   getRefreshToken(): string | null;
-  getAnonToken(): string | null;
-  getAnonId(): string | null;
   setAccessToken(token: string): void;
   setRefreshToken(token: string): void;
-  setAnonToken(token: string): void;
-  setAnonId(id: string): void;
   clearAuthTokens(): void;
-  clearAnonTokens(): void;
 }
 
 export interface ILogger {
@@ -35,13 +30,6 @@ export class LocalStorageTokenStorage implements ITokenStorage {
     return localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
   }
 
-  getAnonToken(): string | null {
-    return localStorage.getItem(STORAGE_KEYS.ANON_TOKEN);
-  }
-
-  getAnonId(): string | null {
-    return localStorage.getItem(STORAGE_KEYS.ANON_ID);
-  }
 
   setAccessToken(token: string): void {
     localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, token);
@@ -51,23 +39,12 @@ export class LocalStorageTokenStorage implements ITokenStorage {
     localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, token);
   }
 
-  setAnonToken(token: string): void {
-    localStorage.setItem(STORAGE_KEYS.ANON_TOKEN, token);
-  }
-
-  setAnonId(id: string): void {
-    localStorage.setItem(STORAGE_KEYS.ANON_ID, id);
-  }
 
   clearAuthTokens(): void {
     localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
     localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
   }
 
-  clearAnonTokens(): void {
-    localStorage.removeItem(STORAGE_KEYS.ANON_TOKEN);
-    localStorage.removeItem(STORAGE_KEYS.ANON_ID);
-  }
 }
 
 export class ConsoleLogger implements ILogger {
@@ -93,16 +70,13 @@ export class TokenProvider {
   constructor(private storage: ITokenStorage) {}
 
   getAuthToken(): string | null {
-    return this.storage.getAccessToken() || this.storage.getAnonToken();
+    return this.storage.getAccessToken();
   }
 
   hasAccessToken(): boolean {
     return !!this.storage.getAccessToken();
   }
 
-  hasAnonToken(): boolean {
-    return !!this.storage.getAnonToken();
-  }
 }
 
 export class AccessTokenRefreshStrategy implements ITokenRefreshStrategy {
@@ -128,29 +102,6 @@ export class AccessTokenRefreshStrategy implements ITokenRefreshStrategy {
 
     originalRequest.headers = originalRequest.headers || {};
     originalRequest.headers.Authorization = `Bearer ${response.data.access_token}`;
-
-    return originalRequest;
-  }
-}
-
-export class AnonTokenRefreshStrategy implements ITokenRefreshStrategy {
-  constructor(
-    private storage: ITokenStorage,
-    private refreshClient: AxiosInstance
-  ) {}
-
-  canHandle(): boolean {
-    return !!this.storage.getAnonToken();
-  }
-
-  async refresh(originalRequest: InternalAxiosRequestConfig): Promise<InternalAxiosRequestConfig> {
-    const response = await this.refreshClient.post<AuthAnonymousResponse>('/auth/anonymous');
-
-    this.storage.setAnonToken(response.data.anon_token);
-    this.storage.setAnonId(response.data.anon_id);
-
-    originalRequest.headers = originalRequest.headers || {};
-    originalRequest.headers.Authorization = `Bearer ${response.data.anon_token}`;
 
     return originalRequest;
   }
@@ -251,7 +202,6 @@ export class ResponseInterceptor {
       return this.client(originalRequest);
     } catch (refreshError) {
       this.storage.clearAuthTokens();
-      this.storage.clearAnonTokens();
       
       this.refreshQueue.forEach(({ reject }) => reject(refreshError));
       this.refreshQueue = [];
@@ -300,8 +250,7 @@ export class ApiClient {
     const requestInterceptor = new RequestInterceptor(tokenProvider, this.logger);
 
     const refreshManager = new TokenRefreshManager()
-      .addStrategy(new AccessTokenRefreshStrategy(this.storage, this.refreshClient))
-      .addStrategy(new AnonTokenRefreshStrategy(this.storage, this.refreshClient));
+      .addStrategy(new AccessTokenRefreshStrategy(this.storage, this.refreshClient));
 
     const responseInterceptor = new ResponseInterceptor(
       this.client,
