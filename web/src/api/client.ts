@@ -2,6 +2,24 @@ import axios, { AxiosInstance, AxiosError, AxiosResponse, InternalAxiosRequestCo
 import { API_CONFIG, STORAGE_KEYS } from '../constants';
 import { AuthRefreshResponse } from '../types';
 
+function getAcceptLanguage(): string {
+  const supported = new Set(['en', 'ru']);
+
+  try {
+    const stored = localStorage.getItem(STORAGE_KEYS.LOCALE);
+    if (stored && supported.has(stored)) return stored;
+  } catch {
+    // ignore storage access errors (e.g. SSR/tests)
+  }
+
+  if (typeof navigator !== 'undefined') {
+    const lang = (navigator.language || '').slice(0, 2).toLowerCase();
+    if (supported.has(lang)) return lang;
+  }
+
+  return 'en';
+}
+
 export interface ITokenStorage {
   getAccessToken(): string | null;
   getRefreshToken(): string | null;
@@ -134,9 +152,11 @@ export class RequestInterceptor {
   onFulfilled = (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
     const authToken = this.tokenProvider.getAuthToken();
     
-    if (config.headers && authToken) {
-      config.headers.Authorization = `Bearer ${authToken}`;
-    }
+    config.headers = config.headers || {};
+
+    config.headers['Accept-Language'] = getAcceptLanguage();
+
+    if (authToken) config.headers.Authorization = `Bearer ${authToken}`;
 
     this.logger.logRequest(
       config.method?.toUpperCase() || '',
@@ -260,6 +280,11 @@ export class ApiClient {
     );
 
     this.client.interceptors.request.use(
+      requestInterceptor.onFulfilled,
+      requestInterceptor.onRejected
+    );
+
+    this.refreshClient.interceptors.request.use(
       requestInterceptor.onFulfilled,
       requestInterceptor.onRejected
     );
