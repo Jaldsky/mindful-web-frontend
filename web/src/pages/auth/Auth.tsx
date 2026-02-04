@@ -10,7 +10,7 @@ import { useTranslation, useAuthAnimation } from '../../hooks';
 import { useAuth } from '../../contexts';
 import { AuthHeader, LoginForm, RegisterForm, VerifyForm, ResendForm } from '../../components/auth';
 import type { AuthScreen } from '../../components/auth';
-import { messageManager, navigationService } from '../../utils';
+import { messageManager, navigationService, extractErrorMessage } from '../../utils';
 
 export const Auth: React.FC = () => {
   const { t } = useTranslation();
@@ -186,7 +186,7 @@ export const Auth: React.FC = () => {
       await login(username, password);
       navigate('/');
     } catch (err) {
-      setAuthError((err as Error).message || t('auth.genericError'));
+      setAuthError(extractErrorMessage(err) || t('auth.genericError'));
     } finally {
       setAuthLoading(false);
     }
@@ -201,7 +201,7 @@ export const Auth: React.FC = () => {
       setRegisteredEmail(email);
       switchScreen('verify');
     } catch (err) {
-      setAuthError((err as Error).message || t('auth.genericError'));
+      setAuthError(extractErrorMessage(err) || t('auth.genericError'));
       throw err;
     } finally {
       setAuthLoading(false);
@@ -216,7 +216,7 @@ export const Auth: React.FC = () => {
       await verify(email, code);
       switchScreen('login');
     } catch (err) {
-      setAuthError((err as Error).message || t('auth.genericError'));
+      setAuthError(extractErrorMessage(err) || t('auth.genericError'));
       throw err;
     } finally {
       setAuthLoading(false);
@@ -232,7 +232,7 @@ export const Auth: React.FC = () => {
       setRegisteredEmail(email);
       switchScreen('verify');
     } catch (err) {
-      setAuthError((err as Error).message || t('auth.genericError'));
+      setAuthError(extractErrorMessage(err) || t('auth.genericError'));
     } finally {
       setAuthLoading(false);
     }

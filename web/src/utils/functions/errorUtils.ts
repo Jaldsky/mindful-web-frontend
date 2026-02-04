@@ -21,19 +21,17 @@ export function extractErrorMessage(error: unknown): string {
     const axiosError = error as AxiosError;
     
     if (axiosError.response) {
-      const status = axiosError.response.status;
       const data = axiosError.response.data as { message?: string; detail?: unknown };
-      
-      let message = `Error ${status}: ${data?.message || axiosError.response.statusText}`;
-      
-      if (data?.detail) {
-        const detailStr = typeof data.detail === 'string' 
-          ? data.detail 
-          : JSON.stringify(data.detail);
-        message += ` - ${detailStr}`;
+
+      if (typeof data?.message === 'string' && data.message.trim().length > 0) {
+        return data.message;
       }
-      
-      return message;
+
+      if (typeof data?.detail === 'string' && data.detail.trim().length > 0) {
+        return data.detail;
+      }
+
+      return axiosError.response.statusText || `Error ${axiosError.response.status}`;
     }
     
     if (axiosError.request) {
@@ -42,9 +40,13 @@ export function extractErrorMessage(error: unknown): string {
   }
   
   if (error instanceof Error) {
-    return `Request error: ${error.message}`;
+    return error.message || 'An unexpected error occurred';
   }
-  
+
+  if (typeof error === 'object' && error !== null && 'message' in error && typeof (error as { message: unknown }).message === 'string') {
+    return (error as { message: string }).message;
+  }
+
   return 'An unexpected error occurred';
 }
 

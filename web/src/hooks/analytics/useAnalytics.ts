@@ -5,7 +5,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { analyticsService } from '../../services';
-import { ApiError } from '../../utils';
+import { extractErrorMessage } from '../../utils';
 import type { UseAnalyticsReturn, AnalyticsRequestParams } from '../types';
 import type { DomainUsageStat, PaginationMeta } from '../../types';
 
@@ -39,8 +39,7 @@ export function useAnalytics(params: Omit<AnalyticsRequestParams, 'page'>): UseA
       setPagination(response.pagination);
       currentPageRef.current = page;
     } catch (err) {
-      const apiError = err as ApiError;
-      setError(apiError.message);
+      setError(extractErrorMessage(err));
       if (!append) {
         setData([]);
       }

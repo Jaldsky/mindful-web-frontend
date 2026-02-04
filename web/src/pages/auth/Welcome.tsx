@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from '../../contexts';
 import { useTranslation } from "../../hooks";
+import { extractErrorMessage } from '../../utils';
 import { WelcomeModal } from '../../components/modals';
 import { ErrorMessage } from '../../components/ui';
 
@@ -32,8 +33,8 @@ export const Welcome: React.FC = () => {
       await createAnonymous();
       dismissWelcome();
       navigate('/', { replace: true });
-    } catch {
-      setError(t('common.serverUnavailable'));
+    } catch (err) {
+      setError(extractErrorMessage(err) || t('common.serverUnavailable'));
       setLoading(false);
     }
   };

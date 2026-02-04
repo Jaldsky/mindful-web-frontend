@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction, useCallback, useReducer, useRef } from 'react';
 import { AUTH_VALIDATION } from '../../components/auth/constants';
-import { isApiError } from '../../utils';
+import { isApiError, extractErrorMessage } from '../../utils';
 
 interface UseEmailVerificationParams {
   verifyEmail: (email: string, code: string) => Promise<void>;
@@ -140,12 +140,11 @@ export const useEmailVerification = ({
         ) {
           dispatch({ type: 'VERIFY_ERROR', error: t('auth.errors.codeInvalid') });
         } else {
-          dispatch({ type: 'VERIFY_ERROR', error: details?.message || t('auth.genericError') });
+          dispatch({ type: 'VERIFY_ERROR', error: error.message || details?.message || t('auth.genericError') });
         }
         return;
       }
-      const errorMessage = error instanceof Error ? error.message : t('auth.genericError');
-      dispatch({ type: 'VERIFY_ERROR', error: errorMessage });
+      dispatch({ type: 'VERIFY_ERROR', error: extractErrorMessage(error) || t('auth.genericError') });
     }
   }, [
     state.code,
@@ -170,15 +169,14 @@ export const useEmailVerification = ({
         if (details?.code === 'TOO_MANY_ATTEMPTS') {
           dispatch({
             type: 'RESEND_TOO_MANY',
-            info: details.message || t('profile.verifyEmailTooOften'),
+            info: details.message || error.message || t('profile.verifyEmailTooOften'),
           });
           return;
         }
-        dispatch({ type: 'RESEND_ERROR', error: details?.message || t('auth.genericError') });
+        dispatch({ type: 'RESEND_ERROR', error: error.message || details?.message || t('auth.genericError') });
         return;
       }
-      const errorMessage = error instanceof Error ? error.message : t('auth.genericError');
-      dispatch({ type: 'RESEND_ERROR', error: errorMessage });
+      dispatch({ type: 'RESEND_ERROR', error: extractErrorMessage(error) || t('auth.genericError') });
     }
   }, [resendCode, t]);
 

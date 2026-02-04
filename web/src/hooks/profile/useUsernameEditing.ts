@@ -1,4 +1,5 @@
 import { Dispatch, SetStateAction, useRef, useState } from 'react';
+import { extractErrorMessage } from '../../utils';
 
 interface UseUsernameEditingParams {
   isAuthenticated: boolean;
@@ -69,8 +70,7 @@ export const useUsernameEditing = ({
       setEditingUsername(false);
       setUsernameError('');
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : t('auth.genericError');
-      setServerError(errorMessage);
+      setServerError(extractErrorMessage(error) || t('auth.genericError'));
       setUsernameError('');
     } finally {
       setIsUpdatingUsername(false);
