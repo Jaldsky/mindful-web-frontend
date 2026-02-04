@@ -1,6 +1,7 @@
 import { Dispatch, SetStateAction, useRef, useState } from 'react';
 import { storageManager } from '../../contexts';
 import { STORAGE_KEYS } from '../../constants';
+import { extractErrorMessage } from '../../utils';
 
 interface UseEmailEditingParams {
   isAuthenticated: boolean;
@@ -76,8 +77,7 @@ export const useEmailEditing = ({
         setEmailError('');
         onVerificationNeeded(normalizedEmail);
       } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : t('auth.genericError');
-        setServerError(errorMessage);
+        setServerError(extractErrorMessage(error) || t('auth.genericError'));
       } finally {
         setIsUpdatingEmail(false);
       }

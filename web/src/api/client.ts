@@ -191,6 +191,15 @@ export class ResponseInterceptor {
     return response;
   };
 
+  /** Endpoints where 401 means "bad credentials/code", not "token expired". Do not try refresh. */
+  private static readonly AUTH_ERROR_PATHS = [
+    '/auth/login',
+    '/auth/register',
+    '/auth/verify',
+    '/auth/resend-code',
+    '/auth/anonymous',
+  ];
+
   onRejected = async (error: AxiosError): Promise<never> => {
     this.logger.logError(
       error.message,
@@ -199,8 +208,16 @@ export class ResponseInterceptor {
     );
 
     const originalRequest = error.config as (InternalAxiosRequestConfig & { _retry?: boolean }) | undefined;
-    
+
     if (!originalRequest || error.response?.status !== 401 || originalRequest._retry) {
+      return Promise.reject(error);
+    }
+
+    const requestPath = (originalRequest.baseURL || '') + (originalRequest.url || '');
+    const isAuthErrorEndpoint = ResponseInterceptor.AUTH_ERROR_PATHS.some((path) =>
+      requestPath.includes(path)
+    );
+    if (isAuthErrorEndpoint) {
       return Promise.reject(error);
     }
 

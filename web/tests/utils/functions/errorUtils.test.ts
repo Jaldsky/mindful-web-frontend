@@ -28,8 +28,7 @@ describe('errorUtils', () => {
       });
 
       const message = extractErrorMessage(error);
-      expect(message).toContain('Error 404');
-      expect(message).toContain('Resource not found');
+      expect(message).toBe('Resource not found');
     });
 
     it('should extract message with detail from AxiosError', () => {
@@ -39,9 +38,8 @@ describe('errorUtils', () => {
       });
 
       const message = extractErrorMessage(error);
-      expect(message).toContain('Error 400');
-      expect(message).toContain('Validation error');
-      expect(message).toContain('Invalid date format');
+      // Now we prefer the backend's localized `message` only.
+      expect(message).toBe('Validation error');
     });
 
     it('should extract message with detail as object from AxiosError', () => {
@@ -51,10 +49,8 @@ describe('errorUtils', () => {
       });
 
       const message = extractErrorMessage(error);
-      expect(message).toContain('Error 400');
-      expect(message).toContain('Validation error');
-      expect(message).toContain('field');
-      expect(message).toContain('email');
+      // Detail is not appended to keep message user-friendly and localized.
+      expect(message).toBe('Validation error');
     });
 
     it('should handle AxiosError with request but no response', () => {
@@ -67,13 +63,19 @@ describe('errorUtils', () => {
     it('should handle generic Error', () => {
       const error = new Error('Something went wrong');
       const message = extractErrorMessage(error);
-      expect(message).toBe('Request error: Something went wrong');
+      expect(message).toBe('Something went wrong');
     });
 
     it('should handle unknown error types', () => {
       const error = 'String error';
       const message = extractErrorMessage(error);
       expect(message).toBe('An unexpected error occurred');
+    });
+
+    it('should handle object with message (ApiError-like)', () => {
+      const error = { message: 'Backend localized message', status: 400 };
+      const message = extractErrorMessage(error);
+      expect(message).toBe('Backend localized message');
     });
 
     it('should handle null/undefined', () => {
@@ -91,7 +93,8 @@ describe('errorUtils', () => {
 
       const apiError = createApiError(error);
       
-      expect(apiError.message).toContain('Error 500');
+      // ApiError message should expose the backend's localized message directly.
+      expect(apiError.message).toBe('Internal server error');
       expect(apiError.status).toBe(500);
       expect(apiError.details).toEqual({
         message: 'Internal server error',
@@ -113,7 +116,7 @@ describe('errorUtils', () => {
       const error = new Error('Generic error');
       const apiError = createApiError(error);
       
-      expect(apiError.message).toBe('Request error: Generic error');
+      expect(apiError.message).toBe('Generic error');
       expect(apiError.status).toBeUndefined();
       expect(apiError.details).toBeUndefined();
     });
