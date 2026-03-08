@@ -10,6 +10,8 @@ export interface AuthContextType {
   dismissWelcome: () => void;
   showWelcomeScreen: () => void;
   login: (username: string, password: string) => Promise<void>;
+  loginWithOAuth: (provider: string, code: string, state: string, redirectUri: string) => Promise<void>;
+  startOAuthLogin: (provider: string) => void;
   register: (username: string, email: string, password: string) => Promise<void>;
   verify: (email: string, code: string) => Promise<void>;
   resendCode: (email: string) => Promise<void>;
