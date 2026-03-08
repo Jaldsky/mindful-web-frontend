@@ -175,6 +175,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [reloadProfile]
   );
 
+  const loginWithOAuth = useCallback(
+    async (provider: string, code: string, state: string, redirectUri: string) => {
+      const response = await authService.oauthLogin(provider, {
+        code,
+        state,
+        redirect_uri: redirectUri,
+      });
+      tokenManager.setAccessTokens(response.access_token, response.refresh_token);
+      setAnonId(null);
+      setStatus('authenticated');
+      setShowWelcome(false);
+      welcomeManager.markWelcomeShown();
+      await reloadProfile();
+    },
+    [reloadProfile]
+  );
+
+  const startOAuthLogin = useCallback((provider: string) => {
+    const url = authService.getOAuthStartUrl(provider);
+    window.location.assign(url);
+  }, []);
+
   const register = useCallback(async (username: string, email: string, password: string) => {
     await authService.register({ username, email, password });
   }, []);
@@ -226,6 +248,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       dismissWelcome,
       showWelcomeScreen,
       login,
+      loginWithOAuth,
+      startOAuthLogin,
       register,
       verify,
       resendCode,
@@ -243,6 +267,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       showWelcomeScreen,
       ensureAnonymous,
       login,
+      loginWithOAuth,
+      startOAuthLogin,
       logout,
       refresh,
       register,
