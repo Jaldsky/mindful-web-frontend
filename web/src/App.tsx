@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { ThemeProvider, UserProvider, LocaleProvider, AuthProvider, useAuth } from './contexts';
-import { Home, Analytics, Profile, Settings, Auth, Welcome, Terms, Privacy } from './pages';
+import { Home, Analytics, Profile, Settings, Auth, Welcome, OAuthCallback, Terms, Privacy } from './pages';
 
 function AuthGuard({ children }: { children: React.ReactNode }) {
   const { status } = useAuth();
@@ -11,7 +11,8 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
   }
 
   const allowedPaths = ['/auth', '/welcome', '/terms', '/privacy'];
-  if (allowedPaths.includes(location.pathname)) {
+  const isOAuthCallbackPath = location.pathname.startsWith('/oauth/') && location.pathname.endsWith('/callback');
+  if (allowedPaths.includes(location.pathname) || isOAuthCallbackPath) {
     return <>{children}</>;
   }
 
@@ -29,6 +30,7 @@ function AppRoutes() {
         <Routes>
           <Route path="/welcome" element={<Welcome />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/oauth/:provider/callback" element={<OAuthCallback />} />
           <Route path="/" element={<Home />} />
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/profile" element={<Profile />} />

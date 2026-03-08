@@ -353,3 +353,11 @@ html {
 .btn-secondary.btn-anonymous:hover:not(:disabled)::before {
   content: '👤';
 }
+
+/* OAuth Google: тот же стиль что btn-primary, вместо эмодзи — иконка из React */
+.btn-oauth-google {
+  gap: 2px;
+}
+.btn-oauth-google:hover:not(:disabled)::before {
+  display: none;
+}

@@ -194,6 +194,7 @@ export class ResponseInterceptor {
   /** Endpoints where 401 means "bad credentials/code", not "token expired". Do not try refresh. */
   private static readonly AUTH_ERROR_PATHS = [
     '/auth/login',
+    '/auth/oauth/',
     '/auth/register',
     '/auth/verify',
     '/auth/resend-code',

@@ -22,6 +22,7 @@ import type {
   VerifyPayload,
   ResendCodePayload,
   RefreshPayload,
+  OAuthLoginPayload,
   UpdateUsernamePayload,
   UpdateEmailPayload,
 } from './types';
@@ -76,6 +77,22 @@ export interface IAuthService {
    * @throws ApiError if refresh fails
    */
   refresh(payload?: RefreshPayload): Promise<AuthRefreshResponse>;
+
+  /**
+   * Login user with external OAuth provider
+   * @param provider - OAuth provider key (e.g. google)
+   * @param payload - OAuth authorization code payload
+   * @returns Promise with authentication tokens
+   * @throws ApiError if oauth login fails
+   */
+  oauthLogin(provider: string, payload: OAuthLoginPayload): Promise<AuthLoginResponse>;
+
+  /**
+   * Build OAuth provider start URL
+   * @param provider - OAuth provider key (e.g. google)
+   * @returns URL to start OAuth flow
+   */
+  getOAuthStartUrl(provider: string): string;
 
   /**
    * Logout user

@@ -33,6 +33,13 @@ export type RefreshPayload = {
   refresh_token?: string | null;
 };
 
+export type OAuthLoginPayload = {
+  code: string;
+  redirect_uri: string;
+  state?: string;
+  code_verifier?: string;
+};
+
 export type UpdateUsernamePayload = {
   username: string;
 };
