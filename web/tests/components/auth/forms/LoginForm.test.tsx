@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { LoginForm } from '../../../../src/components/auth';
 import { LocaleProvider } from '../../../../src/contexts';
+import { OAUTH_PROVIDERS } from '../../../../src/components/auth/constants';
 
 const renderWithProviders = (component: React.ReactElement) => {
   return render(<LocaleProvider>{component}</LocaleProvider>);
@@ -99,5 +100,68 @@ describe('LoginForm', () => {
     
     fireEvent.click(backButton);
     expect(handleBack).toHaveBeenCalled();
+  });
+
+  it('renders Google sign-in button when onOAuthLogin and oauthProviders are provided', () => {
+    renderWithProviders(
+      <LoginForm
+        onSubmit={vi.fn()}
+        onSwitchToRegister={vi.fn()}
+        onOAuthLogin={vi.fn()}
+        oauthProviders={OAUTH_PROVIDERS}
+      />
+    );
+
+    expect(
+      screen.getByRole('button', { name: /sign in with google|войти через google/i })
+    ).toBeInTheDocument();
+  });
+
+  it('calls onOAuthLogin with "google" when Google button is clicked', () => {
+    const handleOAuthLogin = vi.fn();
+    renderWithProviders(
+      <LoginForm
+        onSubmit={vi.fn()}
+        onSwitchToRegister={vi.fn()}
+        onOAuthLogin={handleOAuthLogin}
+        oauthProviders={OAUTH_PROVIDERS}
+      />
+    );
+
+    const googleButton = screen.getByRole('button', {
+      name: /sign in with google|войти через google/i,
+    });
+    fireEvent.click(googleButton);
+
+    expect(handleOAuthLogin).toHaveBeenCalledWith('google');
+  });
+
+  it('does not render OAuth button when oauthProviders is empty', () => {
+    renderWithProviders(
+      <LoginForm
+        onSubmit={vi.fn()}
+        onSwitchToRegister={vi.fn()}
+        onOAuthLogin={vi.fn()}
+        oauthProviders={[]}
+      />
+    );
+
+    expect(
+      screen.queryByRole('button', { name: /sign in with google|войти через google/i })
+    ).not.toBeInTheDocument();
+  });
+
+  it('does not render OAuth button when onOAuthLogin is not provided', () => {
+    renderWithProviders(
+      <LoginForm
+        onSubmit={vi.fn()}
+        onSwitchToRegister={vi.fn()}
+        oauthProviders={OAUTH_PROVIDERS}
+      />
+    );
+
+    expect(
+      screen.queryByRole('button', { name: /sign in with google|войти через google/i })
+    ).not.toBeInTheDocument();
   });
 });
