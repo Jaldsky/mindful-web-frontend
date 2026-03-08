@@ -16,3 +16,14 @@ export const AUTH_STYLES = {
   ERROR_TEXT: 'text-red-500 text-sm mt-1',
   LINK_TEXT: 'text-sm hover:underline cursor-pointer',
 } as const;
+
+export type OAuthProviderKey = 'google';
+
+export type OAuthProviderOption = {
+  key: OAuthProviderKey;
+  label: string;
+};
+
+export const OAUTH_PROVIDERS: OAuthProviderOption[] = [
+  { key: 'google', label: 'Google' },
+];

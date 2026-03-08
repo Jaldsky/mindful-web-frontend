@@ -2,16 +2,68 @@ import React, { useState, FormEvent, useEffect, useMemo, useCallback } from 'rea
 import { useTranslation } from "../../../hooks";
 import { FormField } from '../FormField';
 import { LoginFormValidator } from '../validators';
+import { GoogleIcon } from '../GoogleIcon';
+import type { OAuthProviderOption } from '../constants';
 
 interface LoginFormProps {
   onSubmit: (username: string, password: string) => Promise<void>;
+  onOAuthLogin?: (provider: string) => void;
+  oauthProviders?: OAuthProviderOption[];
   onSwitchToRegister: () => void;
   onBack?: () => void;
   loading?: boolean;
 }
 
+const GoogleOAuthButton: React.FC<{
+  provider: OAuthProviderOption;
+  loading: boolean;
+  onLogin: () => void;
+  t: (key: string, opts?: { provider?: string }) => string;
+}> = ({ provider, loading, onLogin, t }) => {
+  const [hover, setHover] = useState(false);
+  const label =
+    provider.key === 'google'
+      ? t('auth.loginWithGoogle')
+      : t('auth.loginWithProvider', { provider: provider.label });
+
+  return (
+    <button
+      type="button"
+      onClick={onLogin}
+      disabled={loading}
+      title={label}
+      aria-label={label}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      className="btn-base btn-primary w-full btn-oauth-google"
+    >
+      <span
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: '1.5em',
+          width: hover ? '1.3em' : 0,
+          marginRight: hover ? 4 : 0,
+          overflow: 'hidden',
+          opacity: hover ? 1 : 0,
+          fontSize: 13,
+          lineHeight: 1.5,
+          transition: 'width 0.2s ease, margin-right 0.2s ease, opacity 0.2s ease',
+        }}
+        aria-hidden
+      >
+        {provider.key === 'google' && <GoogleIcon size={20} />}
+      </span>
+      <span>{label}</span>
+    </button>
+  );
+};
+
 export const LoginForm: React.FC<LoginFormProps> = ({
   onSubmit,
+  onOAuthLogin,
+  oauthProviders = [],
   onSwitchToRegister,
   onBack,
   loading = false,
@@ -113,6 +165,26 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           marginBottom: 'var(--spacing-sm)'
         }}
       >
+        {onOAuthLogin && oauthProviders.length > 0 && (
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 'var(--spacing-sm)',
+              marginBottom: 'var(--spacing-xs)',
+            }}
+          >
+            {oauthProviders.map((provider) => (
+              <GoogleOAuthButton
+                key={provider.key}
+                provider={provider}
+                loading={loading}
+                onLogin={() => onOAuthLogin(provider.key)}
+                t={t}
+              />
+            ))}
+          </div>
+        )}
         <button
           type="submit"
           disabled={loading}
