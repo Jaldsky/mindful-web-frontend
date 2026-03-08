@@ -4,6 +4,7 @@
  */
 
 import { apiClient } from '../../api/client';
+import { API_CONFIG } from '../../constants';
 import type {
   AuthAnonymousResponse,
   AuthLoginResponse,
@@ -22,6 +23,7 @@ import type {
   VerifyPayload,
   ResendCodePayload,
   RefreshPayload,
+  OAuthLoginPayload,
 } from '../types';
 
 export class AuthService implements IAuthService {
@@ -68,6 +70,22 @@ export class AuthService implements IAuthService {
     } catch (error) {
       throw createApiError(error);
     }
+  }
+
+  async oauthLogin(provider: string, payload: OAuthLoginPayload): Promise<AuthLoginResponse> {
+    try {
+      const normalizedProvider = (provider || '').trim().toLowerCase();
+      const response = await apiClient.post<AuthLoginResponse>(`/auth/oauth/${normalizedProvider}/callback`, payload);
+      return response.data;
+    } catch (error) {
+      throw createApiError(error);
+    }
+  }
+
+  getOAuthStartUrl(provider: string): string {
+    const normalizedProvider = (provider || '').trim().toLowerCase();
+    const base = API_CONFIG.BASE_URL.endsWith('/') ? API_CONFIG.BASE_URL.slice(0, -1) : API_CONFIG.BASE_URL;
+    return `${base}/auth/oauth/${normalizedProvider}/authorize`;
   }
 
   async logout(): Promise<AuthLogoutResponse> {
