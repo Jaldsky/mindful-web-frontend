@@ -3,7 +3,7 @@
  * Barrel export for all application pages
  */
 
-export { Auth, Welcome } from './auth';
+export { Auth, Welcome, OAuthCallback } from './auth';
 export { Home, Analytics } from './main';
 export { Profile, Settings } from './user';
 export { Terms, Privacy } from './legal';

@@ -5,3 +5,4 @@
 
 export { Auth } from './Auth';
 export { Welcome } from './Welcome';
+export { OAuthCallback } from './OAuthCallback';

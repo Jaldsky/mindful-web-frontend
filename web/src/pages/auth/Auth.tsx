@@ -8,19 +8,21 @@ import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation, useAuthAnimation } from '../../hooks';
 import { useAuth } from '../../contexts';
-import { AuthHeader, LoginForm, RegisterForm, VerifyForm, ResendForm } from '../../components/auth';
+import { LoginForm, RegisterForm, VerifyForm, ResendForm } from '../../components/auth';
+import { OAUTH_PROVIDERS } from '../../components/auth/constants';
 import type { AuthScreen } from '../../components/auth';
 import { messageManager, navigationService, extractErrorMessage } from '../../utils';
 
 export const Auth: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { login, register, verify, resendCode } = useAuth();
+  const { login, register, verify, resendCode, startOAuthLogin } = useAuth();
 
   const [isVisible, setIsVisible] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const [isErrorVisible, setIsErrorVisible] = useState(false);
   const [authMessage, setAuthMessage] = useState<string | null>(null);
+  const [isMessageVisible, setIsMessageVisible] = useState(false);
   const [authLoading, setAuthLoading] = useState(false);
   const [registeredEmail, setRegisteredEmail] = useState('');
 
@@ -174,7 +176,13 @@ export const Auth: React.FC = () => {
 
   useEffect(() => {
     if (authMessage) {
-      return messageManager.scheduleHide(() => setAuthMessage(null), 3000);
+      setIsMessageVisible(true);
+      return messageManager.scheduleHide(() => {
+        setIsMessageVisible(false);
+        setTimeout(() => setAuthMessage(null), 300);
+      }, 3000);
+    } else {
+      setIsMessageVisible(false);
     }
   }, [authMessage]);
 
@@ -242,6 +250,13 @@ export const Auth: React.FC = () => {
     navigationService.fadeOutAndNavigate(setIsVisible, () => navigate('/welcome'), 300);
   };
 
+  const handleOAuthLogin = (provider: string) => {
+    const providerLabel = OAUTH_PROVIDERS.find((item) => item.key === provider)?.label || provider;
+    setAuthError(null);
+    setAuthMessage(t('auth.oauthRedirecting', { provider: providerLabel }));
+    startOAuthLogin(provider);
+  };
+
   const renderForm = () => {
     const formStyle = {
       opacity: isMeasuring ? 0 : 1,
@@ -259,6 +274,8 @@ export const Auth: React.FC = () => {
         {displayScreen === 'login' && (
           <LoginForm
             onSubmit={handleLogin}
+            onOAuthLogin={handleOAuthLogin}
+            oauthProviders={OAUTH_PROVIDERS}
             onSwitchToRegister={() => switchScreen('register')}
             onBack={handleBack}
             loading={authLoading}
@@ -328,14 +345,12 @@ export const Auth: React.FC = () => {
             transition: (!isVisible && !isTransitioning) ? 'none' : 'height 0.4s cubic-bezier(0.4, 0, 0.2, 1), width 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
           }}
         >
-          <AuthHeader />
-          
-          {/* Error Messages - placed at top of form for better visibility, absolute to not affect container height */}
+          {/* Error / Info messages — одно место под заголовком */}
           {authError && (
             <div
               style={{
                 position: 'absolute',
-                top: '70px',
+                top: '90px',
                 left: 'var(--spacing-xxl)',
                 right: 'var(--spacing-xxl)',
                 backgroundColor: 'var(--color-error)',
@@ -369,6 +384,59 @@ export const Auth: React.FC = () => {
                   color: 'var(--color-error-text)',
                   cursor: 'pointer',
                   fontSize: '20px',
+                  padding: '0',
+                  lineHeight: '1',
+                  opacity: 0.7,
+                  transition: 'opacity 0.2s',
+                  flexShrink: 0,
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.opacity = '1')}
+                onMouseLeave={(e) => (e.currentTarget.style.opacity = '0.7')}
+                aria-label="Close"
+              >
+                ×
+              </button>
+            </div>
+          )}
+
+          {authMessage && (
+            <div
+              style={{
+                position: 'absolute',
+                top: '90px',
+                left: 'var(--spacing-xxl)',
+                right: 'var(--spacing-xxl)',
+                backgroundColor: 'var(--color-success)',
+                color: 'var(--color-success-text)',
+                border: '1px solid var(--color-success-border)',
+                fontSize: 'var(--font-size-md)',
+                padding: 'var(--spacing-lg) var(--spacing-xl)',
+                minHeight: 52,
+                borderRadius: 'var(--border-radius-md)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: 'var(--spacing-md)',
+                opacity: isMessageVisible ? 1 : 0,
+                transform: isMessageVisible ? 'translateY(0)' : 'translateY(-20px)',
+                transition: 'opacity 0.3s ease, transform 0.3s ease',
+                boxShadow: 'var(--shadow-lg)',
+                zIndex: 10,
+                pointerEvents: isMessageVisible ? 'auto' : 'none',
+              }}
+            >
+              <span style={{ flex: 1, textAlign: 'center', fontWeight: 500 }}>{authMessage}</span>
+              <button
+                onClick={() => {
+                  setIsMessageVisible(false);
+                  setTimeout(() => setAuthMessage(null), 300);
+                }}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: 'var(--color-success-text)',
+                  cursor: 'pointer',
+                  fontSize: '22px',
                   padding: '0',
                   lineHeight: '1',
                   opacity: 0.7,
@@ -421,48 +489,6 @@ export const Auth: React.FC = () => {
             </p>
           )}
         </div>
-
-        {authMessage && (
-          <div
-            style={{
-              backgroundColor: 'var(--color-success)',
-              color: 'var(--color-success-text)',
-              border: '1px solid var(--color-success-border)',
-              fontSize: 'var(--font-size-sm)',
-              marginTop: 'var(--spacing-md)',
-              padding: 'var(--spacing-md)',
-              borderRadius: 'var(--border-radius-md)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: 'var(--spacing-sm)',
-              animation: 'slideUp 0.3s ease',
-              boxShadow: 'var(--shadow-lg)',
-            }}
-          >
-            <span style={{ flex: 1, textAlign: 'center' }}>{authMessage}</span>
-            <button
-              onClick={() => setAuthMessage(null)}
-              style={{
-                background: 'transparent',
-                border: 'none',
-                color: 'var(--color-success-text)',
-                cursor: 'pointer',
-                fontSize: '20px',
-                padding: '0',
-                lineHeight: '1',
-                opacity: 0.7,
-                transition: 'opacity 0.2s',
-                flexShrink: 0,
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.opacity = '1')}
-              onMouseLeave={(e) => (e.currentTarget.style.opacity = '0.7')}
-              aria-label="Close"
-            >
-              ×
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );
