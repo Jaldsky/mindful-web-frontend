@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { Layout } from '../../components/layout';
-import { useAnalytics, useDateRange, useTranslation, useHomeEntranceAnimation } from '../../hooks';
+import { useAnalytics, useAnalyticsSummary, useDateRange, useTranslation, useHomeEntranceAnimation } from '../../hooks';
 import { StatsCard, DomainsUsageChart, DomainsUsageTable } from '../../components/analytics';
 import { ErrorMessage, Card, LoadingSpinner } from '../../components/ui';
 import { Clock, Globe, Activity, TrendingUp, Calendar, Search, Loader2, PieChart, BarChart3 } from 'lucide-react';
@@ -28,6 +28,10 @@ export const Analytics: React.FC = () => {
     from: committedRange.start,
     to: committedRange.end,
   });
+  const { data: summaryData, error: summaryError } = useAnalyticsSummary({
+    from: committedRange.start,
+    to: committedRange.end,
+  });
 
   const handleQuickRange = (days: number) => {
     selectQuickRange(days);
@@ -45,15 +49,24 @@ export const Analytics: React.FC = () => {
   };
 
   const stats = useMemo(() => {
-    const totalSeconds = data.reduce((acc, item) => acc + item.total_seconds, 0);
-    const avgSecondsPerDomain = data.length > 0 ? Math.round(totalSeconds / data.length) : 0;
+    if (!summaryData) {
+      return {
+        totalDomains: '-',
+        activeTime: '-',
+        domainsTracked: '-',
+        avgTime: '-',
+      };
+    }
+
     return {
-      totalDomains: pagination?.total_items || 0,
-      activeTime: formatTime(totalSeconds),
-      domainsTracked: data.length,
-      avgTime: formatTime(avgSecondsPerDomain),
+      totalDomains: summaryData.total_domains,
+      activeTime: formatTime(summaryData.total_seconds),
+      domainsTracked: summaryData.total_domains,
+      avgTime: formatTime(summaryData.avg_seconds_per_domain),
     };
-  }, [data, pagination?.total_items]);
+  }, [summaryData]);
+
+  const analyticsError = error || summaryError;
 
   const [minLoadingComplete, setMinLoadingComplete] = useState(true);
   const loadingStartedRef = useRef(false);
@@ -416,34 +429,34 @@ export const Analytics: React.FC = () => {
           <StatsCard
             icon={Globe}
             label={t('analytics.totalDomains')}
-            value={loading ? '—' : stats.totalDomains}
+            value={stats.totalDomains}
             variant="teal"
-            loading={loading}
+            loading={false}
           />
           <StatsCard
             icon={Activity}
             label={t('analytics.domainsTracked')}
-            value={loading ? '—' : stats.domainsTracked}
+            value={stats.domainsTracked}
             variant="sky"
-            loading={loading}
+            loading={false}
           />
           <StatsCard
             icon={Clock}
             label={t('analytics.activeTime')}
-            value={loading ? '—' : stats.activeTime}
+            value={stats.activeTime}
             variant="primary"
-            loading={loading}
+            loading={false}
           />
           <StatsCard
             icon={TrendingUp}
             label={t('analytics.avgTime')}
-            value={loading ? '—' : stats.avgTime}
+            value={stats.avgTime}
             variant="indigo"
-            loading={loading}
+            loading={false}
           />
         </div>
 
-        {error && <ErrorMessage message={error} />}
+        {analyticsError && <ErrorMessage message={analyticsError} />}
 
         {(showLoading || showEmptyState) && (
           <Card

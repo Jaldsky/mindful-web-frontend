@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { AnalyticsService } from '../../../src/services';
 import { apiClient } from '../../../src/api/client';
-import type { AnalyticsUsageResponse } from '../../../src/types';
+import type { AnalyticsSummaryResponse, AnalyticsUsageResponse } from '../../../src/types';
 
 vi.mock('../../../src/api/client', () => ({
   apiClient: {
@@ -48,7 +48,7 @@ describe('AnalyticsService', () => {
         page: 1,
       });
 
-      expect(apiClient.get).toHaveBeenCalledWith('/analytics/usage', {
+      expect(apiClient.get).toHaveBeenCalledWith('/analytics/domains', {
         params: {
           from: '2024-01-01',
           to: '2024-01-31',
@@ -66,7 +66,7 @@ describe('AnalyticsService', () => {
         to: '2024-01-31',
       });
 
-      expect(apiClient.get).toHaveBeenCalledWith('/analytics/usage', {
+      expect(apiClient.get).toHaveBeenCalledWith('/analytics/domains', {
         params: {
           from: '2024-01-01',
           to: '2024-01-31',
@@ -105,6 +105,39 @@ describe('AnalyticsService', () => {
           to: '2024-01-31',
         })
       ).rejects.toThrow();
+    });
+  });
+
+  describe('getSummary', () => {
+    const mockResponse: AnalyticsSummaryResponse = {
+      code: 'OK',
+      message: 'Usage analytics summary computed',
+      from_date: '2024-01-01',
+      to_date: '2024-01-31',
+      data: {
+        total_seconds: 7200,
+        total_domains: 4,
+        avg_seconds_per_domain: 1800,
+        top_domain: 'example.com',
+        top_domain_seconds: 3600,
+      },
+    };
+
+    it('should fetch analytics summary successfully', async () => {
+      vi.mocked(apiClient.get).mockResolvedValue({ data: mockResponse });
+
+      const result = await service.getSummary({
+        from: '2024-01-01',
+        to: '2024-01-31',
+      });
+
+      expect(apiClient.get).toHaveBeenCalledWith('/analytics/summary', {
+        params: {
+          from: '2024-01-01',
+          to: '2024-01-31',
+        },
+      });
+      expect(result).toEqual(mockResponse);
     });
   });
 });

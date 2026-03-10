@@ -9,6 +9,11 @@ export type AnalyticsRequestParams = {
   page?: number;
 };
 
+export type AnalyticsSummaryRequestParams = {
+  from: string;
+  to: string;
+};
+
 export type LoginPayload = {
   username: string;
   password: string;

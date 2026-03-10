@@ -3,7 +3,7 @@
  * Centralized export for all custom hooks
  */
 
-export { useAnalytics, useChartDimensions, useDateRange } from './analytics';
+export { useAnalytics, useAnalyticsSummary, useChartDimensions, useDateRange } from './analytics';
 export { useAuthAnimation } from './auth';
 export { useHomeEntranceAnimation } from './home';
 export { useTranslation, useTimezone } from './i18n';
@@ -18,8 +18,11 @@ export {
 } from './profile';
 export type {
   UseAnalyticsReturn,
+  UseAnalyticsSummaryReturn,
   AnalyticsRequestParams,
+  AnalyticsSummaryRequestParams,
   AnalyticsUsageResponse,
+  AnalyticsSummaryResponse,
   UseAuthAnimationReturn,
   ChartDimensions,
   DateRange,

@@ -15,6 +15,7 @@ export type {
 
 export type {
   AnalyticsRequestParams,
+  AnalyticsSummaryRequestParams,
   LoginPayload,
   RegisterPayload,
   VerifyPayload,
