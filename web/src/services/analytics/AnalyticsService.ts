@@ -5,15 +5,15 @@
  */
 
 import { apiClient } from '../../api/client';
-import type { AnalyticsUsageResponse } from '../../types';
+import type { AnalyticsSummaryResponse, AnalyticsUsageResponse } from '../../types';
 import { createApiError } from '../../utils';
 import type { IAnalyticsService } from '../interfaces';
-import type { AnalyticsRequestParams } from '../types';
+import type { AnalyticsRequestParams, AnalyticsSummaryRequestParams } from '../types';
 
 export class AnalyticsService implements IAnalyticsService {
   async getUsage(params: AnalyticsRequestParams): Promise<AnalyticsUsageResponse> {
     try {
-      const response = await apiClient.get<AnalyticsUsageResponse>('/analytics/usage', {
+      const response = await apiClient.get<AnalyticsUsageResponse>('/analytics/domains', {
         params: {
           from: params.from,
           to: params.to,
@@ -21,6 +21,21 @@ export class AnalyticsService implements IAnalyticsService {
         },
       });
       
+      return response.data;
+    } catch (error) {
+      throw createApiError(error);
+    }
+  }
+
+  async getSummary(params: AnalyticsSummaryRequestParams): Promise<AnalyticsSummaryResponse> {
+    try {
+      const response = await apiClient.get<AnalyticsSummaryResponse>('/analytics/summary', {
+        params: {
+          from: params.from,
+          to: params.to,
+        },
+      });
+
       return response.data;
     } catch (error) {
       throw createApiError(error);

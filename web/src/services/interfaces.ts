@@ -4,6 +4,7 @@
  */
 
 import type {
+  AnalyticsSummaryResponse,
   AnalyticsUsageResponse,
   AuthAnonymousResponse,
   AuthLoginResponse,
@@ -17,6 +18,7 @@ import type {
 
 import type {
   AnalyticsRequestParams,
+  AnalyticsSummaryRequestParams,
   LoginPayload,
   RegisterPayload,
   VerifyPayload,
@@ -35,6 +37,14 @@ export interface IAnalyticsService {
    * @throws ApiError if request fails
    */
   getUsage(params: AnalyticsRequestParams): Promise<AnalyticsUsageResponse>;
+
+  /**
+   * Fetches summary analytics for a given date range
+   * @param params - Request parameters (from, to)
+   * @returns Promise with summary analytics data
+   * @throws ApiError if request fails
+   */
+  getSummary(params: AnalyticsSummaryRequestParams): Promise<AnalyticsSummaryResponse>;
 }
 
 export interface IAuthService {

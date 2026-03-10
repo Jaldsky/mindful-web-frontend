@@ -22,6 +22,30 @@ export interface AnalyticsUsageResponse {
   data: DomainUsageStat[];
 }
 
+export interface AnalyticsSummaryData {
+  total_seconds: number;
+  total_domains: number;
+  avg_seconds_per_domain: number;
+  top_domain: string | null;
+  top_domain_seconds: number;
+}
+
+export interface AnalyticsSummaryResponseOk {
+  code: 'OK';
+  message: string;
+  from_date: string;
+  to_date: string;
+  data: AnalyticsSummaryData;
+}
+
+export interface AnalyticsSummaryResponseAccepted {
+  code: 'ACCEPTED';
+  message: string;
+  task_id: string;
+}
+
+export type AnalyticsSummaryResponse = AnalyticsSummaryResponseOk | AnalyticsSummaryResponseAccepted;
+
 export interface AuthLoginResponse {
   access_token: string;
   refresh_token: string;
