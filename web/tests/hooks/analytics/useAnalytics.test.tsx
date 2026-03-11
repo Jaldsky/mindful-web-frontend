@@ -13,7 +13,6 @@ describe('useAnalytics', () => {
   const mockParams = {
     from: '2024-01-01',
     to: '2024-01-07',
-    page: 1,
   };
 
   const mockResponse = {
@@ -103,7 +102,7 @@ describe('useAnalytics', () => {
       expect(result.current.loading).toBe(false);
     });
 
-    expect(analyticsService.getUsage).toHaveBeenCalledWith(mockParams);
+    expect(analyticsService.getUsage).toHaveBeenCalledWith({ ...mockParams, page: 1 });
 
     const newParams = { ...mockParams, to: '2024-01-08' };
     rerender({ params: newParams });
@@ -151,6 +150,29 @@ describe('useAnalytics', () => {
     await waitFor(() => {
       expect(result.current.error).toBeNull();
       expect(result.current.data).toEqual(mockResponse.data);
+    });
+  });
+
+  it('passes advanced query params to service', async () => {
+    vi.mocked(analyticsService.getUsage).mockResolvedValue(mockResponse);
+    const advancedParams = {
+      from: '2024-01-01',
+      to: '2024-01-07',
+      per_page: 50,
+      sort_by: 'domain' as const,
+      order: 'asc' as const,
+      search: 'goo',
+    };
+
+    const { result } = renderHook(() => useAnalytics(advancedParams));
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    expect(analyticsService.getUsage).toHaveBeenCalledWith({
+      ...advancedParams,
+      page: 1,
     });
   });
 });

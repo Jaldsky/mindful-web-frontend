@@ -7,6 +7,10 @@ export type AnalyticsRequestParams = {
   from: string;
   to: string;
   page?: number;
+  per_page?: number;
+  sort_by?: 'total_seconds' | 'domain' | 'category';
+  order?: 'asc' | 'desc';
+  search?: string | null;
 };
 
 export type AnalyticsSummaryRequestParams = {

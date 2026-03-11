@@ -361,3 +361,35 @@ html {
 .btn-oauth-google:hover:not(:disabled)::before {
   display: none;
 }
+
+/* Analytics page: search button with hover loupe (same animation as auth buttons) */
+.analytics-search-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.analytics-search-button::before {
+  display: none;
+}
+
+.analytics-search-button__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 0;
+  height: 1.5em;
+  margin-right: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: width 0.2s ease,
+              margin-right 0.2s ease,
+              opacity 0.2s ease;
+}
+
+.analytics-search-button:hover:not(:disabled) .analytics-search-button__icon {
+  width: 1.3em;
+  margin-right: 6px;
+  opacity: 1;
+}
