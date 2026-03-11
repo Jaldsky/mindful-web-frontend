@@ -10,7 +10,7 @@ import type { UseAnalyticsReturn, AnalyticsRequestParams } from '../types';
 import type { DomainUsageStat, PaginationMeta } from '../../types';
 
 export function useAnalytics(params: Omit<AnalyticsRequestParams, 'page'>): UseAnalyticsReturn {
-  const { from, to } = params;
+  const { from, to, per_page, sort_by, order, search } = params;
   const [data, setData] = useState<DomainUsageStat[]>([]);
   const [pagination, setPagination] = useState<PaginationMeta | null>(null);
   const [loading, setLoading] = useState(true);
@@ -29,7 +29,15 @@ export function useAnalytics(params: Omit<AnalyticsRequestParams, 'page'>): UseA
       }
       setError(null);
       
-      const response = await analyticsService.getUsage({ from, to, page });
+      const response = await analyticsService.getUsage({
+        from,
+        to,
+        page,
+        per_page,
+        sort_by,
+        order,
+        search,
+      });
       
       if (append) {
         setData(prev => [...prev, ...response.data]);
@@ -47,7 +55,7 @@ export function useAnalytics(params: Omit<AnalyticsRequestParams, 'page'>): UseA
       setLoading(false);
       setLoadingMore(false);
     }
-  }, [from, to]);
+  }, [from, to, per_page, sort_by, order, search]);
 
   const loadMore = useCallback(async () => {
     if (loadingMore || !pagination || currentPageRef.current >= pagination.total_pages) {

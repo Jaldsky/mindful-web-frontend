@@ -53,6 +53,10 @@ describe('AnalyticsService', () => {
           from: '2024-01-01',
           to: '2024-01-31',
           page: 1,
+          per_page: 50,
+          sort_by: 'total_seconds',
+          order: 'desc',
+          search: undefined,
         },
       });
       expect(result).toEqual(mockResponse);
@@ -71,6 +75,36 @@ describe('AnalyticsService', () => {
           from: '2024-01-01',
           to: '2024-01-31',
           page: 1,
+          per_page: 50,
+          sort_by: 'total_seconds',
+          order: 'desc',
+          search: undefined,
+        },
+      });
+    });
+
+    it('should pass custom domains params', async () => {
+      vi.mocked(apiClient.get).mockResolvedValue({ data: mockResponse });
+
+      await service.getUsage({
+        from: '2024-01-01',
+        to: '2024-01-31',
+        page: 2,
+        per_page: 50,
+        sort_by: 'domain',
+        order: 'asc',
+        search: 'goo',
+      });
+
+      expect(apiClient.get).toHaveBeenCalledWith('/analytics/domains', {
+        params: {
+          from: '2024-01-01',
+          to: '2024-01-31',
+          page: 2,
+          per_page: 50,
+          sort_by: 'domain',
+          order: 'asc',
+          search: 'goo',
         },
       });
     });

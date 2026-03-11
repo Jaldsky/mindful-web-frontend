@@ -18,6 +18,10 @@ export class AnalyticsService implements IAnalyticsService {
           from: params.from,
           to: params.to,
           page: params.page || 1,
+          per_page: params.per_page || 50,
+          sort_by: params.sort_by || 'total_seconds',
+          order: params.order || 'desc',
+          search: params.search ?? undefined,
         },
       });
       
